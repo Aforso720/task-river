@@ -1,0 +1,92 @@
+.HomePage{
+ width: 100%;   
+
+    .authHome{
+    width: 1140px;
+    height: 685px;
+    margin: 30px 0 90px 0;
+    font-family: 'TT Travels Trl', sans-serif;
+    color: #22333B;
+    position: relative;
+
+    h3 {
+        position: relative; 
+        font-size: 60px;
+        margin-top: 50%;
+        font-weight: 900;
+        b {
+            position: absolute;
+            top: -80px; 
+            font-size: 90px;
+            left: 20px;
+            text-decoration: none;
+        }
+    }
+
+        input{
+            background-color: #E6E4D8;
+            width: 530px;
+            height: 48px;
+            border-radius: 30px;
+            border: 3px solid #22333B;
+            color: #22333B;
+            font-weight: 400;
+            margin: 10px 0;
+        }
+
+        button{
+            background-color: #22333B;
+            width: 530px;
+            height: 60px;
+            border-radius: 30px;
+            text-align: center;
+            color: #E6E4D8;
+            margin-top: 15px;
+
+            button:hover{   
+                background-color: #E6E4D8;
+                color: #22333B;
+            }
+        }
+
+        .textAuthHome{
+            width: 530px;
+            height: 100%;
+        }
+    }
+
+    .videoHome{
+        background-color: #8B6D51;
+        height: 824px;
+        width: 100%;
+
+        h2{
+            font-weight: 700;
+            font-family: 'TT Travels Trl', sans-serif;
+            font-size: 48px;
+            color: #E6E4D8;
+        }
+    }
+
+    .aboutHome{
+        width: 1140px;
+        height: 525px;
+        color: #22333B;
+        margin: 90px 0;
+
+        h2{
+            font-family: 'TT Travels Trl', sans-serif;
+            font-weight: 700;
+        }
+
+        p{
+            font-family: Calibri, sans-serif;
+            width: 625px;
+            height: 252px;
+        }
+
+        .infoAboutHome{
+            width: 100%;
+        }
+    }
+}

@@ -1,0 +1,61 @@
+$firstColor : #E6E4D8;
+$secondColor: #8C6D51;
+
+.App{
+    background-color:$firstColor;
+    min-height: 100vh;
+}
+
+main{
+    width: 100%;
+    height: 100%;
+}
+
+.Footer{
+    background-color: #22333B;
+    width: 100%;
+    height: 300px;
+}
+
+.Header{
+    background-color: #8C6D51;
+    width: 1140px;
+    max-height: 73px;
+    border-radius: 56px;
+    margin-top: 30px;
+
+    .navHeader{
+        font-family: 'TT Travels Trl', sans-serif;
+        font-weight: 500;
+        font-size: 24px;
+        list-style-type: none;
+        background-color: $firstColor ;
+        color: #8C6D51;
+        height: 45px;
+        width: 735px;
+        border-radius: 34px;
+
+        li{
+            height:38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 5px 11px;
+        }
+
+        .activeNav{
+            color: $firstColor ;
+            background-color: #8C6D51;
+            border-radius: 33px;
+        }
+    }
+
+    h2{
+        font-size: 26px;
+        font-weight: 700;
+        color: $firstColor;
+        cursor: pointer;
+        height: 100%;
+    }
+}

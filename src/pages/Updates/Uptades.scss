@@ -1,0 +1,132 @@
+.UpdatesPages{
+    width: 100%;
+
+    .catalogUpdate{
+        font-family: 'TT Travels Trl', sans-serif;
+        margin-top: 90px;
+        
+        h2{
+            color: #22333B;
+            font-weight: 700;
+            span{
+                color: #896A4F;
+            }
+        }
+
+        .listsNavUpdates{
+            display: inline-flex;
+            list-style-type: none;
+            color: #8C6D51;
+            border: 3px solid #8C6D51;
+            border-radius: 30px;
+            font-family: 'TT Travels Trl', sans-serif;
+            margin: 30px 0 50px 0;
+            padding: 10px;
+
+            li{
+                cursor: pointer;
+                height: 36px;
+                display: flex;
+                justify-content: center;
+                align-items:center;
+                padding: 5px 10px;
+            }
+
+            .activeListNav{
+                background-color: #8C6D51;
+                color: #E6E4D8;
+                border-radius: 30px;
+            }
+        }
+
+        .updatesPost{
+            border-radius: 30px;
+            width: 1140px;
+            height: 273px;
+            box-shadow: 0 0 10px 0 #00000040;
+            margin: 20px 0;
+            padding: 0 20px;
+            font-family: 'TT Travels Trl', sans-serif;
+
+            img{
+                width: 436px;
+                height: 232px;
+            }
+
+            section{
+                h4{
+                   color: #22333B;
+                   align-self: flex-start;
+                }
+
+                span{
+                    margin-top: 0;
+                    align-self: flex-start;
+                    color: #8C6D51;
+                }
+
+                p{
+                    color: #22333B;
+                    margin: 20px 0;
+                }
+
+                button{
+                        background-color: #8C6D51;
+                        color: #E6E4D8;
+                        border-radius: 30px;
+                        padding: 5px 10px;
+                        align-self: flex-start;
+                }
+            }
+        }
+    }
+
+    .newsSocial {
+            h3 {
+                color: #22333B;
+                font-family: 'Segoe UI', sans-serif;
+            }
+
+            .blokNews { 
+                background-color: #22333B;
+                height: 693px;
+                width: 555px;
+                border-radius: 30px;
+                padding: 10px 30px 0 30px;
+
+                h4{
+                    align-self: flex-start;
+                    color: #E6E4D8;
+                }
+
+                ul{
+                    display: flex;
+                    flex-direction: column;
+                    margin-top: 30px;
+                    gap: 20px;
+                    li{
+                        height: 187px;
+                        background-color: #E6E4D8;
+                        border-radius: 30px;
+                        
+
+                        h5{
+                            color: #22333B;
+                            
+                        }
+
+                        span{
+                            color: #8C6D51;
+                        }
+
+                        .likeNews{
+
+                            span{
+                                justify-self: flex-end;
+                            }
+                        }
+                    }
+                }
+            }
+    }
+}

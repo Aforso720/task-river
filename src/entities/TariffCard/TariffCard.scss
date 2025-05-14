@@ -1,0 +1,173 @@
+.TariffCardModuleFirst, 
+.TariffCardModuleTwo, 
+.TariffCardModuleThree {
+    width: 327px;
+    height: 500px;
+    flex: 0 1 calc(33.333% - 20px * 2 / 3);
+    border-radius: 30px;
+    font-family: 'TT Travels Trl', sans-serif;
+    text-align: center;
+    position: relative;
+
+    .bandCard{
+        position: absolute;
+        top: 25%;
+        height: 40px;
+        width: 100%;
+        background-color: #E6E4D8;
+        color: #8C6D51;
+        font-weight: 600;
+        font-size: 16px;
+
+        span{
+        width: 73px;
+        height: 29px;
+        cursor: pointer;
+        }
+    }
+
+    h3 {
+        font-size: 40px;
+        font-weight: 600;
+    }
+
+    button {
+        width: 80%;
+        border-radius: 20px;
+        height: 50px;
+        font-size: 32px;
+        font-weight: 600;
+    }
+
+    .priceCard {
+        font-weight: 300;
+        font-size: 96px;
+        
+        .priceDate {
+            font-size: 24px;
+        }
+    }
+
+    .textCard {
+        font-weight: 600;
+        font-size: 16px;
+        width: 300px;
+    }
+
+    .aboutCard {
+        color: #8C6D51;
+        font-size: 20px;
+        font-weight: 600;
+    }
+    
+    .contact-us {
+        position: absolute;
+        top: 83%;
+        color: #E6E4D8;
+        font-weight: 600;
+        font-size: 18px;
+    }
+}
+
+.TariffCardModuleFirst {
+    border: 5px solid #896A4F;
+    background-color: #E6E4D8;
+    
+    h3 {
+        color: #8C6D51;
+    }
+
+    button {
+        background-color: #8C6D51;
+        color: #E6E4D8;
+    }
+
+    .aboutCard {
+        color: #8C6D51;
+    }
+
+    .priceCard{
+        // transform: translateY(-15px);
+    }
+}
+
+.TariffCardModuleTwo {
+    background-color: #896A4F;
+
+    .activeTariff{
+        background-color: #896A4F;
+        border-radius: 20px;
+        color: #E6E4D8;
+        width: 73px;
+        height: 29px;
+        text-align: center;
+    }
+
+    .priceCard{
+        color: #E6E4D8;
+        transform: translateY(15px);
+    }
+
+    button{
+        background-color: #E6E4D8;
+        color: #8C6D51;
+    }
+
+    h3{
+        color: #E6E4D8;
+    }
+
+    .textCard{
+        color: #E6E4D8;
+    }
+
+    .aboutCard{
+        color: #E6E4D8;
+    }
+}
+
+.TariffCardModuleThree {
+ background-color: #E6E4D8;
+
+  .activeTariff{
+        background-color: #E6E4D8;
+        border-radius: 20px;
+        color: #8C6D51;
+        width: 73px;
+        height: 29px;
+        text-align: center;
+    }
+
+
+    .priceCard{
+        color: #8C6D51;
+        transform: translateY(15px);
+    }
+
+    button{
+        background-color: #8C6D51;
+        color: #E6E4D8;
+    }
+
+    h3{
+        color: #8C6D51;
+    }
+
+    .textCard{
+        color: #22333B;
+    }
+
+    .aboutCard{
+        color: #8C6D51;
+    }
+
+    .contact-us {
+        color: #8C6D51;
+    }
+
+    .bandCard{
+        background-color: #8C6D51;
+        color: #E6E4D8;
+
+    }
+}
