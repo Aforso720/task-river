@@ -2,6 +2,7 @@ import React from 'react'
 import './Tariffs.scss'
 import InfoPage from '../../shared/UI/InfoPage/InfoPage'
 import TarifCard from '../../entities/TariffCard/TarifCard'
+import TableTariff from '../../shared/UI/TableTariff/TableTariff'
 
 const Tariffs = () => {
   return (
@@ -19,9 +20,7 @@ const Tariffs = () => {
         </section>
         <section className='tariffsTable'>
             <h2>Сравни все за и против, и <span>подбери тариф</span></h2>
-            <table>
-
-            </table>
+            <TableTariff/>
         </section>
         <section className='tariffsSetting'>
             <h2><span>Подбор</span> персональных настроек</h2>
