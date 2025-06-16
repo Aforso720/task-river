@@ -2,6 +2,7 @@ import React from 'react'
 import './Uptades.scss'
 import InfoPage from '../../shared/UI/InfoPage/InfoPage'
 import VideoSetting from '../../shared/UI/VideoSetting/VideoSetting'
+import BlockNews from '../../entities/BlokNews/BlockNews'
 
 const Updates = () => {
   const [listNavActive , setListNavActive] = React.useState(1); 
@@ -83,43 +84,8 @@ const Updates = () => {
     <article className=' newsSocial flex flex-col justify-center items-center gap-5'>
             <h3 className='text-3xl font-bold'>Последние новости</h3>
             <section className='flex justify-center items-center gap-10 my-5'>
-                <section className='blokNews flex flex-col items-center'>
-                    <h4 className='text-2xl font-bold'>VK Updates</h4>
-                    <ul >
-                        {newsSocial.map((news,id) => (
-                            <li className="newsPost p-4" key={id}>
-                                <div className='headNews flex items-center'>
-                                    <img src="vite.svg" alt="" />
-                                    <h5 className='text-xl font-bold flex flex-col ml-4'>{news.group}
-                                        <span className='text-xs'>{news.date}</span>
-                                    </h5>
-                                </div>
-                                <p className='my-5'>{news.info}</p>
-                                <div className='likeNews'>
-                                    <img src="" alt="" />
-                                    <span>{news.like}</span>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-                 <section className='blokNews'>
-                    <h4>VK Updates</h4>
-                    <ul>
-                        {newsSocial.map((news,id) => (
-                            <li className="newsPost" key={id}>
-                                <h5>{news.group}</h5>
-                                <span>{news.date}</span>
-                                <p>{news.info}</p>
-                                <div>
-                                    <img src="" alt="" />
-                                    <span>{news.like}</span>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-                <section></section>
+                <BlockNews newsSocial={newsSocial} extraClass={false}/>
+                <BlockNews newsSocial={newsSocial} extraClass={true}/>
             </section>
     </article>
    </section>

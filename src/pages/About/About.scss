@@ -1,0 +1,85 @@
+.AboutPage{
+    width: 100%;
+
+    .blocksTextAbout{
+        width: 100%;
+        max-width: 1200px;
+        margin: 40px auto;
+
+        .infoCompanyAbout{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        grid-column-gap: 10px;
+        grid-row-gap: 10px; 
+        color: #E6E4D8;
+        margin: 20px 0;
+
+        .blockFirst{
+            grid-area: 1 / 1 / 3 / 2;
+        }
+
+        .blockTwo{
+            grid-area: 1 / 2 / 2 / 3;
+        }
+
+        .blockThree{
+            grid-area: 2 / 2 / 3 / 3; 
+        }
+
+        div{
+            background-color: #8C6D51;
+            gap: 5px;
+            border-radius: 30px;
+            padding: 16px 32px;
+        }
+        }
+
+        .infoTeamAbout{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            grid-column-gap: 10px;
+            grid-row-gap: 10px; 
+            color: #E6E4D8;
+            margin: 20px 0;
+
+
+            .blockFirst{
+             grid-area: 1 / 1 / 2 / 3;
+             display: flex;
+             gap: 10px;
+             justify-content: flex-start;
+             align-items: center;
+
+             ul{
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+             }
+
+             img{
+                border-radius: 20px;
+                width: 200px;
+                height: 200px;
+             }
+            }
+
+            .blockTwo{
+                 grid-area: 2 / 1 / 3 / 2; 
+            }
+
+            .blockThree{
+                grid-area: 2 / 2 / 3 / 3;
+            }
+
+
+            div{
+                background-color: #8C6D51;
+                gap: 5px;
+                border-radius: 30px;
+                padding: 16px 32px;
+            }
+        }
+    }
+}

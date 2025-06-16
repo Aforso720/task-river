@@ -1,7 +1,7 @@
 import React from 'react'
 import './Home.scss'
 import VideoSetting from '@shared/UI/VideoSetting/VideoSetting'
-import SliderHome from '@widgets/Slider/SliderHome.jsx'
+import SliderHome from '@widgets/SliderHome/SliderHome.jsx'
 
 const Home = () => {
   return (

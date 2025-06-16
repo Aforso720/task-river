@@ -1,0 +1,49 @@
+.HeaderSideBar{
+    border-bottom: 1px solid #22333B;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 90px;
+
+
+    .BlockSearchPanel{
+        position: relative;
+        padding: 0px 20px;
+        
+
+        img{
+            position: absolute;
+            top: 9px;
+            left: 25px;
+        }
+
+        input{
+            color: #22333B;
+            background-color:#22333B1A;
+            padding: 8px;
+            border-radius: 10px;
+            padding-left: 25px;
+            border: 1px solid #22333B;
+        }
+    }
+
+    .profilePanel{
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        margin-right: 20px;
+
+        div{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .AvatarHeader{
+            width: 38px;
+            height: 38px;
+            border-radius: 30px;
+        }
+    }
+}

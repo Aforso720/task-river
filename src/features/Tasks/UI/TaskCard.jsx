@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Updates = () => {
+const TaskCard = () => {
   return (
     <div>
       
@@ -8,4 +8,4 @@ const Updates = () => {
   )
 }
 
-export default Updates
+export default TaskCard

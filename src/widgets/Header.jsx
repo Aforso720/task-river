@@ -29,7 +29,7 @@ const Header = () => {
             </li>
           </ul>
         </nav>
-        <h2>Логин</h2> 
+        <h2> <img src="image/UserHead.png" alt="" /></h2> 
     </header>
   )
 }
