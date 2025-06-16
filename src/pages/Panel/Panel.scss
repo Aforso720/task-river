@@ -1,0 +1,20 @@
+.PanelPage {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+
+  .mainPanelPage {
+    border-left: 1px solid #22333B;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+   .panelsСontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;          // Отступы между ListElemPanel
+  // padding: 20px 0;
+}
+  }
+}

@@ -1,0 +1,55 @@
+.sectionSlaiderAbout{
+    background-color: #8B6D51;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 8px;
+
+    .slaiderAbout{
+        width: 1200px;
+        height: 685px;   
+        border-radius: 16px;
+        font-size: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .swiper-slide{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+        color: #E6E4D8;
+        font-size: 16px;
+        width: 40px;
+        height: 40px;
+        border: 2px solid #E6E4D8;
+        border-radius: 50%;
+        background-color: transparent;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .swiper-button-next{
+        transform: translateX(-2em);
+    }
+
+     .swiper-button-prev{
+        transform: translateX(2em);
+    }
+
+    .swiper-button-next::after,
+    .swiper-button-prev::after {
+        font-size: 20px; 
+    }
+    
+    .swiper-button-next:hover,
+    .swiper-button-prev:hover {
+        background-color: #E6E4D8;
+        color: #22333B; 
+    }
+    }
+}

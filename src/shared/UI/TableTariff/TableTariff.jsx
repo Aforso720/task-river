@@ -3,45 +3,130 @@ import './TableTariff.scss'
 
 const TableTariff = () => {
   return (
-    <table>
-        <thead>
-            <tr>
-                <th colSpan={3}></th>
-                <th className='font-semibold text-2xl'>Бесплатый</th>
-                <th className='font-semibold text-2xl'>Старндарт</th>
-                <th className='font-semibold text-2xl'>Премиум</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td className='font-semibold text-xl'>1</td>
-                <td>2</td>
-                <td>3</td>
-                <td>4</td>
-            </tr>
-            <tr>
-                <td className='font-semibold text-xl'>1</td>
-                <td>2</td>
-                <td>3</td>
-                <td>4</td>
-            </tr>
-            <tr>
-                <td className='font-semibold text-xl'>1</td>
-                <td>2</td>
-                <td>3</td>
-                <td>4</td>
-            </tr>
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>Улучшить</td>
-                <td>Улучшить</td>
-                <td>Улучшить</td>
-                <td colSpan={3}></td>
-            </tr>
-        </tfoot>
+    <table className="tariff-table">
+      <thead>
+        <tr className='errr'>
+          <th></th>
+          <th className="font-semibold text-2xl">Бесплатный</th>
+          <th className="font-semibold text-2xl">Стандарт</th>
+          <th className="font-semibold text-2xl">Премиум</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr className='trt'>
+            <td>Lorem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr>
+            <td>Yorem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr className='trt'>
+            <td>Norem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr>
+            <td>Forem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr className='trt'>
+            <td>Porem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr>
+            <td>Yorem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr className='trt'>
+            <td>Norem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr>
+            <td>Forem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr className='trt'>
+            <td>Porem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr>
+            <td>Yorem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>        
+        </tr>
+        <tr className='trt'>
+            <td>Norem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr>
+            <td>Forem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr className='trt'>
+            <td>Porem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>        
+        </tr>
+        <tr>
+            <td>Norem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>            
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr className='trt'>
+            <td>Yorem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>       
+        </tr>
+        <tr>
+            <td>Forem ipsum dolor sit amet</td>
+            <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+            <td className='icon-cell'><img src="public\image\tick-circle.svg" alt="" /></td>
+        </tr>
+        <tr className='trt'>
+          <td>Porem ipsum dolor sit amet</td>
+          <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+          <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+          <td className='icon-cell'><img src="public\image\close-circle.svg" alt="" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td className='rtr'></td>
+          <td className='rtr'><button>Улучшить</button></td>
+          <td className='rtr'><button>Улучшить</button></td>
+          <td className='rtr'><button>Улучшить</button></td>
+        </tr>
+      </tfoot>
     </table>
-  )
-}
+  );
+};
+
 
 export default TableTariff

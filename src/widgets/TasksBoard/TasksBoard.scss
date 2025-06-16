@@ -1,0 +1,292 @@
+.tasks-board-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; 
+  height: 100%;
+  
+  .tasks-board-wrapper {
+    flex: 1;
+    overflow-x: auto; 
+    overflow-y: hidden;
+    
+    .tasks-board {
+      height: 100%;
+      min-width: min-content;
+      padding: 20px;
+      background: #22333B33;
+      overflow-x: auto;
+
+  .add-column-container {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+
+    input {
+      padding: 8px;
+      border-radius: 4px;
+      border: none;
+      width: 200px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover {
+        background: #45a049;
+      }
+    }
+  }
+
+  .columns {
+    display: flex;
+    gap: 20px;
+    height: auto;
+  }
+
+  .column {
+    border-radius: 6px;
+    padding: 15px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+
+    .column-header {
+      padding: 10px;
+      cursor: grab;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      color: #000000;
+      font-size: 14px;
+      font-weight: 500;
+
+      h3 {
+        margin: 0;
+      }
+    }
+
+    .add-card {
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+
+      input {
+        flex-grow: 1;
+        padding: 6px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+      }
+    }
+  }
+
+  .task-count {
+    margin-left: 10px;
+    font-size: 14px;
+    color: black;
+    font-family: 500;
+    padding: 0px 10px; 
+    background-color: white;
+    border-radius: 10px;
+  }
+
+  .cards {
+    flex-grow: 1;
+    min-height: 100px;
+    padding: 8px;
+    border-radius: 4px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    cursor: grab;
+
+    h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    &:active {
+      cursor: grabbing;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+
+    h3 {
+      margin-top: 0;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:first-child {
+        background: #4CAF50;
+        color: white;
+
+        &:hover {
+          background: #45a049;
+        }
+      }
+
+      &:last-child {
+        background: #f5f5f5;
+
+        &:hover {
+          background: #e0e0e0;
+        }
+      }
+    }
+  }
+
+  .add-card-button {
+    width: 100%;
+    padding: 8px;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #555;
+    margin-top: 10px;
+
+    &:hover {
+      background: #e0e0e0;
+    }
+  }
+
+  .add-column-inline,
+  .add-column-inline-two {
+    width: 300px;
+    margin-right: 20px;
+    flex-shrink: 0; // Предотвращает сжатие при перетаскивании
+  }
+
+  /* Новые стили для добавления колонки в ряду */
+  .add-column-inline {
+    min-width: 280px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-self: flex-start;
+
+    input {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 100%;
+      background: white;
+    }
+
+    button {
+      width: 100%;
+      padding: 8px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &:hover {
+        background: #45a049;
+      }
+
+      &:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .add-column-inline-two{
+    min-width: 280px;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-self: flex-start;
+
+    button{
+      background: white;
+      border-radius: 6px;
+      padding: 5px 0;
+    }
+  }
+
+  /* Стиль для иконки перетаскивания колонки */
+  .column-drag-handle {
+    cursor: grab;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+  }
+}

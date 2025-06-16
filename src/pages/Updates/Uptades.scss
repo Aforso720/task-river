@@ -86,47 +86,5 @@
                 color: #22333B;
                 font-family: 'Segoe UI', sans-serif;
             }
-
-            .blokNews { 
-                background-color: #22333B;
-                height: 693px;
-                width: 555px;
-                border-radius: 30px;
-                padding: 10px 30px 0 30px;
-
-                h4{
-                    align-self: flex-start;
-                    color: #E6E4D8;
-                }
-
-                ul{
-                    display: flex;
-                    flex-direction: column;
-                    margin-top: 30px;
-                    gap: 20px;
-                    li{
-                        height: 187px;
-                        background-color: #E6E4D8;
-                        border-radius: 30px;
-                        
-
-                        h5{
-                            color: #22333B;
-                            
-                        }
-
-                        span{
-                            color: #8C6D51;
-                        }
-
-                        .likeNews{
-
-                            span{
-                                justify-self: flex-end;
-                            }
-                        }
-                    }
-                }
-            }
     }
 }
