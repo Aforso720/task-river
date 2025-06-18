@@ -1,142 +1,142 @@
-.ListElemPanel {
-  display: flex;
-  flex-direction: column;
-  padding: 2em;
-  gap: 24px;
-  border-bottom: 1px solid #22333B;
-  flex: 1;
-  overflow: hidden;
-  min-height: 300px; // Добавим минимальную высоту
-
-  h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #22333B;
-    margin-bottom: 0.5em;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #22333B33; // Легкая подчеркивающая линия
-  }
-
-  ul {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); // Адаптивные колонки
-    gap: 20px;
-    flex: 1;
-    padding: 4px; // Добавляем место для фокуса
-    overflow-y: auto; // Добавляем скролл при необходимости
-
-    li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px; // Увеличим padding для лучшего касания
-      border: 1px solid #22333B;
-      border-radius: 12px;
-      background-color: #fff;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      min-height: 64px; // Увеличим минимальную высоту
-      outline: none; // Для кастомного стиля фокуса
-
-      &:hover {
-        background-color: #f7f7f7;
-        transform: translateY(-2px); // Легкий эффект поднятия
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      }
-
-      &:focus-visible {
-        outline: 2px solid #22333B; // Видимый контур для клавиатурной навигации
-        outline-offset: 2px;
-      }
-
-      img {
-        width: 32px; // Немного увеличим
-        height: 32px;
-        flex-shrink: 0; // Запрещаем сжатие
-      }
-
-      p {
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: #22333B;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        flex-grow: 1; // Занимаем все доступное пространство
-      }
-
-      &.add-project-item {
-        grid-column: 1 / -1; // Занимает всю ширину
-        justify-content: center;
-        align-items: center;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: #22333B;
-        border: 2px dashed #22333B; // Более заметная граница
-        background: transparent;
-        min-height: 80px; // Выделяем область добавления
-        transition: background-color 0.2s ease;
-
-        &:hover {
-          background-color: #f0f0f0;
-          border-color: #22333B;
-        }
-
-        &:focus-visible {
-          border-style: solid; // Меняем на сплошную при фокусе
-        }
-      }
-    }
-  }
-}
-
-
 // .ListElemPanel {
-//     display: flex;
-//     flex-direction: column;
-//     border-bottom: 1px solid #22333B;
-//     height: 370px; 
-//     padding: 0 8%;
+//   display: flex;
+//   flex-direction: column;
+//   padding: 2em;
+//   gap: 24px;
+//   border-bottom: 1px solid #22333B;
+//   flex: 1;
+//   overflow: hidden;
+//   min-height: 300px; // Добавим минимальную высоту
+
+//   h3 {
+//     font-size: 1.5rem;
+//     font-weight: 700;
+//     color: #22333B;
+//     margin-bottom: 0.5em;
+//     padding-bottom: 8px;
+//     border-bottom: 2px solid #22333B33; // Легкая подчеркивающая линия
+//   }
+
+//   ul {
+//     display: grid;
+//     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); // Адаптивные колонки
 //     gap: 20px;
-//     overflow: auto; 
+//     flex: 1;
+//     padding: 4px; // Добавляем место для фокуса
+//     overflow-y: auto; // Добавляем скролл при необходимости
 
-//     h3 {
-//         align-self: flex-start;
-//         margin-left: 10px;
-//         margin-top: 20px;
-//     }
+//     li {
+//       display: flex;
+//       align-items: center;
+//       gap: 12px;
+//       padding: 16px; // Увеличим padding для лучшего касания
+//       border: 1px solid #22333B;
+//       border-radius: 12px;
+//       background-color: #fff;
+//       cursor: pointer;
+//       transition: all 0.2s ease;
+//       min-height: 64px; // Увеличим минимальную высоту
+//       outline: none; // Для кастомного стиля фокуса
 
-//     ul {
-//         display: grid;
-//         grid-template-columns: repeat(5, 1fr);
-//         grid-template-rows: repeat(4, 1fr);
-//         grid-column-gap: 20px;
-//         grid-row-gap: 0px;
-//         height: 100%;
-//         // min-height: 300px;
-//         padding: 2em 0;
+//       &:hover {
+//         background-color: #f7f7f7;
+//         transform: translateY(-2px); // Легкий эффект поднятия
+//         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+//       }
 
-//         .add-project-item {
-//             grid-area: 1 / 5 / 5 / 6;
-//             height: 36px;
-//             display: flex;
-//             align-items: center;
-//             justify-content: center;
+//       &:focus-visible {
+//         outline: 2px solid #22333B; // Видимый контур для клавиатурной навигации
+//         outline-offset: 2px;
+//       }
+
+//       img {
+//         width: 32px; // Немного увеличим
+//         height: 32px;
+//         flex-shrink: 0; // Запрещаем сжатие
+//       }
+
+//       p {
+//         font-size: 0.95rem;
+//         font-weight: 500;
+//         color: #22333B;
+//         white-space: nowrap;
+//         overflow: hidden;
+//         text-overflow: ellipsis;
+//         flex-grow: 1; // Занимаем все доступное пространство
+//       }
+
+//       &.add-project-item {
+//         grid-column: 1 / -1; // Занимает всю ширину
+//         justify-content: center;
+//         align-items: center;
+//         font-size: 0.9rem;
+//         font-weight: 500;
+//         color: #22333B;
+//         border: 2px dashed #22333B; // Более заметная граница
+//         background: transparent;
+//         min-height: 80px; // Выделяем область добавления
+//         transition: background-color 0.2s ease;
+
+//         &:hover {
+//           background-color: #f0f0f0;
+//           border-color: #22333B;
 //         }
 
-//         li {
-//             border: 1px solid #22333B;
-//             max-width: 286px;
-//             padding: 4px 8px;
-//             display: flex;
-//             align-items: center;
-//             gap: 10px;
-//             height: 36px;
-
-//             img {
-//                 width: 24px;
-//                 height: 24px;
-//             }
+//         &:focus-visible {
+//           border-style: solid; // Меняем на сплошную при фокусе
 //         }
+//       }
 //     }
+//   }
 // }
+
+
+.ListElemPanel {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #22333B;
+    height: 370px; 
+    padding: 0 8%;
+    gap: 20px;
+    overflow: auto; 
+
+    h3 {
+        align-self: flex-start;
+        margin-left: 10px;
+        margin-top: 20px;
+    }
+
+    ul {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        grid-column-gap: 20px;
+        grid-row-gap: 0px;
+        height: 100%;
+        // min-height: 300px;
+        padding: 2em 0;
+
+        .add-project-item {
+            grid-area: 1 / 5 / 5 / 6;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        li {
+            border: 1px solid #22333B;
+            max-width: 286px;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 36px;
+
+            img {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    }
+}

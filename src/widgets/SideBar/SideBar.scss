@@ -11,5 +11,23 @@
         flex-direction: column;
         align-items: center;
         gap: 10px;
+        width: 100%;
+    }
+
+    .sideBar-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.active {
+            background-color: #22333B;
+
+            img {
+                filter: brightness(0) saturate(100%) invert(94%) sepia(6%) saturate(382%) hue-rotate(358deg) brightness(93%) contrast(89%);
+            }
+        }
     }
 }

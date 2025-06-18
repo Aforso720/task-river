@@ -3,18 +3,70 @@ import './SideBar.scss';
 import { Link } from 'react-router';
 
 const SideBar = () => {
+  const [activeItem, setActiveItem] = React.useState('panel'); 
+
+  const handleItemClick = (itemName) => {
+    setActiveItem(itemName);
+  };
+
   return (
     <aside className='sideBar'>
       <ul>
-        <Link><li className='mb-5'><img src="/image/LogoPanel.png" alt="Logo" /></li></Link>
-        <Link to='/panel'><li><img src="/image/MenuSideBar.png" alt="Menu" /></li></Link>
-        <Link><li><img src="/image/ProjectSideBar.png" alt="Project" /></li></Link>
-        <Link><li><img src="/image/DosksSideBar.png" alt="Boards" /></li></Link>
-        <Link><li><img src="/image/PenSideBar.png" alt="Tasks" /></li></Link>
-        <Link><li className='my-1'><img src="/image/MarketSideBar.png" alt="Market" /></li></Link>
-        <Link><li><img src="/image/ThemaSideBar.png" alt="Thema" /></li></Link>
+        <Link><li className='mb-5'><img src="/image/LogoIcon.svg" alt="Logo" /></li></Link>
+        <Link to='/panel'>
+          <li 
+            className={`sideBar-item ${activeItem === 'panel' ? 'active' : ''}`}
+            onClick={() => handleItemClick('panel')}
+          >
+            <img src="/image/PanelIcon.svg" alt="Menu" />
+          </li>
+        </Link>
+        <Link>
+          <li 
+            className={`sideBar-item ${activeItem === 'project' ? 'active' : ''}`}
+            onClick={() => handleItemClick('project')}
+          >
+            <img src="/image/ProjectIcon.svg" alt="Project" />
+          </li>
+        </Link>
+        <Link>
+          <li 
+            className={`sideBar-item ${activeItem === 'board' ? 'active' : ''}`}
+            onClick={() => handleItemClick('board')}
+          >
+            <img src="/image/BoardIcon.svg" alt="Boards" />
+          </li>
+        </Link>
+        <Link>
+          <li 
+            className={`sideBar-item ${activeItem === 'task' ? 'active' : ''}`}
+            onClick={() => handleItemClick('task')}
+          >
+            <img src="/image/TaskIcon.svg" alt="Tasks" />
+          </li>
+        </Link>
+        <Link>
+          <li 
+            className={`sideBar-item my-1 ${activeItem === 'market' ? 'active' : ''}`}
+            onClick={() => handleItemClick('market')}
+          >
+            <img src="/image/MarketIcon.svg" alt="Market" />
+          </li>
+        </Link>
+        <Link>
+          <li 
+            className={`sideBar-item p-2 ${activeItem === 'theme' ? 'active' : ''}`}
+            onClick={() => handleItemClick('theme')}
+          >
+            <img src="/image/ThemeIcon.svg" alt="Thema" />
+          </li>
+        </Link>
       </ul>
-      <Link><img src="/image/SettingSideBar.png" alt="Setting" /></Link>
+      <Link>
+        <div className={`sideBar-item ${activeItem === 'setting' ? 'active' : ''}`}>
+          <img src="/image/SettingICon.svg" alt="Setting" />
+        </div>
+      </Link>
     </aside>
   )
 }

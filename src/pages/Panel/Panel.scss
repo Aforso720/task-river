@@ -10,11 +10,11 @@
     flex-direction: column;
     overflow: hidden;
 
-   .panelsСontainer {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;          // Отступы между ListElemPanel
-  // padding: 20px 0;
-}
+      .panelsСontainer {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 100%;
+    }
   }
 }

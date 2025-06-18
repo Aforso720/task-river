@@ -2,7 +2,6 @@ import React from 'react';
 import './ListElemPanel.scss';
 import { useNavigate } from "react-router";
 
-// Импортируем иконки
 import IconProject from '../../../public/image/IconProject.png';
 import IconWorld from '../../../public/image//IconWorld.png';
 import IconBurger from '../../../public/image//IconBurger.png';
