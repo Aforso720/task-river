@@ -3,12 +3,18 @@
   min-height: 100vh;
   width: 100%;
 
-  .mainPanelPage {
-    border-left: 1px solid #22333B;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  .wrapperSidebar{
+        border-left: 1px solid #22333B;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        overflow: hidden;
+
+    .mainPanelPage {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
 
       .panelsСontainer {
       display: flex;
@@ -17,4 +23,8 @@
       height: 100%;
     }
   }
+  }
+
+
+
 }

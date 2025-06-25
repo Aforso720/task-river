@@ -3,6 +3,7 @@ import './Tariffs.scss'
 import InfoPage from '../../shared/UI/InfoPage/InfoPage'
 import TarifCard from '../../entities/TariffCard/TarifCard'
 import TableTariff from '../../shared/UI/TableTariff/TableTariff'
+import TariffSetting from '../../entities/TariffSetting/TariffSetting'
 
 const Tariffs = () => {
   return (
@@ -24,7 +25,7 @@ const Tariffs = () => {
         </section>
         <section className='tariffsSetting'>
             <h2><span>Подбор</span> персональных настроек</h2>
-            <form action=""></form>
+            <TariffSetting/>
         </section>
     </section>
   )

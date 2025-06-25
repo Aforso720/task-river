@@ -19,7 +19,7 @@ function App() {
         <Routes>
           <Route path="/panel/*" element={<Panel />} />
         </Routes>
-      ) : (
+      ) : ( 
         <>
           <Header />
           <main className="flex justify-center items-center">
@@ -34,12 +34,11 @@ function App() {
           <Footer />
         </>
       )}
-
       {/* <Routes>
         <Route path="/хлеб" element={<div className="w-full h-full flex m-auto justify-center text-5xl text-[#22333B]">Не найдена такая страница</div>}/>
       </Routes> */}
     </div>
   );
-}
+};
 
 export default App;

@@ -1,74 +1,86 @@
-import React from 'react';
-import './SideBar.scss';
-import { Link } from 'react-router';
+import React from "react";
+import "./SideBar.scss";
+import { Link, useLocation } from "react-router";
 
 const SideBar = () => {
-  const [activeItem, setActiveItem] = React.useState('panel'); 
+  const location = useLocation();
 
-  const handleItemClick = (itemName) => {
-    setActiveItem(itemName);
+  const getActiveItem = () => {
+    if (location.pathname.includes("/panel/project")) return "project";
+    if (location.pathname.includes("/panel/board")) return "board";
+    if (location.pathname.includes("/panel/tasks")) return "task";
+    if (location.pathname.includes("/panel/menu")) return "panel";
+    if (location.pathname.includes("/panel/market")) return "market";
+    return "";
   };
+  const activeItem = getActiveItem();
 
   return (
-    <aside className='sideBar'>
+    <aside className="sideBar">
       <ul>
-        <Link><li className='mb-5'><img src="/image/LogoIcon.svg" alt="Logo" /></li></Link>
-        <Link to='/panel'>
-          <li 
-            className={`sideBar-item ${activeItem === 'panel' ? 'active' : ''}`}
-            onClick={() => handleItemClick('panel')}
+        <Link>
+          <li className="mb-5">
+            <img src="/image/LogoIcon.svg" alt="Logo" />
+          </li>
+        </Link>
+        <Link to="/panel/menu">
+          <li
+            className={`sideBar-item ${activeItem === "panel" ? "active" : ""}`}
           >
             <img src="/image/PanelIcon.svg" alt="Menu" />
           </li>
         </Link>
-        <Link>
-          <li 
-            className={`sideBar-item ${activeItem === 'project' ? 'active' : ''}`}
-            onClick={() => handleItemClick('project')}
+        <Link to="/panel/project">
+          <li
+            className={`sideBar-item ${
+              activeItem === "project" ? "active" : ""
+            }`}
           >
             <img src="/image/ProjectIcon.svg" alt="Project" />
           </li>
         </Link>
-        <Link>
-          <li 
-            className={`sideBar-item ${activeItem === 'board' ? 'active' : ''}`}
-            onClick={() => handleItemClick('board')}
+        <Link to="/panel/board">
+          <li
+            className={`sideBar-item ${activeItem === "board" ? "active" : ""}`}
           >
             <img src="/image/BoardIcon.svg" alt="Boards" />
           </li>
         </Link>
-        <Link>
-          <li 
-            className={`sideBar-item ${activeItem === 'task' ? 'active' : ''}`}
-            onClick={() => handleItemClick('task')}
+        <Link to='/panel/tasks'>
+          <li
+            className={`sideBar-item ${activeItem === "task" ? "active" : ""}`}
           >
             <img src="/image/TaskIcon.svg" alt="Tasks" />
           </li>
         </Link>
-        <Link>
-          <li 
-            className={`sideBar-item my-1 ${activeItem === 'market' ? 'active' : ''}`}
-            onClick={() => handleItemClick('market')}
+        <Link to='/panel/market'>
+          <li
+            className={`sideBar-item my-1 ${
+              activeItem === "market" ? "active" : ""
+            }`}
           >
             <img src="/image/MarketIcon.svg" alt="Market" />
           </li>
         </Link>
         <Link>
-          <li 
-            className={`sideBar-item p-2 ${activeItem === 'theme' ? 'active' : ''}`}
-            onClick={() => handleItemClick('theme')}
+          <li
+            className={`sideBar-item p-2 ${
+              activeItem === "theme" ? "active" : ""
+            }`}
           >
             <img src="/image/ThemeIcon.svg" alt="Thema" />
           </li>
         </Link>
       </ul>
       <Link>
-        <div className={`sideBar-item ${activeItem === 'setting' ? 'active' : ''}`}>
+        <div
+          className={`sideBar-item ${activeItem === "setting" ? "active" : ""}`}
+        >
           <img src="/image/SettingICon.svg" alt="Setting" />
         </div>
       </Link>
     </aside>
-  )
-}
+  );
+};
 
 export default SideBar;

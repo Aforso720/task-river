@@ -3,7 +3,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    width: 120px;
+    width: 100px;
     padding: 20px 0 40px 0;
 
     ul{
@@ -21,6 +21,7 @@
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.3s ease;
+        width: 60px;
 
         &.active {
             background-color: #22333B;

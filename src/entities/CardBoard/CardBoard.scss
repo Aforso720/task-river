@@ -1,0 +1,44 @@
+  .cards {
+    flex-grow: 1;
+    min-height: 100px;
+    padding: 8px;
+    border-radius: 4px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 4px;
+    padding:8px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    cursor: grab;
+    width:  250px;
+    height: auto;
+    max-height: 120px;
+
+    .card-content {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-height: 80px;
+    overflow-y: auto;
+    }
+
+    h4 {
+      font-size: 14px;
+      overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; 
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    &:active {
+      cursor: grabbing;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+  }
+
