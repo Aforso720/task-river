@@ -34,9 +34,10 @@ const ModalAddTask = ({
           Добавления задачи
         </h3>
         <div className="contentModalAdd px-5 flex gap-10">
-          <div className="leftSide">
+          <div className="leftSide w-60">
             <label>Заголовок задачи</label>
             <input
+              className="w-full"
               type="text"
               value={newTask.title}
               onChange={(e) =>
@@ -46,7 +47,7 @@ const ModalAddTask = ({
 
             <label>Описание задачи</label>
             <textarea
-              className="h-20 max-h-32"
+              className="h-20 max-h-32 w-full"
               value={newTask.description}
               onChange={(e) =>
                 setNewTask({ ...newTask, description: e.target.value })
@@ -55,11 +56,13 @@ const ModalAddTask = ({
 
             <div className="assignee-row">
               <label>Ответственные</label>
-              <button className="add-btn ml-auto">+</button>
-              <div className="assignees-column h-20 overflow-y-auto">
+              <div className="assignees-column h-auto max-h-24 overflow-y-auto my-2">
                 {users.map((user) => (
-                  <div key={user.id} className="assignee-item bg-[#F7F7F7] p-1 rounded-lg">
-                    <div className="avatar">
+                  <div
+                    key={user.id}
+                    className="assignee-item bg-[#F7F7F7] p-1 rounded-lg flex items-center"
+                  >
+                    <div className="avatar ml-2">
                       {user.avatar ? (
                         <img
                           src={user.avatar}
@@ -69,56 +72,118 @@ const ModalAddTask = ({
                         `${user.lastName[0]}${user.firstName[0]}`
                       )}
                     </div>
-                    <div className="user-name">
+                    <div className="user-name text-xs flex-grow">
                       {user.firstName} {user.lastName}
                     </div>
                   </div>
                 ))}
               </div>
+              <button className="add-btn w-full flex justify-center rounded-xl">
+                +
+              </button>
             </div>
           </div>
 
           <div className="ridthSide">
-            <div className="deadline-row">
+            <div className="deadline-row flex flex-col ">
               <label>Сроки</label>
-              <input
-                type="date"
-                value={deadlineDate}
-                onChange={(e) => setDeadlineDate(e.target.value)}
-              />
-              <input
-                type="time"
-                value={deadlineTime}
-                onChange={(e) => setDeadlineTime(e.target.value)}
-              />
+              <div className="flex gap-2">
+                <input
+                  className="w-60"
+                  type="date"
+                  value={deadlineDate}
+                  onChange={(e) => setDeadlineDate(e.target.value)}
+                />
+                <input
+                  type="time"
+                  value={deadlineTime}
+                  onChange={(e) => setDeadlineTime(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="priority-row">
               <label>Приоритет</label>
               <div className="priority-options">
-                {["Высокий", "Средний", "Низкий"].map((level) => (
-                  <button
-                    key={level}
-                    className={priority === level ? "selected" : ""}
-                    onClick={() => setPriority(level)}
-                  >
-                    {level}
-                  </button>
-                ))}
+                <button
+                  className={`high-priority ${
+                    priority === "Высокий" ? "selected" : ""
+                  }`}
+                  onClick={() => setPriority("Высокий")}
+                >
+                  Высокий
+                </button>
+
+                <button
+                  className={`medium-priority ${
+                    priority === "Средний" ? "selected" : ""
+                  }`}
+                  onClick={() => setPriority("Средний")}
+                >
+                  Средний
+                </button>
+
+                <button
+                  className={`low-priority ${
+                    priority === "Низкий" ? "selected" : ""
+                  }`}
+                  onClick={() => setPriority("Низкий")}
+                >
+                  Низкий
+                </button>
               </div>
             </div>
 
-            <div className="file-section">
-              <label>Прикрепленные файлы</label>
-              <ul>
-                {files.map((file, index) => (
-                  <li key={index}>
-                    {file.name} ({(file.size / 1024 / 1024).toFixed(1)} MB)
-                    <button onClick={() => removeFile(index)}>🗑️</button>
-                  </li>
-                ))}
-              </ul>
-              <input type="file" multiple onChange={handleFileChange} />
+            <div className="file-section space-y-3">
+              <label className="block text-sm font-medium text-gray-700">
+                Прикрепленные файлы
+              </label>
+
+              {files.length > 0 && (
+                <ul className="space-y-2">
+                  {files.map((file, index) => (
+                    <li
+                      key={index}
+                      className="fileElem flex items-center justify-between h-auto max-h-14 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200"
+                    >
+                      <div className="flex gap-2 text-xs font-medium w-64">
+                        <img src="/image/FileTask.svg" alt="" />
+                        <span className="flex flex-col truncate max-w-[80%]">
+                          {file.name}{" "}
+                          <span className="text-[#22333B] font-normal">
+                            ({(file.size / 1024 / 1024).toFixed(1)} MB)
+                          </span>
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="text-[#22333B] hover:text-red-500 transition-colors"
+                      >
+                        <img src="/image/CorzinaTask.svg" alt="" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="file-upload-container relative">
+                <input
+                  type="file"
+                  id="fileInput"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  multiple
+                  onChange={handleFileChange}
+                />
+                <label
+                  htmlFor="fileInput"
+                  className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 w-full hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-2xl mb-1 text-gray-400">+</span>
+                  <span className="text-sm text-[#22333B99] font-medium">
+                    Прикрепить файл
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -126,7 +191,7 @@ const ModalAddTask = ({
           <button className="delete-btn">Удалить</button>
           <div className="gap-5 flex">
             <button
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => setIsModalOpen()}
               className="cancel-btn"
             >
               Отменить
@@ -135,7 +200,7 @@ const ModalAddTask = ({
               className="save-btn"
               onClick={() => {
                 addCard(currentColumnId);
-                setIsModalOpen(false);
+                setIsModalOpen();
                 setNewTask({ title: "", description: "" });
                 setFiles([]);
               }}

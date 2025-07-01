@@ -13,7 +13,6 @@
   background: white;
   padding: 5px 0;
   border-radius: 12px;
-  width: 500px;
   max-width: 685px;
   max-height: 507px;
   display: flex;
@@ -22,6 +21,16 @@
 
   h3{
     border-bottom: 1px solid #000000;
+  }
+
+  label{
+    font-weight: 500;
+  }
+
+  .deadline-row{
+    input{
+      height: 2rem;
+    }
   }
 
   .delete-btn{
@@ -56,6 +65,7 @@
   gap: 10px;
 }
 
+
 .avatar {
   width: 40px;
   height: 40px;
@@ -87,13 +97,16 @@
   align-self: flex-start;
   padding: 4px 8px;
   font-size: 18px;
+  border: 1px dashed #22333B99 ;
+  display: flex;
+  align-items: center;
 }
+
 
 }
 
 .modal input,
 .modal textarea {
-  width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -105,11 +118,29 @@
   border-radius: 6px;
   border: none;
   cursor: pointer;
+  font-weight: 500;
+}
+
+.high-priority {
+  background-color: #FEE2E2;
+  color: #C40000;
+  border: 1px solid #FEE2E2;
+}
+
+.medium-priority {
+  background-color: #FEF9C3;
+  color: #A19519;
+  border: 1px solid #FEF9C3;
+}
+
+.low-priority {
+  background-color: #BBF7D0;
+  color: #009C36;
+  border: 1px solid #BBF7D0;
 }
 
 .priority-options .selected {
-  background-color: #ff5959;
-  color: white;
+  border: 1px solid;
 }
 
 .avatar {
@@ -155,6 +186,24 @@
     font-weight: 500;
     font-size: 14px;
   }
+}
+
+.fileElem {
+  transition: all 0.2s ease;
+}
+
+.fileElem:hover {
+  background-color: #f3f4f6;
+}
+
+.file-upload-container label {
+  min-height: 80px;
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 }

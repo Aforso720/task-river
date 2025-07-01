@@ -3,6 +3,7 @@
     min-height: 100px;
     padding: 8px;
     border-radius: 4px;
+    font-family: 'Muller', sans-serif;
   }
 
   .card {
@@ -15,6 +16,22 @@
     width:  250px;
     height: auto;
     max-height: 120px;
+
+    .flagsInTask{
+      background-color: #EDFAF6;
+      color: #60BF9D;
+      width: 33px;
+      max-width: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 12px;
+      border-radius: 10px;
+      font-weight: 500;
+      margin: 10px 0 0 0;
+      font-size: 12px;
+      font-family: 'Poppins';
+    }
 
     .card-content {
     overflow-wrap: break-word;

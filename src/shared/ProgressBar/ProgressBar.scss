@@ -1,0 +1,33 @@
+.ProgressBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 0 8px;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+
+  &__label {
+    color: white;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  &__track {
+    flex: 1; // занимает всё доступное пространство
+    height: 10px;
+    background-color: #ffffff;
+    border: 1px solid white;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    background-color: #8C6D51;
+    transition: width 0.3s ease-in-out;
+    border-radius: inherit;
+  }
+}

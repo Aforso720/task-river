@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "./TasksBoard.scss";
 import ModalAddTask from "../../entities/ModalAddTask/ModalAddTask";
 import ModalColumnMenu from "../../entities/ModalColumnMenu/ModalColumnMenu";
 import useOpenColumnMenu from "../../entities/ModalColumnMenu/useOpenColumnMenu";
 import CardBoard from "../../entities/CardBoard/CardBoard";
+import HeaderTaskBoard from "../../entities/HeaderTaskBoard/HeaderTaskBoard";
+import useListTaskInBoard from "../../entities/HeaderTaskBoard/store/useListTaskInBoard";
+import { ModalTaskState } from "../../entities/ModalAddTask/store/ModalTaskState";
 
 const TasksBoard = () => {
+  const setTaskCounts = useListTaskInBoard((state) => state.setTaskCounts);
   const isModalColumnMenu = useOpenColumnMenu(
     (state) => state.isModalColumnMenu
   );
@@ -14,24 +18,12 @@ const TasksBoard = () => {
     (state) => state.editModalColumnMenu
   );
   const menuPosition = useOpenColumnMenu((state) => state.menuPosition);
+  const modalInTaskState = ModalTaskState((state) => state.modalInTaskState);
+  const openModalTaskState = ModalTaskState((state)=> state.openModalTaskState);
+  const closeModalTaskState = ModalTaskState((state)=> state.closeModalTaskState);
 
-  const handleEditColumn = (newName) => {
-    if (!newName.trim()) return;
-
-    setColumns((prev) => ({
-      ...prev,
-      [currentColumnId]: {
-        ...prev[currentColumnId],
-        title: newName,
-      },
-    }));
-  };
-
-  const handleDeleteColumn = (columnId) => {
-    const newColumns = { ...columns };
-    delete newColumns[columnId];
-    setColumns(newColumns);
-  };
+  const openModalMenuCardTaskState = ModalTaskState((state)=>state.openModalMenuCardTaskState)
+  
 
   const [isDraggingColumn, setIsDraggingColumn] = useState(false);
   const [columns, setColumns] = useState({
@@ -132,7 +124,24 @@ const TasksBoard = () => {
     },
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleEditColumn = (newName) => {
+    if (!newName.trim()) return;
+
+    setColumns((prev) => ({
+      ...prev,
+      [currentColumnId]: {
+        ...prev[currentColumnId],
+        title: newName,
+      },
+    }));
+  };
+
+  const handleDeleteColumn = (columnId) => {
+    const newColumns = { ...columns };
+    delete newColumns[columnId];
+    setColumns(newColumns);
+  };
+
   const [currentColumnId, setCurrentColumnId] = useState("");
   const [newTask, setNewTask] = useState({
     title: "",
@@ -146,7 +155,6 @@ const TasksBoard = () => {
 
     if (!destination) return;
 
-    // Если перетаскиваем колонку
     if (type === "COLUMN") {
       if (destination.index === source.index) return;
 
@@ -165,7 +173,6 @@ const TasksBoard = () => {
       return;
     }
 
-    // Если перетаскиваем карточку
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
@@ -190,7 +197,6 @@ const TasksBoard = () => {
       return;
     }
 
-    // Перемещение между колонками
     const startCards = [...start.cards];
     const [removed] = startCards.splice(source.index, 1);
     const finishCards = [...finish.cards];
@@ -252,8 +258,23 @@ const TasksBoard = () => {
     setIsAddColumnVisible(false);
   };
 
+  useEffect(() => {
+    let totalTasks = 0;
+    let doneTasks = 0;
+
+    Object.values(columns).forEach((column) => {
+      totalTasks += column.cards.length;
+      if (column.id === "done") {
+        doneTasks += column.cards.length;
+      }
+    });
+
+    setTaskCounts(totalTasks, doneTasks);
+  }, [columns]);
+
   return (
     <div className="tasks-board-container">
+      <HeaderTaskBoard />
       <div className="tasks-board-wrapper">
         <div className="tasks-board">
           <DragDropContext
@@ -319,7 +340,7 @@ const TasksBoard = () => {
                                       },
                                       column.id
                                     );
-                                    setCurrentColumnId(column.id); 
+                                    setCurrentColumnId(column.id);
                                   }}
                                 />
                               </div>
@@ -330,7 +351,7 @@ const TasksBoard = () => {
                                     column={column}
                                     provided={provided}
                                     editModalColumnMenu={() =>
-                                      editModalColumnMenu(
+                                      openModalMenuCardTaskState(
                                         {
                                           top: menuPosition.top,
                                           left: menuPosition.left,
@@ -339,7 +360,7 @@ const TasksBoard = () => {
                                       )
                                     }
                                     setCurrentColumnId={setCurrentColumnId}
-                                    setIsModalOpen={setIsModalOpen}
+                                    setIsModalOpen={openModalTaskState}
                                   />
                                 )}
                               </Droppable>
@@ -400,13 +421,13 @@ const TasksBoard = () => {
             </Droppable>
           </DragDropContext>
 
-          {isModalOpen && (
+          {modalInTaskState && (
             <ModalAddTask
               newTask={newTask}
               setNewTask={setNewTask}
               currentColumnId={currentColumnId}
               addCard={addCard}
-              setIsModalOpen={setIsModalOpen}
+              setIsModalOpen={closeModalTaskState}
             />
           )}
 
@@ -417,7 +438,7 @@ const TasksBoard = () => {
               onDeleteColumn={() => handleDeleteColumn(currentColumnId)}
               onAddTask={() => {
                 setCurrentColumnId(currentColumnId);
-                setIsModalOpen(true);
+                openModalTaskState();
               }}
             />
           )}
