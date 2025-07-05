@@ -4,6 +4,7 @@
     padding: 8px;
     border-radius: 4px;
     font-family: 'Muller', sans-serif;
+    position: relative;
   }
 
   .card {
@@ -16,6 +17,8 @@
     width:  250px;
     height: auto;
     max-height: 120px;
+    position: relative;
+
 
     .flagsInTask{
       background-color: #EDFAF6;

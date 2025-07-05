@@ -47,3 +47,29 @@
         }
     }
 }
+
+.dark .HeaderSideBar {
+    border-bottom: 1px solid #E6E4D8;
+    .BlockSearchPanel{
+        input{
+            color: #E6E4D8;
+            background-color:#22333B1A;
+            border: 1px solid #E6E4D8;
+        }
+
+        img {
+        filter: brightness(0) saturate(100%) invert(94%) sepia(6%) saturate(382%) hue-rotate(358deg) brightness(93%) contrast(89%);
+        }
+    }
+    .profilePanel{
+        p{
+            color:#E6E4D8;
+        }
+        .iconArr{
+            img{
+                    filter: brightness(0) saturate(100%) invert(94%) sepia(6%) saturate(382%) hue-rotate(358deg) brightness(93%) contrast(89%);
+            }
+        }
+     
+    }
+}

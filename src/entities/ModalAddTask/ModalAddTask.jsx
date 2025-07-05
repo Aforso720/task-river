@@ -7,20 +7,26 @@ const ModalAddTask = ({
   currentColumnId,
   addCard,
   setIsModalOpen,
+  mode = "add",
 }) => {
+  const isViewMode = mode === "view";
+  const isEditMode = mode === "edit";
+  const isAddMode = mode === "add";
+
   const [priority, setPriority] = useState("Высокий");
   const [deadlineDate, setDeadlineDate] = useState("2025-06-23");
   const [deadlineTime, setDeadlineTime] = useState("14:30");
   const [files, setFiles] = useState([]);
 
   const handleFileChange = (e) => {
+    if (isViewMode) return;
     const newFiles = [...files, ...Array.from(e.target.files)];
     setFiles(newFiles);
   };
 
   const removeFile = (index) => {
-    const updated = files.filter((_, i) => i !== index);
-    setFiles(updated);
+    if (isViewMode) return;
+    setFiles(files.filter((_, i) => i !== index));
   };
 
   const users = [
@@ -31,8 +37,11 @@ const ModalAddTask = ({
     <div className="modal-overlay">
       <div className="modal">
         <h3 className="font-medium text-xl text-[#000000] text-center w-full">
-          Добавления задачи
+          {isAddMode && "Добавление задачи"}
+          {isEditMode && "Редактирование задачи"}
+          {isViewMode && "Просмотр задачи"}
         </h3>
+
         <div className="contentModalAdd px-5 flex gap-10">
           <div className="leftSide w-60">
             <label>Заголовок задачи</label>
@@ -40,6 +49,7 @@ const ModalAddTask = ({
               className="w-full"
               type="text"
               value={newTask.title}
+              disabled={isViewMode}
               onChange={(e) =>
                 setNewTask({ ...newTask, title: e.target.value })
               }
@@ -49,6 +59,7 @@ const ModalAddTask = ({
             <textarea
               className="h-20 max-h-32 w-full"
               value={newTask.description}
+              disabled={isViewMode}
               onChange={(e) =>
                 setNewTask({ ...newTask, description: e.target.value })
               }
@@ -78,9 +89,12 @@ const ModalAddTask = ({
                   </div>
                 ))}
               </div>
-              <button className="add-btn w-full flex justify-center rounded-xl">
-                +
-              </button>
+
+              {!isViewMode && (
+                <button className="add-btn w-full flex justify-center rounded-xl">
+                  +
+                </button>
+              )}
             </div>
           </div>
 
@@ -89,15 +103,16 @@ const ModalAddTask = ({
               <label>Сроки</label>
               <div className="flex gap-2">
                 <input
-                  className="w-60"
                   type="date"
                   value={deadlineDate}
                   onChange={(e) => setDeadlineDate(e.target.value)}
+                  disabled={isViewMode}
                 />
                 <input
                   type="time"
                   value={deadlineTime}
                   onChange={(e) => setDeadlineTime(e.target.value)}
+                  disabled={isViewMode}
                 />
               </div>
             </div>
@@ -109,7 +124,8 @@ const ModalAddTask = ({
                   className={`high-priority ${
                     priority === "Высокий" ? "selected" : ""
                   }`}
-                  onClick={() => setPriority("Высокий")}
+                  onClick={() => !isViewMode && setPriority("Высокий")}
+                  disabled={isViewMode}
                 >
                   Высокий
                 </button>
@@ -118,7 +134,8 @@ const ModalAddTask = ({
                   className={`medium-priority ${
                     priority === "Средний" ? "selected" : ""
                   }`}
-                  onClick={() => setPriority("Средний")}
+                  onClick={() => !isViewMode && setPriority("Средний")}
+                  disabled={isViewMode}
                 >
                   Средний
                 </button>
@@ -127,7 +144,8 @@ const ModalAddTask = ({
                   className={`low-priority ${
                     priority === "Низкий" ? "selected" : ""
                   }`}
-                  onClick={() => setPriority("Низкий")}
+                  onClick={() => !isViewMode && setPriority("Низкий")}
+                  disabled={isViewMode}
                 >
                   Низкий
                 </button>
@@ -155,58 +173,66 @@ const ModalAddTask = ({
                           </span>
                         </span>
                       </div>
-                      <button
-                        onClick={() => removeFile(index)}
-                        className="text-[#22333B] hover:text-red-500 transition-colors"
-                      >
-                        <img src="/image/CorzinaTask.svg" alt="" />
-                      </button>
+                      {!isViewMode && (
+                        <button
+                          onClick={() => removeFile(index)}
+                          className="text-[#22333B] hover:text-red-500 transition-colors"
+                        >
+                          <img src="/image/CorzinaTask.svg" alt="" />
+                        </button>
+                      )}
                     </li>
                   ))}
                 </ul>
               )}
 
-              <div className="file-upload-container relative">
-                <input
-                  type="file"
-                  id="fileInput"
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  multiple
-                  onChange={handleFileChange}
-                />
-                <label
-                  htmlFor="fileInput"
-                  className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 w-full hover:bg-gray-50 transition-colors"
-                >
-                  <span className="text-2xl mb-1 text-gray-400">+</span>
-                  <span className="text-sm text-[#22333B99] font-medium">
-                    Прикрепить файл
-                  </span>
-                </label>
-              </div>
+              {!isViewMode && (
+                <div className="file-upload-container relative">
+                  <input
+                    type="file"
+                    id="fileInput"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    multiple
+                    onChange={handleFileChange}
+                  />
+                  <label
+                    htmlFor="fileInput"
+                    className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 w-full hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="text-2xl mb-1 text-gray-400">+</span>
+                    <span className="text-sm text-[#22333B99] font-medium">
+                      Прикрепить файл
+                    </span>
+                  </label>
+                </div>
+              )}
             </div>
           </div>
         </div>
+
         <div className="modal-actions mx-5 mb-2">
-          <button className="delete-btn">Удалить</button>
+          {!isViewMode && !isAddMode && (
+            <button className="delete-btn">Удалить</button>
+          )}
+
           <div className="gap-5 flex">
-            <button
-              onClick={() => setIsModalOpen()}
-              className="cancel-btn"
-            >
-              Отменить
+            <button onClick={() => setIsModalOpen()} className="cancel-btn">
+              Отмена
             </button>
-            <button
-              className="save-btn"
-              onClick={() => {
-                addCard(currentColumnId);
-                setIsModalOpen();
-                setNewTask({ title: "", description: "" });
-                setFiles([]);
-              }}
-            >
-              Сохранить
-            </button>
+
+            {!isViewMode && (
+              <button
+                className="save-btn"
+                onClick={() => {
+                  addCard(currentColumnId);
+                  setIsModalOpen();
+                  setNewTask({ title: "", description: "" });
+                  setFiles([]);
+                }}
+              >
+                Сохранить
+              </button>
+            )}
           </div>
         </div>
       </div>

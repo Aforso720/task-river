@@ -6,6 +6,9 @@ import ListElemPanel from "../../widgets/ListElemPanel/ListElemPanel";
 import TasksBoard from "../../widgets/TasksBoard/TasksBoard";
 import SideBarTasks from "../../widgets/SiderBarTasks/SideBarTasks";
 import Templates from "../../entities/Templates/Templates";
+import NotesInTask from "../../entities/NotesInTask/NotesInTask";
+import AddElemModal from "../../widgets/AddElemModal/AddElemModal";
+import useModalAddElemStore from '../../widgets/AddElemModal/useModalAddElemStore';
 
 import { Routes, Route, useMatch, Navigate } from "react-router";
 import { data } from "./data";
@@ -13,6 +16,10 @@ import { data } from "./data";
 import useTargetEvent from "./store/useTargetEvent";
 
 const Panel = () => {
+  const ModalAddElemState = useModalAddElemStore((state)=>state.ModalAddElemState)
+
+  console.log(ModalAddElemState)
+  
   const activeProjectId = useTargetEvent((state) => state.activeProjectId);
   const activeSingleBoardId = useTargetEvent(
     (state) => state.activeSingleBoardId
@@ -25,6 +32,7 @@ const Panel = () => {
   const showSidebarTasks = matchProject || matchBoard || matchTask;
 
   const { projects, boards, tasks } = data;
+
 
   return (
     <section className="PanelPage">
@@ -104,13 +112,16 @@ const Panel = () => {
                   )
                 }
               />
-              <Route path="/tasks/:taskId" element={<TasksBoard />} />
+              <Route path="/tasks/:taskId" element={<NotesInTask />} />
 
               <Route path='/market' element={<Templates />}/>
             </Routes>
           </div>
         </section>
       </div>
+      
+      {ModalAddElemState && <AddElemModal />}
+
     </section>
   );
 };

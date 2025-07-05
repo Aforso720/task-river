@@ -9,7 +9,7 @@ const HeaderSideBar = () => {
         <input className='inputSearch text-xs' type="text" placeholder='Поиск' />
       </section>
       <section className='profilePanel gap-3'>
-        <div className='gap-2'>
+        <div className='iconArr gap-2'>
             <img src="/image/MailIcon.png" alt="Mail" />
             <img src="/image/СallIcon.png" alt="Call" />
         </div>

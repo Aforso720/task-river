@@ -16,7 +16,7 @@
   }
 
   &__track {
-    flex: 1; // занимает всё доступное пространство
+    flex: 1; 
     height: 10px;
     background-color: #ffffff;
     border: 1px solid white;
@@ -29,5 +29,15 @@
     background-color: #8C6D51;
     transition: width 0.3s ease-in-out;
     border-radius: inherit;
+  }
+}
+
+.dark .ProgressBar{
+  &__label{
+    color: #22333B;
+  }
+
+  &__fill{
+    background-color: #22333B;
   }
 }

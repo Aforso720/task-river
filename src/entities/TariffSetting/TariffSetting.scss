@@ -22,7 +22,7 @@
         border-radius: 3px;
     }
 
-    &::-webkit-slider-thumb {
+    &::-webkit-slider-thumb { 
         -webkit-appearance: none;
         appearance: none;
         width: 20px;
@@ -30,7 +30,7 @@
         background: #8C6D51;
         border-radius: 50%;
         cursor: pointer;
-        margin-top: -7.5px; // Центровка по новой высоте трека (20 / 2 - 5 / 2)
+        margin-top: -7.5px; 
     }
 
     &::-moz-range-track {

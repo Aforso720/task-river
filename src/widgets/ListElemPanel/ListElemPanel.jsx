@@ -2,13 +2,15 @@ import React from "react";
 import "./ListElemPanel.scss";
 import { useNavigate } from "react-router";
 import useTargetEvent from "../../pages/Panel/store/useTargetEvent";
+import useModalAddElemStore from '../../widgets/AddElemModal/useModalAddElemStore';
 
 const ListElemPanel = ({ type, list, listBoards }) => {
+  const openModalAddElem = useModalAddElemStore((state) => state.openModalAddElem);
+
   const addProjectID = useTargetEvent((state) => state.addProjectID);
   const addBoardID = useTargetEvent((state) => state.addBoardID);
   const addTaskID = useTargetEvent((state) => state.addTaskID);
-  const addSingleBoardID = useTargetEvent((state)=>state.addSingleBoardID)
-
+  const addSingleBoardID = useTargetEvent((state) => state.addSingleBoardID);
 
   const navigate = useNavigate();
 
@@ -39,6 +41,12 @@ const ListElemPanel = ({ type, list, listBoards }) => {
     return "задачу";
   };
 
+  const handleAddClick = () => {
+    if (type === "Проекты") openModalAddElem("project");
+    else if (type === "Доски") openModalAddElem("board");
+    else openModalAddElem("task");
+  };
+
   return (
     <article
       className={`ListElemPanel ${
@@ -65,6 +73,7 @@ const ListElemPanel = ({ type, list, listBoards }) => {
         <li
           className="add-project-item text-xs text-[#22333B]"
           style={{ cursor: "pointer" }}
+          onClick={handleAddClick}
         >
           {`+ добавить ${getTypeAddText()}`}
         </li>

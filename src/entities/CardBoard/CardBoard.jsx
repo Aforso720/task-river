@@ -1,18 +1,9 @@
-import React from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import "./CardBoard.scss";
-import { ModalMenuCardTask } from "./store/ModalMenuCardTask";
+import { ModalTaskState } from "../ModalAddTask/store/ModalTaskState";
 
-const CardBoard = ({
-  column,
-  provided,
-  setCurrentColumnId,
-}) => {
-  // const modalMenuCardTaskState = ModalMenuCardTask((state)=> state.modalMenuCardTaskState);
-  const openModalMenuCardTaskState = ModalMenuCardTask((state)=>state.openModalMenuCardTaskState);
-  const closeModalMenuCardTaskState = ModalMenuCardTask((state)=>state.openModalMenuCardTaskState);
-
-
+const CardBoard = ({ column, provided, setCurrentColumnId }) => {
+  const openModal = ModalTaskState((state) => state.openModalTaskState);
 
   return (
     <div className="cards" ref={provided.innerRef} {...provided.droppableProps}>
@@ -24,19 +15,25 @@ const CardBoard = ({
               ref={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
+              onClick={() => openModal("view", card)}
             >
               <div className="flex items-start">
                 <img src="/image/IconWorld.png" alt="Avatar" className="mr-2" />
-                <h4 className="font-semibold text-black my-auto flex-auto">{card.title}</h4>
+                <h4 className="font-semibold text-black my-auto flex-auto">
+                  {card.title}
+                </h4>
                 <img
                   className="cursor-pointer w-5 h-5 ml-2"
                   src="/image/MenuModelBoard.png"
                   alt="Menu Card"
-                  onClick={() => openModalMenuCardTaskState()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openModal("edit", card); 
+                  }}
                 />
               </div>
-             <div className="card-content text-xs mt-2">{card.content}</div>
-             <div className="flagsInTask">Tiny</div>
+              <div className="card-content text-xs mt-2">{card.content}</div>
+              <div className="flagsInTask">Tiny</div>
             </div>
           )}
         </Draggable>
@@ -49,7 +46,7 @@ const CardBoard = ({
           className="add-card-button"
           onClick={() => {
             setCurrentColumnId(column.id);
-            closeModalMenuCardTaskState();
+             openModal("add");
           }}
         >
           + Добавить задачу

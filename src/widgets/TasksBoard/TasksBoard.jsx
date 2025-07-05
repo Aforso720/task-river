@@ -19,11 +19,15 @@ const TasksBoard = () => {
   );
   const menuPosition = useOpenColumnMenu((state) => state.menuPosition);
   const modalInTaskState = ModalTaskState((state) => state.modalInTaskState);
-  const openModalTaskState = ModalTaskState((state)=> state.openModalTaskState);
-  const closeModalTaskState = ModalTaskState((state)=> state.closeModalTaskState);
-
-  const openModalMenuCardTaskState = ModalTaskState((state)=>state.openModalMenuCardTaskState)
-  
+  const openModalTaskState = ModalTaskState(
+    (state) => state.openModalTaskState
+  );
+  const closeModalTaskState = ModalTaskState(
+    (state) => state.closeModalTaskState
+  );
+  const mode = ModalTaskState(
+    (state) => state.mode
+  );
 
   const [isDraggingColumn, setIsDraggingColumn] = useState(false);
   const [columns, setColumns] = useState({
@@ -350,15 +354,7 @@ const TasksBoard = () => {
                                   <CardBoard
                                     column={column}
                                     provided={provided}
-                                    editModalColumnMenu={() =>
-                                      openModalMenuCardTaskState(
-                                        {
-                                          top: menuPosition.top,
-                                          left: menuPosition.left,
-                                        },
-                                        column.id
-                                      )
-                                    }
+                                    // editModalColumnMenu={}
                                     setCurrentColumnId={setCurrentColumnId}
                                     setIsModalOpen={openModalTaskState}
                                   />
@@ -423,6 +419,7 @@ const TasksBoard = () => {
 
           {modalInTaskState && (
             <ModalAddTask
+              mode={mode}
               newTask={newTask}
               setNewTask={setNewTask}
               currentColumnId={currentColumnId}
