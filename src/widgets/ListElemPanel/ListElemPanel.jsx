@@ -1,96 +1,81 @@
-import React from 'react';
-import './ListElemPanel.scss';
+import React from "react";
+import "./ListElemPanel.scss";
 import { useNavigate } from "react-router";
+import useTargetEvent from "../../pages/Panel/store/useTargetEvent";
+import useModalAddElemStore from '../../widgets/AddElemModal/useModalAddElemStore';
 
-import IconProject from '../../../public/image/IconProject.png';
-import IconWorld from '../../../public/image//IconWorld.png';
-import IconBurger from '../../../public/image//IconBurger.png';
-import IconFinger from '../../../public/image//IconFinger.png';
+const ListElemPanel = ({ type, list, listBoards }) => {
+  const openModalAddElem = useModalAddElemStore((state) => state.openModalAddElem);
 
-const ListElemPanel = ({ type, project, setOpenBoards, setOpenTasks, onAddClick }) => {
+  const addProjectID = useTargetEvent((state) => state.addProjectID);
+  const addBoardID = useTargetEvent((state) => state.addBoardID);
+  const addTaskID = useTargetEvent((state) => state.addTaskID);
+  const addSingleBoardID = useTargetEvent((state) => state.addSingleBoardID);
+
   const navigate = useNavigate();
 
-  const getTitle = () => {
-    switch (type) {
-      case '1': return 'Проекты';
-      case '2': return 'Доски';
-      case '3': return 'Задачи';
-      default: return 'Проекты';
-    }
-  };
+  const handleClick = (item) => {
+    if (type === "Проекты") {
+      addProjectID?.(item.id);
 
-  const getAddButtonText = () => {
-    switch (type) {
-      case '1': return '+ Добавить проект';
-      case '2': return '+ Добавить доску';
-      case '3': return '+ Добавить задачу';
-      default: return '+ Добавить проект';
-    }
-  };
-
-  // Получаем иконку по типу элемента
-  const getIcon = (item) => {
-    if (type === '1') {
-      // Для проектов используем иконку из item.icon
-      switch (item.icon) {
-        case 'IconWorld.png': return IconWorld;
-        case 'IconBurger.png': return IconBurger;
-        case 'IconFinger.png': return IconFinger;
-        default: return IconProject;
+      const projectBoards = listBoards?.filter((b) => b.projectId === item.id);
+      if (projectBoards?.length > 0) {
+        addBoardID?.(projectBoards[0].id);
+      } else {
+        addBoardID?.(null);
       }
-    } else if (type === '2') {
-      // Для досок наследуем иконку проекта
-      return item.icon ? 
-        (item.icon === 'IconWorld.png' ? IconWorld : 
-         item.icon === 'IconBurger.png' ? IconBurger : 
-         item.icon === 'IconFinger.png' ? IconFinger : IconProject) 
-        : IconProject;
+
+      navigate(`/panel/project/${item.id}`);
+    } else if (type === "Доски") {
+      addSingleBoardID?.(item.id);
+      navigate(`/panel/board/${item.id}`);
     } else {
-      // Для задач также наследуем иконку
-      return item.icon ? 
-        (item.icon === 'IconWorld.png' ? IconWorld : 
-         item.icon === 'IconBurger.png' ? IconBurger : 
-         item.icon === 'IconFinger.png' ? IconFinger : IconProject) 
-        : IconProject;
+      addTaskID?.(item.id);
+      navigate(`/panel/tasks/${item.id}`);
     }
   };
 
-  const handleItemClick = (id) => {
-    if (type === '1' && setOpenBoards) {
-      setOpenBoards(id);
-    } else if (type === '2' && setOpenTasks) {
-      setOpenTasks(id);
-    } else if (type === '3') {
-      navigate(`/panel/tasks/${id}`);
-    }
+  const getTypeAddText = () => {
+    if (type === "Проекты") return "проект";
+    if (type === "Доски") return "доску";
+    return "задачу";
+  };
+
+  const handleAddClick = () => {
+    if (type === "Проекты") openModalAddElem("project");
+    else if (type === "Доски") openModalAddElem("board");
+    else openModalAddElem("task");
   };
 
   return (
-    <article className='ListElemPanel'>
-      <h3 className='text-3xl font-bold text-[#22333B]'>{getTitle()}</h3>
+    <article
+      className={`ListElemPanel ${
+        type === "Задачи" ? '' : " borderListElem"
+      }`}
+    >
+      <h3 className="text-3xl font-bold text-[#22333B]">{type}</h3>
       <ul>
-        {project.map((item, index) => (
+        {list.map((item) => (
           <li
-            key={item.id || index}
-            onClick={() => handleItemClick(item.id)}
-            style={{ cursor: 'pointer' }}
+            key={item.id}
+            onClick={() => handleClick(item)}
+            style={{ cursor: "pointer" }}
           >
-            <img 
-              src={getIcon(item)} 
-              alt="Icon" 
+            <img
+              src={`/image/${item.icon}`}
+              alt="Icon"
               className="item-icon"
-              style={{ width: '24px', height: '24px' }}
+              style={{ width: "24px", height: "24px" }}
             />
-            <p className='font-medium text-xs text-[#22333B]'>{item.title}</p>
+            <p className="font-medium text-xs text-[#22333B]">{item.title}</p>
           </li>
         ))}
-
         <li
-          className='add-project-item text-xs text-[#22333B]'
-          style={{ cursor: 'pointer' }}
-          onClick={() => onAddClick && onAddClick()}
+          className="add-project-item text-xs text-[#22333B]"
+          style={{ cursor: "pointer" }}
+          onClick={handleAddClick}
         >
-          {getAddButtonText()}
+          {`+ добавить ${getTypeAddText()}`}
         </li>
       </ul>
     </article>

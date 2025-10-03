@@ -1,0 +1,121 @@
+.tariff-container {
+  max-width: 1140px;
+  margin: 40px auto;
+  padding: 40px;
+  border-radius: 16px;
+  color: #22333B;
+  border: 3px solid #22333B;
+
+    input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    background: #dcdcdc;
+    border-radius: 3px;
+    outline: none;
+    transition: background 0.3s;
+
+    &::-webkit-slider-runnable-track {
+        height: 5px;
+        background: #22333B;
+        border-radius: 3px;
+    }
+
+    &::-webkit-slider-thumb { 
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #8C6D51;
+        border-radius: 50%;
+        cursor: pointer;
+        margin-top: -7.5px; 
+    }
+
+    &::-moz-range-track {
+        background: #22333B;
+        height: 5px;
+        border-radius: 3px;
+    }
+
+    &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: #8C6D51;
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+    }
+
+    &::-ms-track {
+        background: transparent;
+        border-color: transparent;
+        color: transparent;
+    }
+
+    &::-ms-fill-lower {
+        background: #22333B;
+        border-radius: 3px;
+    }
+
+    &::-ms-fill-upper {
+        background: #22333B;
+        border-radius: 3px;
+    }
+
+    &::-ms-thumb {
+        width: 20px;
+        height: 20px;
+        background: #8C6D51;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    }
+
+  .slider-group {
+    margin-bottom: 30px;
+    text-align: center;
+
+    label {
+      font-size: 18px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    input[type='range'] {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .slider-values {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+  }
+
+  .button-group {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    margin-top: 50px;
+    color: #E6E4D8;
+
+    .save-btn {
+      background-color: #8C6D51;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .connect-btn {
+      background-color: #22333B;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  }
+}

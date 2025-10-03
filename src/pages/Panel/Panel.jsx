@@ -4,71 +4,129 @@ import SideBar from "../../widgets/SideBar/SideBar";
 import HeaderSideBar from "../../widgets/HeaderSideBar/HeaderSideBar";
 import ListElemPanel from "../../widgets/ListElemPanel/ListElemPanel";
 import TasksBoard from "../../widgets/TasksBoard/TasksBoard";
-import { Routes, Route} from "react-router";
-import {projects} from './data'
+import SideBarTasks from "../../widgets/SiderBarTasks/SideBarTasks";
+import Templates from "../../entities/Templates/Templates";
+import NotesInTask from "../../entities/NotesInTask/NotesInTask";
+import AddElemModal from "../../widgets/AddElemModal/AddElemModal";
+import useModalAddElemStore from '../../widgets/AddElemModal/useModalAddElemStore';
+
+import { Routes, Route, useMatch, Navigate , useLocation } from "react-router";
+import { data } from "./data";
+
+import useTargetEvent from "./store/useTargetEvent";
+import Setting from "../../features/Setting/UI/Setting";
 
 const Panel = () => {
-  const [openBoards, setOpenBoards] = React.useState(false);
-  const [openTasks, setOpenTasks] = React.useState(false);
-
-  const [activeProject, setActiveProject] = React.useState(null);
-  const [activeBoard, setActiveBoard] = React.useState(null);
-
-
-
-  const renderProjectList = () => (
-    <ListElemPanel
-      type="1"
-      project={projects}
-      setOpenBoards={(projectId) => {
-        setActiveProject(projectId);
-        setOpenBoards(true);
-        setOpenTasks(false);
-      }}
-    />
+  const ModalAddElemState = useModalAddElemStore((state)=>state.ModalAddElemState)
+  const activeProjectId = useTargetEvent((state) => state.activeProjectId);
+  const activeSingleBoardId = useTargetEvent(
+    (state) => state.activeSingleBoardId
   );
+  const activeTaskId = useTargetEvent((state) => state.activeTaskId);
+  const matchProject = useMatch("panel/project/:projectId");
+  const matchBoard = useMatch("panel/board/:boardId");
+  const matchTask = useMatch("panel/tasks/:taskId");
 
-  const renderBoardList = () => {
-    const project = projects.find((p) => p.id === activeProject);
-    return (
-      <ListElemPanel
-        type="2"
-        project={project?.boards || []}
-        setOpenTasks={(boardId) => {
-          setActiveBoard(boardId);
-          setOpenTasks(true);
-        }}
-      />
-    );
-  };
+  const showSidebarTasks = matchProject || matchBoard || matchTask;
 
-  const renderTaskList = () => {
-    const project = projects.find((p) => p.id === activeProject);
-    const board = project?.boards.find((b) => b.id === activeBoard);
-    return <ListElemPanel type="3" project={board?.tasks || []} />;
-  };
+  const { projects, boards, tasks } = data;
+
+  const myLocation = useLocation()
+
 
   return (
     <section className="PanelPage">
       <SideBar />
-      <section className="mainPanelPage">
-        <HeaderSideBar />
-        <div className="panelsСontainer">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  {renderProjectList()}
-                  {openBoards && renderBoardList()}
-                  {openTasks && renderTaskList()}
-                </>
-              }
-            />
-            <Route path="/tasks/:taskId" element={<TasksBoard />} />
-          </Routes>
-        </div>
-      </section>
+      <div className="wrapperSidebar">
+        {showSidebarTasks && (
+          <SideBarTasks projects={projects} boards={boards} tasks={tasks} />
+        )}
+        <section className="mainPanelPage">
+          {myLocation.pathname === '/panel/setting' ? 
+           null : 
+          <HeaderSideBar />
+          }
+          <div className="panelsСontainer">
+            <Routes>
+              <Route
+                path="/menu"
+                element={
+                  <>
+                    <ListElemPanel
+                      type={"Проекты"}
+                      list={projects}
+                      listBoards={boards}
+                    />
+                    <ListElemPanel
+                      type={"Доски"}
+                      list={boards.filter((board) => board.projectId === null)}
+                    />
+                    <ListElemPanel
+                      type={"Задачи"}
+                      list={tasks.filter((task) => task.boardId === null)}
+                    />
+                  </>
+                }
+              />
+
+              <Route
+                path="/project"
+                element={
+                  activeProjectId ? (
+                    <Navigate
+                      to={`/panel/project/${activeProjectId}`}
+                      replace
+                    />
+                  ) : (
+                    <div className="w-full h-full ml-5 text-4xl text-[#22333B]">
+                      Проект не выбран
+                    </div>
+                  )
+                }
+              />
+              <Route path="/project/:projectId" element={<TasksBoard />} />
+
+              <Route
+                path="/board"
+                element={
+                  activeSingleBoardId ? (
+                    <Navigate
+                      to={`/panel/board/${activeSingleBoardId}`}
+                      replace
+                    />
+                  ) : (
+                    <div className="w-full h-full ml-5 text-4xl text-[#22333B]">
+                      Доска не выбрана
+                    </div>
+                  )
+                }
+              />
+              <Route path="/board/:boardId" element={<TasksBoard />} />
+
+              <Route
+                path="/tasks"
+                element={
+                  activeTaskId ? (
+                    <Navigate to={`/panel/tasks/${activeTaskId}`} replace />
+                  ) : (
+                    <div className="w-full h-full ml-5 text-4xl text-[#22333B]">
+                      Задача не выбрана
+                    </div>
+                  )
+                }
+              />
+              <Route path="/tasks/:taskId" element={<NotesInTask />} />
+
+              <Route path='/market' element={<Templates />}/>
+
+              <Route path='/setting' element={<Setting />}/>
+            </Routes>
+          </div>
+        </section>
+      </div>
+      
+      {ModalAddElemState && <AddElemModal />}
+
     </section>
   );
 };

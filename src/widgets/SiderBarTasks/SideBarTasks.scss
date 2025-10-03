@@ -1,0 +1,78 @@
+.SideBarTasks {
+  width: 326px;
+  height: 100%;
+  background-color: #E6E4D8;
+  border-right: 1px solid #22333B;
+  padding-top: 3.5rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  box-sizing: border-box;
+
+  .navInSideBar {
+    margin-bottom: 2rem;
+
+    h5 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #22333B;
+      margin-bottom: 1.25rem;
+    }
+
+    .cardsSideBarTasks {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+
+      .cardItemSideBar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        img {
+          width: 24px;
+          height: 24px;
+        }
+
+        p {
+          font-size: 1rem;
+          color: #22333B;
+        }
+
+        &.active {
+          background-color: #22333B;
+         
+
+          p {
+            color: #E6E4D8;
+          }
+        }
+      }
+    }
+  }
+}
+
+.dark .SideBarTasks{
+  background-color: #22333B;
+  border-right: 1px solid #E6E4D8;
+  h5{
+    color:#E6E4D8;
+  }
+  .cardsSideBarTasks{
+    .cardItemSideBar{
+      background-color: #E6E4D8;
+      p{
+        color: #22333B;
+      }
+       &.active {
+        background-color: #8C6D51;
+        p {
+          color: #E6E4D8;
+        }
+      }
+    }
+  }
+}

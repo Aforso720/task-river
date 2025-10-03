@@ -1,0 +1,65 @@
+.custom-editor-wrapper {
+  max-width: 80%;
+
+  .ql-toolbar,
+  .ql-container {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+
+  .ql-container {
+    min-height: 200px;
+    color: #22333B;
+    background-color: #fff;
+  }
+}
+
+/* ✅ Темная тема */
+.dark .custom-editor-wrapper {
+  .ql-toolbar,
+  .ql-container {
+    border: 1px solid #E6E4D8;
+    background-color: #22333B;
+    color: #E6E4D8;
+
+    button,
+    svg {
+      filter: brightness(0) saturate(100%) invert(94%) sepia(6%) saturate(382%) hue-rotate(358deg) brightness(93%) contrast(89%);
+    }
+  }
+
+  .ql-container {
+    .ql-editor {
+      color: #E6E4D8;
+    }
+  }
+
+  .ql-toolbar {
+    button {
+      color: #E6E4D8;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    .ql-picker {
+      color: #E6E4D8;
+
+      .ql-picker-label,
+      .ql-picker-options {
+        background-color: #22333B;
+        color: #E6E4D8;
+      }
+    }
+  }
+}
+
+.dark .editor-section {
+  span,
+  h2,
+  h3 {
+    color: #E6E4D8;
+  }
+}
+

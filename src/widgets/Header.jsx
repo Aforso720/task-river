@@ -1,37 +1,41 @@
-import React from 'react'
-import { Link } from 'react-router'
+import React from 'react';
+import { Link, useLocation } from 'react-router';
+import useAuthModalStore from '../features/Auth/store/authModal';
 
 const Header = () => {
-  const [ navActive , setNavActive] = React.useState(0);
+  const location = useLocation();
+  const {openModalAuthState }=useAuthModalStore();
+
+  const navItems = [
+    { label: 'Главное', path: '/' },
+    { label: 'Тарифы', path: '/tariffs' },
+    { label: 'Обучение', path: '/education' },
+    { label: 'Обновление', path: '/updates' },
+    { label: 'О нас', path: '/about' },
+  ];
 
   return (
-    <header className='
-    Header
-    flex justify-between items-center px-8 py-2
-    '>
-        <img src="image\LogoHead.png" alt="Logotip" />
-        <nav>
-          <ul className='navHeader flex justify-center items-center gap-4'>
-            <li className={navActive == 0 ? "activeNav" : ''} onClick={()=>setNavActive(0)}>
-              <Link to="/">Главное</Link>
-            </li>
-            <li className={navActive == 1 ? "activeNav" : ''} onClick={()=>setNavActive(1)}>
-              <Link to="/tariffs">Тарифы</Link>
-            </li>
-            <li className={navActive == 2 ? "activeNav" : ''} onClick={()=>setNavActive(2)}>
-              <Link to="/education">Обучение</Link>
-            </li>
-            <li className={navActive == 3 ? "activeNav" : ''} onClick={()=>setNavActive(3)}>
-              <Link to="/updates">Обновление</Link>
-            </li>
-            <li className={navActive == 4 ? "activeNav" : ''} onClick={()=>setNavActive(4)}>
-              <Link to="/about">О нас</Link>
-            </li>
-          </ul>
-        </nav>
-        <h2> <img src="image/UserHead.png" alt="" /></h2> 
-    </header>
-  )
-}
+    <header className="Header flex justify-between items-center px-8 py-2">
+      <img src="image/LogoHead.svg" alt="Logotip" className='cursor-pointer'/>
 
-export default Header
+      <nav>
+        <ul className="navHeader flex justify-center items-center gap-4">
+          {navItems.map((item, index) => (
+            <li
+              key={index}
+              className={location.pathname === item.path ? 'activeNav' : ''}
+            >
+              <Link to={item.path}>{item.label}</Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <h2>
+        <img src="image/user.svg" alt="User" onClick={openModalAuthState} />
+      </h2>
+    </header>
+  );
+};
+
+export default Header;

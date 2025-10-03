@@ -1,33 +1,56 @@
-.sideBar{
+.sideBar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100px;
+  padding: 20px 0 40px 0;
+
+  ul {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    width: 120px;
-    padding: 20px 0 40px 0;
+    gap: 10px;
+    width: 100%;
+  }
 
-    ul{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
+  .sideBar-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 60px;
+
+    img {
+      transition: filter 0.3s ease;
     }
 
-    .sideBar-item {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
+    &.active {
+      background-color: #22333B;
 
-        &.active {
-            background-color: #22333B;
-
-            img {
-                filter: brightness(0) saturate(100%) invert(94%) sepia(6%) saturate(382%) hue-rotate(358deg) brightness(93%) contrast(89%);
-            }
-        }
+      img {
+        filter: brightness(0) saturate(100%) invert(94%) sepia(6%) saturate(382%) hue-rotate(358deg) brightness(93%) contrast(89%);
+      }
     }
+  }
+}
+
+/* ✅ Переопределение для тёмной темы */
+.dark .sideBar {
+  .sideBar-item {
+    img {
+      filter: brightness(0) saturate(100%) invert(94%) sepia(6%) saturate(382%) hue-rotate(358deg) brightness(93%) contrast(89%);
+    }
+
+    &.active {
+      background-color: #8C6D51;
+
+      img {
+        // можно оставить тот же фильтр или использовать svg напрямую в светлом цвете
+        filter: brightness(0) saturate(100%) invert(100%) sepia(5%) saturate(200%) hue-rotate(20deg) brightness(95%) contrast(90%);
+      }
+    }
+  }
 }

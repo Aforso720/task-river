@@ -3,6 +3,29 @@
 @tailwind utilities;
 
 @import url('https://fonts.cdnfonts.com/css/tt-travels-trl');
+@font-face {
+  font-family: 'Muller';
+  src: url('fonts/Muller.woff2') format('woff2'),
+       url('fonts/Muller.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('fonts/Poppins-Regular.woff2') format('woff2'),
+         url('fonts/Poppins-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Poppins';
+    src: url('fonts/Poppins-Bold.woff2') format('woff2'),
+         url('fonts/Poppins-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+  }
 
 *{
     margin: 0;

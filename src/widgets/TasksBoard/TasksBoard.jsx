@@ -1,8 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "./TasksBoard.scss";
+import ModalAddTask from "../../entities/ModalAddTask/ModalAddTask";
+import ModalColumnMenu from "../../entities/ModalColumnMenu/ModalColumnMenu";
+import useOpenColumnMenu from "../../entities/ModalColumnMenu/useOpenColumnMenu";
+import CardBoard from "../../entities/CardBoard/CardBoard";
+import HeaderTaskBoard from "../../entities/HeaderTaskBoard/HeaderTaskBoard";
+import useListTaskInBoard from "../../entities/HeaderTaskBoard/store/useListTaskInBoard";
+import { ModalTaskState } from "../../entities/ModalAddTask/store/ModalTaskState";
 
 const TasksBoard = () => {
+  const setTaskCounts = useListTaskInBoard((state) => state.setTaskCounts);
+  const isModalColumnMenu = useOpenColumnMenu(
+    (state) => state.isModalColumnMenu
+  );
+  const editModalColumnMenu = useOpenColumnMenu(
+    (state) => state.editModalColumnMenu
+  );
+  const menuPosition = useOpenColumnMenu((state) => state.menuPosition);
+  const modalInTaskState = ModalTaskState((state) => state.modalInTaskState);
+  const openModalTaskState = ModalTaskState(
+    (state) => state.openModalTaskState
+  );
+  const closeModalTaskState = ModalTaskState(
+    (state) => state.closeModalTaskState
+  );
+  const mode = ModalTaskState(
+    (state) => state.mode
+  );
+
+  const [isDraggingColumn, setIsDraggingColumn] = useState(false);
   const [columns, setColumns] = useState({
     backlog: {
       id: "backlog",
@@ -101,15 +128,30 @@ const TasksBoard = () => {
     },
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleEditColumn = (newName) => {
+    if (!newName.trim()) return;
+
+    setColumns((prev) => ({
+      ...prev,
+      [currentColumnId]: {
+        ...prev[currentColumnId],
+        title: newName,
+      },
+    }));
+  };
+
+  const handleDeleteColumn = (columnId) => {
+    const newColumns = { ...columns };
+    delete newColumns[columnId];
+    setColumns(newColumns);
+  };
+
   const [currentColumnId, setCurrentColumnId] = useState("");
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
   });
-
   const [isAddColumnVisible, setIsAddColumnVisible] = useState(false);
-
   const [newColumnName, setNewColumnName] = useState("");
 
   const onDragEnd = (result) => {
@@ -117,7 +159,6 @@ const TasksBoard = () => {
 
     if (!destination) return;
 
-    // Если перетаскиваем колонку
     if (type === "COLUMN") {
       if (destination.index === source.index) return;
 
@@ -136,7 +177,6 @@ const TasksBoard = () => {
       return;
     }
 
-    // Если перетаскиваем карточку
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
@@ -161,7 +201,6 @@ const TasksBoard = () => {
       return;
     }
 
-    // Перемещение между колонками
     const startCards = [...start.cards];
     const [removed] = startCards.splice(source.index, 1);
     const finishCards = [...finish.cards];
@@ -223,11 +262,36 @@ const TasksBoard = () => {
     setIsAddColumnVisible(false);
   };
 
+  useEffect(() => {
+    let totalTasks = 0;
+    let doneTasks = 0;
+
+    Object.values(columns).forEach((column) => {
+      totalTasks += column.cards.length;
+      if (column.id === "done") {
+        doneTasks += column.cards.length;
+      }
+    });
+
+    setTaskCounts(totalTasks, doneTasks);
+  }, [columns]);
+
   return (
     <div className="tasks-board-container">
+      <HeaderTaskBoard />
       <div className="tasks-board-wrapper">
         <div className="tasks-board">
-          <DragDropContext onDragEnd={onDragEnd}>
+          <DragDropContext
+            onDragEnd={(result) => {
+              setIsDraggingColumn(false);
+              onDragEnd(result);
+            }}
+            onDragStart={(start) => {
+              if (start.type === "COLUMN") {
+                setIsDraggingColumn(true);
+              }
+            }}
+          >
             <Droppable
               droppableId="all-columns"
               direction="horizontal"
@@ -235,7 +299,7 @@ const TasksBoard = () => {
             >
               {(provided) => (
                 <div
-                  className="columns-container"
+                  className="columns-container flex"
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
@@ -256,7 +320,7 @@ const TasksBoard = () => {
                           >
                             <div className="column">
                               <div
-                                className="column-header"
+                                className="column-header flex justify-between items-center"
                                 {...provided.dragHandleProps}
                               >
                                 <h3 className="text-2xl font-bold">
@@ -265,49 +329,35 @@ const TasksBoard = () => {
                                     {column.cards.length}
                                   </span>
                                 </h3>
+
+                                <img
+                                  className="cursor-pointer w-5 h-5"
+                                  src="/image/MenuModelBoard.png"
+                                  alt="Menu Column"
+                                  onClick={(e) => {
+                                    const rect =
+                                      e.currentTarget.getBoundingClientRect();
+                                    editModalColumnMenu(
+                                      {
+                                        top: rect.bottom + window.scrollY,
+                                        left: rect.left + window.scrollX + 5,
+                                      },
+                                      column.id
+                                    );
+                                    setCurrentColumnId(column.id);
+                                  }}
+                                />
                               </div>
 
                               <Droppable droppableId={column.id}>
                                 {(provided) => (
-                                  <div
-                                    className="cards"
-                                    ref={provided.innerRef}
-                                    {...provided.droppableProps}
-                                  >
-                                    {column.cards.map((card, index) => (
-                                      <Draggable
-                                        key={card.id}
-                                        draggableId={card.id}
-                                        index={index}
-                                      >
-                                        {(provided) => (
-                                          <div
-                                            className="card text-xs text-[#959BA3]"
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                          >
-                                            <h4 className="font-semibold text-black">
-                                              {card.title}
-                                            </h4>
-                                            {card.content}
-                                          </div>
-                                        )}
-                                      </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                    <div className="add-card">
-                                      <button
-                                        className="add-card-button"
-                                        onClick={() => {
-                                          setCurrentColumnId(column.id);
-                                          setIsModalOpen(true);
-                                        }}
-                                      >
-                                        + Добавить задачу
-                                      </button>
-                                    </div>
-                                  </div>
+                                  <CardBoard
+                                    column={column}
+                                    provided={provided}
+                                    // editModalColumnMenu={}
+                                    setCurrentColumnId={setCurrentColumnId}
+                                    setIsModalOpen={openModalTaskState}
+                                  />
                                 )}
                               </Droppable>
                             </div>
@@ -316,84 +366,78 @@ const TasksBoard = () => {
                       </Draggable>
                     ))}
 
-                    {isAddColumnVisible ? (
-                      <div className="add-column-inline">
-                        <input
-                          type="text"
-                          value={newColumnName}
-                          onChange={(e) => setNewColumnName(e.target.value)}
-                          placeholder="Название колонки"
-                          onKeyPress={(e) =>
-                            e.key === "Enter" && handleAddColumn()
-                          }
-                        />
-                        <button
-                          className="add-column-button"
-                          onClick={handleAddColumn}
-                          disabled={!newColumnName.trim()}
+                    {!isDraggingColumn &&
+                      (isAddColumnVisible ? (
+                        <div
+                          className={`add-column-inline ${
+                            isDraggingColumn ? "hidden-during-drag" : ""
+                          }`}
                         >
-                          +
-                        </button>
-                        <button
-                          className="cancel-add-column"
-                          onClick={() => {
-                            setNewColumnName("");
-                            setIsAddColumnVisible(false);
-                          }}
-                        >
-                          Отмена
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="add-column-inline-two">
-                        <button
-                          className="add-column-toggle"
-                          onClick={() => setIsAddColumnVisible(true)}
-                        >
-                          + Добавить колонку
-                        </button>
-                      </div>
-                    )}
+                          <input
+                            type="text"
+                            value={newColumnName}
+                            onChange={(e) => setNewColumnName(e.target.value)}
+                            placeholder="Название колонки"
+                            onKeyPress={(e) =>
+                              e.key === "Enter" && handleAddColumn()
+                            }
+                          />
+                          <button
+                            className="add-column-button"
+                            onClick={handleAddColumn}
+                            disabled={!newColumnName.trim()}
+                          >
+                            +
+                          </button>
+                          <button
+                            className="cancel-add-column"
+                            onClick={() => {
+                              setNewColumnName("");
+                              setIsAddColumnVisible(false);
+                            }}
+                          >
+                            Отмена
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="add-column-inline-two">
+                          <button
+                            className="add-column-toggle"
+                            onClick={() => setIsAddColumnVisible(true)}
+                          >
+                            + Добавить колонку
+                          </button>
+                        </div>
+                      ))}
                   </div>
+
                   {provided.placeholder}
                 </div>
               )}
             </Droppable>
           </DragDropContext>
 
-          {isModalOpen && (
-            <div className="modal-overlay">
-              <div className="modal">
-                <h3 className="mb-3 text-xl font-bold text-black">Новая задача</h3>
-                <input
-                  type="text"
-                  placeholder="Название задачи"
-                  value={newTask.title}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, title: e.target.value })
-                  }
-                />
-                <textarea
-                  placeholder="Описание задачи"
-                  value={newTask.description}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, description: e.target.value })
-                  }
-                />
-                <div className="modal-actions">
-                  <button
-                    onClick={() => {
-                      addCard(currentColumnId);
-                      setIsModalOpen(false);
-                      setNewTask({ title: "", description: "" });
-                    }}
-                  >
-                    Добавить
-                  </button>
-                  <button onClick={() => setIsModalOpen(false)}>Отмена</button>
-                </div>
-              </div>
-            </div>
+          {modalInTaskState && (
+            <ModalAddTask
+              mode={mode}
+              newTask={newTask}
+              setNewTask={setNewTask}
+              currentColumnId={currentColumnId}
+              addCard={addCard}
+              setIsModalOpen={closeModalTaskState}
+            />
+          )}
+
+          {isModalColumnMenu && (
+            <ModalColumnMenu
+              position={menuPosition}
+              onEditColumn={handleEditColumn}
+              onDeleteColumn={() => handleDeleteColumn(currentColumnId)}
+              onAddTask={() => {
+                setCurrentColumnId(currentColumnId);
+                openModalTaskState();
+              }}
+            />
           )}
         </div>
       </div>

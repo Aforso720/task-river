@@ -1,0 +1,51 @@
+.HeaderTaskBoard{
+    background-color: #22333B ;
+    font-family: 'Poppins' , sans-serif;
+    color: #E6E4D8;
+    max-height: 143px;
+
+    .resultBoard{
+    width: 429px;
+  }
+
+
+    .viewBoard {
+  .viewBoard__tab {
+    cursor: pointer;
+    transition: border-bottom 0.2s ease;
+
+    &.active {
+      border-bottom: 2px solid #8C6D51;
+    }
+  }
+}
+
+}
+
+.dark .HeaderTaskBoard{
+  background-color: #E6E4D8;
+  color: #22333B;
+
+  .viewBoard {
+  .viewBoard__tab {
+    color: #22333B;
+    &.active {
+      border-bottom: 2px solid #22333B;
+    }
+  }
+}
+
+.shareBoard{
+  button{
+    background-color: #8C6D51;
+    color: #E6E4D8;
+  }
+}
+
+.boardFunction {
+  img {
+    filter: brightness(0) saturate(100%) invert(15%) sepia(18%) saturate(689%) hue-rotate(155deg) brightness(95%) contrast(95%);
+  }
+}
+
+}
