@@ -50,7 +50,7 @@ const ListElemPanel = ({ type, list, listBoards }) => {
   return (
     <article
       className={`ListElemPanel ${
-        type === "Задачи" ? "border-b-0" : "border-b border-[#22333B]"
+        type === "Задачи" ? '' : " borderListElem"
       }`}
     >
       <h3 className="text-3xl font-bold text-[#22333B]">{type}</h3>

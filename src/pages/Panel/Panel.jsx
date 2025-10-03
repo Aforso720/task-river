@@ -10,16 +10,14 @@ import NotesInTask from "../../entities/NotesInTask/NotesInTask";
 import AddElemModal from "../../widgets/AddElemModal/AddElemModal";
 import useModalAddElemStore from '../../widgets/AddElemModal/useModalAddElemStore';
 
-import { Routes, Route, useMatch, Navigate } from "react-router";
+import { Routes, Route, useMatch, Navigate , useLocation } from "react-router";
 import { data } from "./data";
 
 import useTargetEvent from "./store/useTargetEvent";
+import Setting from "../../features/Setting/UI/Setting";
 
 const Panel = () => {
   const ModalAddElemState = useModalAddElemStore((state)=>state.ModalAddElemState)
-
-  console.log(ModalAddElemState)
-  
   const activeProjectId = useTargetEvent((state) => state.activeProjectId);
   const activeSingleBoardId = useTargetEvent(
     (state) => state.activeSingleBoardId
@@ -33,6 +31,8 @@ const Panel = () => {
 
   const { projects, boards, tasks } = data;
 
+  const myLocation = useLocation()
+
 
   return (
     <section className="PanelPage">
@@ -42,7 +42,10 @@ const Panel = () => {
           <SideBarTasks projects={projects} boards={boards} tasks={tasks} />
         )}
         <section className="mainPanelPage">
+          {myLocation.pathname === '/panel/setting' ? 
+           null : 
           <HeaderSideBar />
+          }
           <div className="panelsСontainer">
             <Routes>
               <Route
@@ -115,6 +118,8 @@ const Panel = () => {
               <Route path="/tasks/:taskId" element={<NotesInTask />} />
 
               <Route path='/market' element={<Templates />}/>
+
+              <Route path='/setting' element={<Setting />}/>
             </Routes>
           </div>
         </section>

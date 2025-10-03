@@ -7,14 +7,12 @@ const AddElemModal = () => {
 
   if (!ModalAddElemState) return null;
   
-  // Пример данных пользователей (должны приходить из пропсов или стора)
   const users = [
     { id: 1, firstName: 'Иван', lastName: 'Иванов', avatar: '' },
     { id: 2, firstName: 'Петр', lastName: 'Петров', avatar: '' },
     { id: 3, firstName: 'Сидор', lastName: 'Сидоров', avatar: '' },
   ];
 
-  // Состояние для формы
   const [formData, setFormData] = useState({
     title: '',
     description: '',

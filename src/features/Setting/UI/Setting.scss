@@ -1,0 +1,35 @@
+.SettingPanel{
+    width: 100%;
+    min-height: 100vh;
+    height: 100%;
+    color: #22333B;
+    display: flex;
+    aside{
+        height: 100%;
+        border-right: 1px solid #22333B;
+        color: #22333B;
+
+        ul{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            li{
+                width: 286px;
+                display: flex;
+                align-items: center;
+                height: 32px;
+                font-size: 1rem;
+                font-weight: 600;
+                border: 1px solid #22333B;
+                border-radius: 6px;
+                padding: 0 8px;
+                cursor: pointer;
+            }
+
+            .active{
+                background-color: #22333B;
+                color: #E6E4D8;
+            }
+        }
+    }
+}

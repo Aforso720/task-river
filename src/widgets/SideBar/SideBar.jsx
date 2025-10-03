@@ -12,6 +12,7 @@ const SideBar = () => {
     if (location.pathname.includes("/panel/tasks")) return "task"
     if (location.pathname.includes("/panel/menu")) return "panel"
     if (location.pathname.includes("/panel/market")) return "market"
+    if (location.pathname.includes("/panel/setting")) return "setting"
     return ""
   }
 
@@ -51,7 +52,6 @@ const SideBar = () => {
           </li>
         </Link>
 
-        {/* ТЕМА — ПЕРЕКЛЮЧАТЕЛЬ */}
         <li className="sideBar-item p-2 cursor-pointer" onClick={toggleTheme}>
           <img
             src={
@@ -64,7 +64,7 @@ const SideBar = () => {
         </li>
       </ul>
 
-      <Link>
+      <Link to='/panel/setting'>
         <div className={`sideBar-item ${activeItem === "setting" ? "active" : ""}`}>
           <img src="/image/SettingICon.svg" alt="Setting" />
         </div>

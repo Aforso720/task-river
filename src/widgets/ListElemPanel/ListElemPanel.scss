@@ -47,7 +47,20 @@
     }
 }
 
+  .borderListElem{
+        border-bottom: 1px solid #22333B ;
+    }
+
+    .dark .borderListElem{
+        border-bottom: 1px solid #E6E4D8 ;
+    }
+
+
 .dark .ListElemPanel{
+    .borderListElem{
+        border-bottom: 1px solid #E6E4D8 ;
+    }
+
     h3{
         color: #E6E4D8;
     }

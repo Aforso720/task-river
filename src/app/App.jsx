@@ -8,13 +8,16 @@ import About from "../pages/About/About";
 import Tariffs from "../pages/Tariffs/Tariffs";
 import Updates from "../pages/Updates/Updates";
 import Panel from "../pages/Panel/Panel";
+import AuthModal from "../features/Auth/UI/AuthModal";
 
 function App() {
-  
-  let userActive = true;
+  let userActive = false;
   
   return (
     <div className="App flex justify-between flex-col items-center">
+
+      <AuthModal/>
+
       {userActive ? (
         <Routes>
           <Route path="/panel/*" element={<Panel />} />
@@ -35,7 +38,7 @@ function App() {
         </>
       )}
       {/* <Routes>
-        <Route path="/хлеб" element={<div className="w-full h-full flex m-auto justify-center text-5xl text-[#22333B]">Не найдена такая страница</div>}/>
+        <Route path="*" element={<div className="w-full h-full flex m-auto justify-center text-5xl text-[#22333B]">Не найдена такая страница</div>}/>
       </Routes> */}
     </div>
   );
