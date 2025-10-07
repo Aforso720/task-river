@@ -21,7 +21,7 @@ const SideBar = () => {
   return (
     <aside className="sideBar">
       <ul>
-        <Link>
+        <Link to='/'>
           <li className="mb-5">
             <img src="/image/LogoIcon.svg" alt="Logo" />
           </li>

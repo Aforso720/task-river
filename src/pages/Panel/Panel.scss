@@ -2,6 +2,7 @@
   display: flex;
   min-height: 100vh;
   width: 100%;
+  background-color: #E6E4D8;
 
   .wrapperSidebar{
         border-left: 1px solid #22333B;
@@ -30,7 +31,10 @@
 }
 
 
-.dark .wrapperSidebar{
-    border-left: 1px solid #E6E4D8;
-
+.dark .PanelPage {
+  background-color: #22333B;
+    .wrapperSidebar{
+      border-left: 1px solid #E6E4D8;
+    }
+    
 }

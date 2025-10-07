@@ -16,7 +16,10 @@ const Header = () => {
 
   return (
     <header className="Header flex justify-between items-center px-8 py-2">
-      <img src="image/LogoHead.svg" alt="Logotip" className='cursor-pointer'/>
+      
+      <Link to='/panel/menu'>
+        <img src="image/LogoHead.svg" alt="Logotip" className='cursor-pointer' />
+      </Link>
 
       <nav>
         <ul className="navHeader flex justify-center items-center gap-4">

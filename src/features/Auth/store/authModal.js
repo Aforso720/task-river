@@ -4,10 +4,10 @@ const useAuthModalStore = create((set)=>({
     modalAuthLogin:false,
     modalAuthRegistr:false,
 
-    openModalAuthState:()=>set({modalAuthLogin:true}),
-    closeModalAuthState:()=>set({modalAuthLogin:false,modalAuthRegistr:false}),
-    openModalAuthRegistr:()=>set({modalAuthRegistr:true}),
-    closeModalAuthRegistr:()=>set({modalAuthLogin:true,modalAuthRegistr:false}),
+    openModalAuthState:()=>set({modalAuthLogin:true,modalAuthRegistr:false}),
+    closeModalAuthState:()=>set({modalAuthLogin:false}),
+    openModalAuthRegistr:()=>set({modalAuthRegistr:true,modalAuthLogin:false}),
+    closeModalAuthRegistr:()=>set({modalAuthRegistr:false}),
 }));
 
 export default useAuthModalStore;
