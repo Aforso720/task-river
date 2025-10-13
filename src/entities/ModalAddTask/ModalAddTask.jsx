@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./ModalAddTask.scss";
+import { ModalTaskState } from "./store/ModalTaskState";
 
 const ModalAddTask = ({
   newTask,
@@ -12,6 +13,8 @@ const ModalAddTask = ({
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
   const isAddMode = mode === "add";
+
+  const {modalInTaskState} = ModalTaskState();
 
   const [priority, setPriority] = useState("Высокий");
   const [deadlineDate, setDeadlineDate] = useState("2025-06-23");
@@ -32,6 +35,8 @@ const ModalAddTask = ({
   const users = [
     { id: 1, firstName: "Екатерина", lastName: "Алексеева", avatar: null },
   ];
+
+  if(!modalInTaskState) return null
 
   return (
     <div className="modal-overlay">

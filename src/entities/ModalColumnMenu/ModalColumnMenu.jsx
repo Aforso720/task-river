@@ -6,7 +6,7 @@ const ModalColumnMenu = ({ position, onEditColumn, onDeleteColumn, onAddTask }) 
   const menuRef = useRef();
   const [newColumnName, setNewColumnName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const closeModalColumnMenu = useOpenColumnMenu(state => state.closeModalColumnMenu);
+  const {closeModalColumnMenu,isModalColumnMenu} = useOpenColumnMenu();
 
   const handleSave = () => {
     if (newColumnName.trim()) {
@@ -30,6 +30,10 @@ const ModalColumnMenu = ({ position, onEditColumn, onDeleteColumn, onAddTask }) 
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [closeModalColumnMenu]);
+
+  
+  if(!isModalColumnMenu) return null;
+
 
   if (isEditing) {
     return (
@@ -63,6 +67,7 @@ const ModalColumnMenu = ({ position, onEditColumn, onDeleteColumn, onAddTask }) 
       </div>
     );
   }
+
 
   return (
     <div 

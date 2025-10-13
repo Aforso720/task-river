@@ -1,33 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import "./ListElemPanel.scss";
 import { useNavigate } from "react-router";
 import useTargetEvent from "../../pages/Panel/store/useTargetEvent";
-import useModalAddElemStore from '../../widgets/AddElemModal/useModalAddElemStore';
+import useModalAddElemStore from "../../widgets/AddElemModal/useModalAddElemStore";
+import ConfirmDeleteModal from "@/shared/ConfirmDeleteModal/ConfirmDeleteModal";
+import CrossIcon from "@/shared/UI/CrossIcon";
+import { useDeleteElemPanel } from "@/features/Kanban/api/useDeleteElemPanel";
 
 const ListElemPanel = ({ type, list, listBoards }) => {
-  const openModalAddElem = useModalAddElemStore((state) => state.openModalAddElem);
+  const openModalAddElem = useModalAddElemStore(
+    (state) => state.openModalAddElem
+  );
 
   const addProjectID = useTargetEvent((state) => state.addProjectID);
   const addBoardID = useTargetEvent((state) => state.addBoardID);
   const addTaskID = useTargetEvent((state) => state.addTaskID);
-  const addSingleBoardID = useTargetEvent((state) => state.addSingleBoardID);
 
   const navigate = useNavigate();
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmItem, setConfirmItem] = useState(null);
+
+  const deleteElemPanel = useDeleteElemPanel((s) => s.deleteElemPanel);
+  const storeDeleting = useDeleteElemPanel((s) => s.isDeleting);
 
   const handleClick = (item) => {
     if (type === "Проекты") {
       addProjectID?.(item.id);
-
       const projectBoards = listBoards?.filter((b) => b.projectId === item.id);
-      if (projectBoards?.length > 0) {
-        addBoardID?.(projectBoards[0].id);
-      } else {
-        addBoardID?.(null);
-      }
-
+      if (projectBoards?.length > 0) addBoardID?.(projectBoards[0].id);
+      else addBoardID?.(null);
       navigate(`/panel/project/${item.id}`);
     } else if (type === "Доски") {
-      addSingleBoardID?.(item.id);
+      addBoardID?.(item.id);
       navigate(`/panel/board/${item.id}`);
     } else {
       addTaskID?.(item.id);
@@ -47,11 +52,25 @@ const ListElemPanel = ({ type, list, listBoards }) => {
     else openModalAddElem("task");
   };
 
+  // Клик по крестику → открыть модалку
+  const askDelete = (e, item) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setConfirmItem(item);
+    setConfirmOpen(true);
+  };
+
+  // Подтверждение удаления → стор
+  const confirmDelete = async () => {
+    if (!confirmItem) return;
+    await deleteElemPanel(type, confirmItem.id);
+    setConfirmOpen(false);
+    setConfirmItem(null);
+  };
+
   return (
     <article
-      className={`ListElemPanel ${
-        type === "Задачи" ? '' : " borderListElem"
-      }`}
+      className={`ListElemPanel ${type === "Задачи" ? "" : " borderListElem"}`}
     >
       <h3 className="text-3xl font-bold text-[#22333B]">{type}</h3>
       <ul>
@@ -59,15 +78,60 @@ const ListElemPanel = ({ type, list, listBoards }) => {
           <li
             key={item.id}
             onClick={() => handleClick(item)}
-            style={{ cursor: "pointer" }}
+            className="relative cursor-pointer group"
           >
-            <img
-              src={`/image/${item.icon}`}
-              alt="Icon"
-              className="item-icon"
-              style={{ width: "24px", height: "24px" }}
-            />
-            <p className="font-medium text-xs text-[#22333B]">{item.title}</p>
+            {item.icon && (
+              <img
+                src={`/image/${item.icon}`}
+                alt="Icon"
+                className="item-icon"
+                style={{ width: 24, height: 24 }}
+              />
+            )}
+            <p className="font-medium text-xs text-[#22333B]">
+              {item.name ?? item.title}
+            </p>
+
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                askDelete(e, item);
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              aria-label="Удалить"
+              title="Удалить"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  askDelete(e, item);
+                }
+              }}
+              className="
+              absolute right-1.5 top-1/2 -translate-y-1/2
+              w-[22px] h-[22px] grid place-items-center
+              rounded-md cursor-pointer z-10
+              bg-transparent
+              transition-colors duration-200
+              hover:bg-[rgba(34,51,59,0.08)]
+              focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#22333B]
+            "
+            >
+              <span
+                className="
+                  pointer-events-none
+                  transition-transform duration-300
+                  group-hover:rotate-90 group-hover:scale-110
+                "
+              >
+                <CrossIcon />
+              </span>
+            </span>
           </li>
         ))}
         <li
@@ -78,6 +142,18 @@ const ListElemPanel = ({ type, list, listBoards }) => {
           {`+ добавить ${getTypeAddText()}`}
         </li>
       </ul>
+
+      <ConfirmDeleteModal
+        open={confirmOpen}
+        itemName={confirmItem?.name ?? confirmItem?.title ?? ""}
+        loading={storeDeleting}
+        onCancel={() => {
+          if (storeDeleting) return;
+          setConfirmOpen(false);
+          setConfirmItem(null);
+        }}
+        onConfirm={confirmDelete}
+      />
     </article>
   );
 };

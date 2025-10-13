@@ -39,8 +39,8 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
                 key={project.id}
                 onClick={() => addProjectID(project.id)}
               >
-                <img src={`/image/${project.icon}`} alt={project.title} />
-                <p>{project.title}</p>
+                {project.icon && <img src={`/image/${project.icon}`} alt={project.name} />}
+                <p>{project.name}</p>
               </div>
             ))}
           </div>
@@ -59,8 +59,8 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
                 key={board.id}
                 onClick={() => addBoardID(board.id)}
               >
-                <img src={`/image/${board.icon}`} alt={board.title} />
-                <p>{board.title}</p>
+                {board.icon && <img src={`/image/${board.icon}`} alt={board.name} />}
+                <p>{board.name}</p>
               </div>
             ))}
           </div>
@@ -79,8 +79,8 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
                 key={task.id}
                 onClick={() => addTaskID(task.id)}
               >
-                <img src={`/image/${task.icon}`} alt={task.title} />
-                <p>{task.title}</p>
+                {task.icon && <img src={`/image/${task.icon}`} alt={task.name} />}
+                <p>{task.name}</p>
               </div>
             ))}
           </div>

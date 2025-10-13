@@ -11,24 +11,8 @@ import { ModalTaskState } from "../../entities/ModalAddTask/store/ModalTaskState
 
 const TasksBoard = () => {
   const setTaskCounts = useListTaskInBoard((state) => state.setTaskCounts);
-  const isModalColumnMenu = useOpenColumnMenu(
-    (state) => state.isModalColumnMenu
-  );
-  const editModalColumnMenu = useOpenColumnMenu(
-    (state) => state.editModalColumnMenu
-  );
-  const menuPosition = useOpenColumnMenu((state) => state.menuPosition);
-  const modalInTaskState = ModalTaskState((state) => state.modalInTaskState);
-  const openModalTaskState = ModalTaskState(
-    (state) => state.openModalTaskState
-  );
-  const closeModalTaskState = ModalTaskState(
-    (state) => state.closeModalTaskState
-  );
-  const mode = ModalTaskState(
-    (state) => state.mode
-  );
-
+  const { editModalColumnMenu, menuPosition } = useOpenColumnMenu();
+  const { mode, closeModalTaskState, openModalTaskState } = ModalTaskState();
   const [isDraggingColumn, setIsDraggingColumn] = useState(false);
   const [columns, setColumns] = useState({
     backlog: {
@@ -417,28 +401,24 @@ const TasksBoard = () => {
             </Droppable>
           </DragDropContext>
 
-          {modalInTaskState && (
-            <ModalAddTask
-              mode={mode}
-              newTask={newTask}
-              setNewTask={setNewTask}
-              currentColumnId={currentColumnId}
-              addCard={addCard}
-              setIsModalOpen={closeModalTaskState}
-            />
-          )}
+          <ModalAddTask
+            mode={mode}
+            newTask={newTask}
+            setNewTask={setNewTask}
+            currentColumnId={currentColumnId}
+            addCard={addCard}
+            setIsModalOpen={closeModalTaskState}
+          />
 
-          {isModalColumnMenu && (
-            <ModalColumnMenu
-              position={menuPosition}
-              onEditColumn={handleEditColumn}
-              onDeleteColumn={() => handleDeleteColumn(currentColumnId)}
-              onAddTask={() => {
-                setCurrentColumnId(currentColumnId);
-                openModalTaskState();
-              }}
-            />
-          )}
+          <ModalColumnMenu
+            position={menuPosition}
+            onEditColumn={handleEditColumn}
+            onDeleteColumn={() => handleDeleteColumn(currentColumnId)}
+            onAddTask={() => {
+              setCurrentColumnId(currentColumnId);
+              openModalTaskState();
+            }}
+          />
         </div>
       </div>
     </div>

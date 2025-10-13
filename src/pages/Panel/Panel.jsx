@@ -9,18 +9,17 @@
   import NotesInTask from "../../entities/NotesInTask/NotesInTask";
   import AddElemModal from "../../widgets/AddElemModal/AddElemModal";
   import useModalAddElemStore from '../../widgets/AddElemModal/useModalAddElemStore';
+  import { useGetElemPanel } from "./api/useGetElemPanel";
 
   import { Routes, Route, useMatch, Navigate , useLocation } from "react-router";
-  import { data } from "./data";
 
   import useTargetEvent from "./store/useTargetEvent";
   import Setting from "../../features/Setting/UI/Setting";
   import useAuthStore from "@/features/Auth/api/loginRequest";
 
   const Panel = () => {
-    const {finishedAuth} = useAuthStore()
-
-    const ModalAddElemState = useModalAddElemStore((state)=>state.ModalAddElemState)
+    const {finishedAuth} = useAuthStore();
+    const ModalAddElemState = useModalAddElemStore((state)=>state.ModalAddElemState);
     const activeProjectId = useTargetEvent((state) => state.activeProjectId);
     const activeSingleBoardId = useTargetEvent(
       (state) => state.activeSingleBoardId
@@ -32,7 +31,11 @@
 
     const showSidebarTasks = matchProject || matchBoard || matchTask;
 
-    const { projects, boards, tasks } = data;
+    const { projects,boards,tasks,getAllElemPanel} = useGetElemPanel();
+
+    React.useEffect(()=>{
+      getAllElemPanel()
+    },[getAllElemPanel])
 
     const myLocation = useLocation()
 
@@ -63,11 +66,11 @@
                       />
                       <ListElemPanel
                         type={"Доски"}
-                        list={boards.filter((board) => board.projectId === null)}
+                        list={boards.filter((item)=>item.projectId===null)}
                       />
                       <ListElemPanel
                         type={"Задачи"}
-                        list={tasks.filter((task) => task.boardId === null)}
+                        list={tasks}
                       />
                     </>
                   }

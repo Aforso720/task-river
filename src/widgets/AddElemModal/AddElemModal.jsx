@@ -1,123 +1,298 @@
-import React, { useState } from 'react';
-import './AddElemModal.scss';
-import useModalAddElemStore from './useModalAddElemStore';
+import React, { useEffect, useState } from "react";
+import "./AddElemModal.scss";
+import useModalAddElemStore from "./useModalAddElemStore";
+import { usePostElemPanel } from "@/features/Kanban/api/usePostElemPanel";
+import { useGetElemPanel } from "@/pages/Panel/api/useGetElemPanel";
 
 const AddElemModal = () => {
-  const { ModalAddElemState, typeModalAddElem, closeModalAddElem } = useModalAddElemStore();
+  const { ModalAddElemState, typeModalAddElem, closeModalAddElem } =
+    useModalAddElemStore();
+  const createElemPanel = usePostElemPanel((s) => s.createElemPanel);
 
-  if (!ModalAddElemState) return null;
-  
-  const users = [
-    { id: 1, firstName: 'Иван', lastName: 'Иванов', avatar: '' },
-    { id: 2, firstName: 'Петр', lastName: 'Петров', avatar: '' },
-    { id: 3, firstName: 'Сидор', lastName: 'Сидоров', avatar: '' },
-  ];
+  // Подписываемся на части стора ОТДЕЛЬНЫМИ вызовами хука — так надёжнее
+  const projects = useGetElemPanel((s) => s.projects) || [];
+  const getAllElemPanel = useGetElemPanel((s) => s.getAllElemPanel);
 
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
+    attachToProject: false,
+    projectId: "",
   });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const getTitleLabel = () => {
-    switch (typeModalAddElem) {
-      case 'project':
-        return 'Название проекта';
-      case 'board':
-        return 'Название доски';
-      case 'task':
-        return 'Заголовок задачи';
-      default:
-        return 'Название';
+  // При открытии модалки для "Доски" — подтянем проекты, если их нет
+  useEffect(() => {
+    if (
+      ModalAddElemState &&
+      typeModalAddElem === "board" &&
+      projects.length === 0
+    ) {
+      getAllElemPanel?.();
+    }
+  }, [ModalAddElemState, typeModalAddElem, projects.length, getAllElemPanel]);
+
+  // Сброс при закрытии
+  useEffect(() => {
+    if (!ModalAddElemState) {
+      setFormData({
+        title: "",
+        description: "",
+        attachToProject: false,
+        projectId: "",
+      });
+      setErrors({});
+    }
+  }, [ModalAddElemState]);
+
+  if (!ModalAddElemState) return null;
+
+  const getTitleLabel = () =>
+    typeModalAddElem === "project"
+      ? "Название проекта"
+      : typeModalAddElem === "board"
+      ? "Название доски"
+      : typeModalAddElem === "task"
+      ? "Заголовок задачи"
+      : "Название";
+
+  const getDescriptionLabel = () =>
+    typeModalAddElem === "project"
+      ? "Описание проекта"
+      : typeModalAddElem === "board"
+      ? "Описание доски"
+      : typeModalAddElem === "task"
+      ? "Описание задачи"
+      : "Описание";
+
+  const renderTitle = () =>
+    typeModalAddElem === "project"
+      ? "Добавление проекта"
+      : typeModalAddElem === "board"
+      ? "Добавление доски"
+      : typeModalAddElem === "task"
+      ? "Добавление задачи"
+      : "";
+
+  const validate = () => {
+    const next = {};
+    if (!formData.title.trim()) next.title = "Заполните название";
+    if (
+      typeModalAddElem === "board" &&
+      formData.attachToProject &&
+      !formData.projectId
+    ) {
+      next.projectId = "Выберите проект";
+    }
+    return next;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const v = validate();
+    setErrors(v);
+    if (Object.keys(v).length) return;
+
+    setIsSubmitting(true);
+    try {
+      const title = formData.title.trim();
+      const description = formData.description.trim() || undefined;
+
+      let url = "";
+      let payload = {};
+
+      if (typeModalAddElem === "project") {
+        url = "projects";
+        payload = { name: title, description };
+      } else if (typeModalAddElem === "board") {
+        url = "boards";
+        payload = {
+          title, // бэку для board нужен title
+          description,
+          // если не прикрепляем — отправляем null (или убери поле вовсе, если бэк не любит null)
+          projectId: formData.attachToProject ? formData.projectId : null,
+        };
+      } else if (typeModalAddElem === "task") {
+        url = "tasks";
+        payload = { name: title, description };
+      } else {
+        throw new Error("Unknown type");
+      }
+
+      await createElemPanel(payload, url);
+      await getAllElemPanel?.();
+
+      setFormData({
+        title: "",
+        description: "",
+        attachToProject: false,
+        projectId: "",
+      });
+      closeModalAddElem();
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message || "Ошибка";
+      setErrors((s) => ({ ...s, _form: msg }));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const getDescriptionLabel = () => {
-    switch (typeModalAddElem) {
-      case 'project':
-        return 'Описание проекта';
-      case 'board':
-        return 'Описание доски';
-      case 'task':
-        return 'Описание задачи';
-      default:
-        return 'Описание';
-    }
-  };
-
-  const renderTitle = () => {
-    switch (typeModalAddElem) {
-      case 'project':
-        return 'Добавление проекта';
-      case 'board':
-        return 'Добавление доски';
-      case 'task':
-        return 'Добавление задачи';
-      default:
-        return '';
-    }
-  };
+  const stop = (e) => e.stopPropagation();
 
   return (
-    <div className="modal-overlayAddElem" onClick={closeModalAddElem}>
-      <article className="modal" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="modal-overlayAddElem"
+      onClick={isSubmitting ? undefined : closeModalAddElem}
+    >
+      <article className="modal" onClick={stop}>
         <header>
           <h3>{renderTitle()}</h3>
         </header>
-        <section className="contentModalAdd flex">
-          <div className="leftSide">
-            <label>{getTitleLabel()}</label>
-            <input
-              className="w-72"
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder={`Введите ${getTitleLabel().toLowerCase()}`}
-            />
 
+        <form id="add-elem-form" onSubmit={handleSubmit} noValidate>
+          <section className="contentModalAdd flex">
+            <div className="leftSide">
+              <label htmlFor="add-elem-title">{getTitleLabel()}</label>
+              <input
+                id="add-elem-title"
+                name="title"
+                className="w-72"
+                type="text"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                placeholder={`Введите ${getTitleLabel().toLowerCase()}`}
+                aria-invalid={!!errors.title}
+                aria-describedby={
+                  errors.title ? "add-elem-title-error" : undefined
+                }
+                autoComplete="off"
+              />
+              {errors.title && (
+                <div
+                  id="add-elem-title-error"
+                  className="text-xs"
+                  style={{ color: "#cc0000" }}
+                >
+                  {errors.title}
+                </div>
+              )}
+
+              {typeModalAddElem === "board" && (
+                <div className="attach-project-block">
+                  <label htmlFor="attach-to-project" className="attach-toggle">
+                    <input
+                      id="attach-to-project"
+                      type="checkbox"
+                      checked={formData.attachToProject}
+                      onChange={(e) =>
+                        setFormData((s) => ({
+                          ...s,
+                          attachToProject: e.target.checked,
+                          projectId: e.target.checked ? s.projectId : "", // сброс при выключении
+                        }))
+                      }
+                    />
+                    <span className="attach-toggle__label">
+                      Прикрепить к проекту
+                    </span>
+                  </label>
+
+                  <div
+                    className={`attach-project__collapsible ${
+                      formData.attachToProject ? "open" : ""
+                    }`}
+                  >
+                    <label
+                      htmlFor="project-select"
+                      className="attach-project__label"
+                    >
+                      Выберите проект
+                    </label>
+                    <select
+                      id="project-select"
+                      className="attach-project__select"
+                      disabled={!formData.attachToProject}
+                      value={formData.projectId}
+                      onChange={(e) =>
+                        setFormData({ ...formData, projectId: e.target.value })
+                      }
+                      aria-invalid={!!errors?.projectId}
+                    >
+                      <option value="">— Не выбран —</option>
+                      {projects.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name ?? p.title ?? `#${p.id}`}
+                        </option>
+                      ))}
+                    </select>
+                    {errors?.projectId && (
+                      <div className="attach-project__error">
+                        {errors.projectId}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* твой блок ответственных как был */}
               <div className="assignee-row">
                 <label>Ответственные</label>
-                <div className="assignees-column h-auto max-h-24 overflow-y-auto my-2">
-                  {users.map((user) => (
-                    <div
-                      key={user.id}
-                      className="assignee-item bg-[#F7F7F7] p-1 rounded-lg flex items-center"
-                    >
-                      <div className="avatar ml-2">
-                        {user.avatar ? (
-                          <img
-                            src={user.avatar}
-                            alt={`${user.firstName} ${user.lastName}`}
-                          />
-                        ) : (
-                          `${user.lastName[0]}${user.firstName[0]}`
-                        )}
-                      </div>
-                      <div className="user-name text-xs flex-grow">
-                        {user.firstName} {user.lastName}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <button className="add-btn w-full flex justify-center rounded-xl">
+                <div className="assignees-column h-auto max-h-24 overflow-y-auto my-2" />
+                <button
+                  className="add-btn w-full flex justify-center rounded-xl"
+                  type="button"
+                >
                   +
                 </button>
               </div>
-        
-          </div>
-          <section>
-            <label>{getDescriptionLabel()}</label>
-            <textarea
-              className="h-20 max-h-32 w-full"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder={`Введите ${getDescriptionLabel().toLowerCase()}`}
-            />
+            </div>
+
+            <section>
+              <label htmlFor="add-elem-desc">{getDescriptionLabel()}</label>
+              <textarea
+                id="add-elem-desc"
+                name="description"
+                className="h-20 max-h-32 w-full"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                placeholder={`Введите ${getDescriptionLabel().toLowerCase()}`}
+                aria-invalid={!!errors.description}
+              />
+            </section>
           </section>
-        </section>
+
+          {errors._form && (
+            <div
+              className="px-5"
+              style={{ color: "#cc0000", textAlign: "left" }}
+            >
+              {errors._form}
+            </div>
+          )}
+        </form>
+
         <footer className="modal-actions px-5">
-          <button className="cancel-btn" onClick={closeModalAddElem}>Отмена</button>
-          <button className="save-btn">Сохранить</button>
+          <button
+            className="cancel-btn"
+            type="button"
+            onClick={closeModalAddElem}
+            disabled={isSubmitting}
+          >
+            Отмена
+          </button>
+          <button
+            className="save-btn"
+            type="submit"
+            form="add-elem-form"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Сохраняем…" : "Сохранить"}
+          </button>
         </footer>
       </article>
     </div>
