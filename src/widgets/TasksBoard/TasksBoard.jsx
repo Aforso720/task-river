@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "./TasksBoard.scss";
 import ModalAddTask from "../../entities/ModalAddTask/ModalAddTask";
@@ -8,272 +8,194 @@ import CardBoard from "../../entities/CardBoard/CardBoard";
 import HeaderTaskBoard from "../../entities/HeaderTaskBoard/HeaderTaskBoard";
 import useListTaskInBoard from "../../entities/HeaderTaskBoard/store/useListTaskInBoard";
 import { ModalTaskState } from "../../entities/ModalAddTask/store/ModalTaskState";
+import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
+import { useWorkColumn } from "@/features/Kanban/api/useWorkColumn";
+import { useWorkTasks } from "@/features/Kanban/api/useWorkTasks";
 
 const TasksBoard = () => {
-  const setTaskCounts = useListTaskInBoard((state) => state.setTaskCounts);
+  const setTaskCounts = useListTaskInBoard((s) => s.setTaskCounts);
+  const { activeBoardId } = useTargetEvent();
+
+  const {
+    getColumnFunc,
+    columns: columnsApi,
+    loading: columnsLoading,
+    postColumnFunc,
+    loadingPost,
+    deleteColumnFunc,
+  } = useWorkColumn();
+  const {
+    getTasksFunc,
+    tasks: tasksApi,
+    loading: tasksLoading,
+  } = useWorkTasks();
+
   const { editModalColumnMenu, menuPosition } = useOpenColumnMenu();
-  const { mode, closeModalTaskState, openModalTaskState } = ModalTaskState();
+  const { openModalTaskState } = ModalTaskState();
+
   const [isDraggingColumn, setIsDraggingColumn] = useState(false);
-  const [columns, setColumns] = useState({
-    backlog: {
-      id: "backlog",
-      title: "Бэклог",
-      cards: [
-        {
-          id: "1",
-          title: "Разработать систему авторизации",
-          content:
-            "Реализовать вход через email и соцсети. Добавить восстановление пароля.",
-        },
-        {
-          id: "2",
-          title: "Исправить баг с кнопкой отправки",
-          content: "Кнопка неактивна после ошибки валидации формы",
-        },
-        {
-          id: "3",
-          title: "Добавить фильтры в каталог",
-          content: "Фильтрация по цене, рейтингу и новизне",
-        },
-        {
-          id: "4",
-          title: "Оптимизировать загрузку изображений",
-          content: "Реализовать lazy loading для галереи товаров",
-        },
-        {
-          id: "5",
-          title: "Обновить документацию API",
-          content: "Добавить новые endpoints в swagger",
-        },
-      ],
-    },
-    inProgress: {
-      id: "inProgress",
-      title: "В работе",
-      cards: [
-        {
-          id: "6",
-          title: "Интеграция с платежной системой",
-          content: "Подключение Stripe для приема оплаты",
-        },
-        {
-          id: "7",
-          title: "Рефакторинг корзины покупок",
-          content: "Улучшить структуру кода компонента Cart",
-        },
-        {
-          id: "8",
-          title: "Адаптивная верстка личного кабинета",
-          content: "Исправить баги на мобильных устройствах",
-        },
-      ],
-    },
-    review: {
-      id: "review",
-      title: "На проверке",
-      cards: [
-        {
-          id: "9",
-          title: "Новый дизайн главной страницы",
-          content: "Готово к ревью от продуктовой команды",
-        },
-        {
-          id: "10",
-          title: "Миграция базы данных",
-          content: "Перенос пользователей на новую схему",
-        },
-      ],
-    },
-    done: {
-      id: "done",
-      title: "Готово",
-      cards: [
-        {
-          id: "11",
-          title: "Настройка CI/CD пайплайна",
-          content: "Автоматические деплои в staging окружение",
-        },
-        {
-          id: "12",
-          title: "Верстка email-рассылок",
-          content: "Шаблоны для всех типов уведомлений",
-        },
-        {
-          id: "13",
-          title: "Тестирование checkout процесса",
-          content: "Написано 25 тестов для сценариев оплаты",
-        },
-        {
-          id: "14",
-          title: "Обновление библиотек",
-          content: "React 18 и все зависимости до актуальных версий",
-        },
-      ],
-    },
-  });
+  const [columns, setColumns] = useState([]);
 
-  const handleEditColumn = (newName) => {
-    if (!newName.trim()) return;
+  useEffect(() => {
+    if (!activeBoardId) return;
+    (async () => {
+      await Promise.all([
+        getColumnFunc(activeBoardId),
+        getTasksFunc(activeBoardId),
+      ]);
+    })();
+  }, [activeBoardId, getColumnFunc, getTasksFunc]);
 
-    setColumns((prev) => ({
-      ...prev,
-      [currentColumnId]: {
-        ...prev[currentColumnId],
-        title: newName,
-      },
+  const builtColumns = useMemo(() => {
+    const sortedCols = [...(columnsApi || [])].sort(
+      (a, b) => (a.position ?? 0) - (b.position ?? 0)
+    );
+
+    const tasksByColumn = new Map();
+    (tasksApi || []).forEach((t) => {
+      const arr = tasksByColumn.get(t.columnId) || [];
+      arr.push(t);
+      tasksByColumn.set(t.columnId, arr);
+    });
+    for (const [_, arr] of tasksByColumn) {
+      arr.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    }
+
+    return sortedCols.map((c, idx) => ({
+      id: c.id,
+      title: c.name,
+      order: c.position ?? idx,
+
+      cards: (tasksByColumn.get(c.id) || []).map((t) => ({
+        id: t.id,
+        title: t.title,
+        description: t.description,
+        content: (
+          <div className="card-content">
+            <label>{t.description || "Описание отсутствует"}</label>
+          </div>
+        ),
+        raw: t,
+      })),
     }));
-  };
+  }, [columnsApi, tasksApi]);
 
-  const handleDeleteColumn = (columnId) => {
-    const newColumns = { ...columns };
-    delete newColumns[columnId];
-    setColumns(newColumns);
-  };
-
-  const [currentColumnId, setCurrentColumnId] = useState("");
-  const [newTask, setNewTask] = useState({
-    title: "",
-    description: "",
-  });
-  const [isAddColumnVisible, setIsAddColumnVisible] = useState(false);
-  const [newColumnName, setNewColumnName] = useState("");
+  useEffect(() => {
+    setColumns(builtColumns);
+  }, [builtColumns]);
 
   const onDragEnd = (result) => {
     const { destination, source, type } = result;
-
     if (!destination) return;
 
     if (type === "COLUMN") {
       if (destination.index === source.index) return;
-
-      const newColumnOrder = Object.values(columns).sort(
-        (a, b) => a.order - b.order
-      );
-      const [removed] = newColumnOrder.splice(source.index, 1);
-      newColumnOrder.splice(destination.index, 0, removed);
-
-      const newColumns = {};
-      newColumnOrder.forEach((col, index) => {
-        newColumns[col.id] = { ...col, order: index };
-      });
-
-      setColumns(newColumns);
+      const newCols = [...columns];
+      const [removed] = newCols.splice(source.index, 1);
+      newCols.splice(destination.index, 0, removed);
+      setColumns(newCols.map((c, i) => ({ ...c, order: i })));
       return;
     }
 
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    )
+    const startColId = source.droppableId;
+    const finishColId = destination.droppableId;
+    if (startColId === finishColId && destination.index === source.index)
       return;
 
-    const start = columns[source.droppableId];
-    const finish = columns[destination.droppableId];
+    const newCols = [...columns];
+    const startIdx = newCols.findIndex((c) => c.id === startColId);
+    const finishIdx = newCols.findIndex((c) => c.id === finishColId);
+    if (startIdx === -1 || finishIdx === -1) return;
 
-    if (start === finish) {
-      const newCards = [...start.cards];
+    const startCol = newCols[startIdx];
+    const finishCol = newCols[finishIdx];
+
+    if (startCol === finishCol) {
+      const newCards = [...startCol.cards];
       const [removed] = newCards.splice(source.index, 1);
       newCards.splice(destination.index, 0, removed);
-
-      setColumns({
-        ...columns,
-        [start.id]: {
-          ...start,
-          cards: newCards,
-        },
-      });
+      newCols[startIdx] = { ...startCol, cards: newCards };
+      setColumns(newCols);
       return;
     }
 
-    const startCards = [...start.cards];
-    const [removed] = startCards.splice(source.index, 1);
-    const finishCards = [...finish.cards];
-    finishCards.splice(destination.index, 0, removed);
+    const startCards = [...startCol.cards];
+    const [moved] = startCards.splice(source.index, 1);
+    const finishCards = [...finishCol.cards];
+    finishCards.splice(destination.index, 0, moved);
 
-    setColumns({
-      ...columns,
-      [start.id]: {
-        ...start,
-        cards: startCards,
-      },
-      [finish.id]: {
-        ...finish,
-        cards: finishCards,
-      },
-    });
+    newCols[startIdx] = { ...startCol, cards: startCards };
+    newCols[finishIdx] = { ...finishCol, cards: finishCards };
+    setColumns(newCols);
   };
 
-  const addCard = (columnId) => {
-    if (!newTask.title.trim()) return;
-
-    const newCard = {
-      id: `card-${Date.now()}`,
-      title: newTask.title,
-      content: (
-        <div className="card-content">
-          <label>{newTask.description || "Описание отсутствует"}</label>
-        </div>
-      ),
-    };
-
-    setColumns({
-      ...columns,
-      [columnId]: {
-        ...columns[columnId],
-        cards: [...columns[columnId].cards, newCard],
-      },
-    });
-  };
-
-  const addColumn = () => {
-    if (!newColumnName.trim()) return;
-
-    const newId = `col-${Date.now()}`;
-    setColumns({
-      ...columns,
-      [newId]: {
-        id: newId,
-        title: newColumnName,
-        cards: [],
-      },
-    });
-    setNewColumnName("");
-  };
-
-  const handleAddColumn = () => {
-    if (!newColumnName.trim()) return;
-    addColumn();
-    setIsAddColumnVisible(false);
-  };
+  const [currentColumnId, setCurrentColumnId] = useState("");
 
   useEffect(() => {
-    let totalTasks = 0;
-    let doneTasks = 0;
-
-    Object.values(columns).forEach((column) => {
-      totalTasks += column.cards.length;
-      if (column.id === "done") {
-        doneTasks += column.cards.length;
-      }
-    });
-
+    const totalTasks = columns.reduce((acc, c) => acc + c.cards.length, 0);
+    const doneColumn = columns.find(
+      (c) => c.title?.toLowerCase() === "завершено" || c.id === "done"
+    );
+    const doneTasks = doneColumn ? doneColumn.cards.length : 0;
     setTaskCounts(totalTasks, doneTasks);
-  }, [columns]);
+  }, [columns, setTaskCounts]);
+
+  const [isAddColumnVisible, setIsAddColumnVisible] = useState(false);
+  const [newColumnName, setNewColumnName] = useState("");
+
+  const handleEditColumn = (newName) => {
+    if (!newName.trim()) return;
+    setColumns((prev) =>
+      prev.map((c) => (c.id === currentColumnId ? { ...c, title: newName } : c))
+    );
+  };
+
+  const handleDeleteColumn = async (columnId) => {
+    if (!activeBoardId || !columnId) return;
+    try {
+      await deleteColumnFunc(activeBoardId, columnId); // вызов стора
+      await getColumnFunc(activeBoardId); // рефетчим список с сервера
+      if (currentColumnId === columnId) setCurrentColumnId("");
+    } catch (e) {
+      console.error("Не удалось удалить колонку:", e);
+      // тут можно показать тост/уведомление об ошибке
+    }
+  };
+
+  const handleAddColumn = async () => {
+    const name = newColumnName.trim();
+    if (!name || !activeBoardId) return;
+
+    const payload = { name, position: columns.length };
+
+    try {
+      await postColumnFunc(activeBoardId, payload);
+      await getColumnFunc(activeBoardId);
+      setNewColumnName("");
+      setIsAddColumnVisible(false);
+    } catch (e) {
+      console.error("Не удалось создать колонку:", e);
+    }
+  };
+
+  const loading = columnsLoading || tasksLoading;
 
   return (
     <div className="tasks-board-container">
       <HeaderTaskBoard />
       <div className="tasks-board-wrapper">
         <div className="tasks-board">
+          {loading && (
+            <div className="px-4 py-2 text-sm text-[#22333B]">Загружаем…</div>
+          )}
+
           <DragDropContext
             onDragEnd={(result) => {
               setIsDraggingColumn(false);
               onDragEnd(result);
             }}
             onDragStart={(start) => {
-              if (start.type === "COLUMN") {
-                setIsDraggingColumn(true);
-              }
+              if (start.type === "COLUMN") setIsDraggingColumn(true);
             }}
           >
             <Droppable
@@ -288,7 +210,7 @@ const TasksBoard = () => {
                   {...provided.droppableProps}
                 >
                   <div className="columns">
-                    {Object.values(columns).map((column, index) => (
+                    {columns.map((column, index) => (
                       <Draggable
                         key={column.id}
                         draggableId={column.id}
@@ -338,7 +260,6 @@ const TasksBoard = () => {
                                   <CardBoard
                                     column={column}
                                     provided={provided}
-                                    // editModalColumnMenu={}
                                     setCurrentColumnId={setCurrentColumnId}
                                     setIsModalOpen={openModalTaskState}
                                   />
@@ -362,16 +283,16 @@ const TasksBoard = () => {
                             value={newColumnName}
                             onChange={(e) => setNewColumnName(e.target.value)}
                             placeholder="Название колонки"
-                            onKeyPress={(e) =>
+                            onKeyDown={(e) =>
                               e.key === "Enter" && handleAddColumn()
                             }
                           />
                           <button
                             className="add-column-button"
                             onClick={handleAddColumn}
-                            disabled={!newColumnName.trim()}
+                            disabled={!newColumnName.trim() || loadingPost}
                           >
-                            +
+                            {loadingPost ? "…" : "+"}
                           </button>
                           <button
                             className="cancel-add-column"
@@ -379,6 +300,7 @@ const TasksBoard = () => {
                               setNewColumnName("");
                               setIsAddColumnVisible(false);
                             }}
+                            disabled={loadingPost}
                           >
                             Отмена
                           </button>
@@ -401,19 +323,12 @@ const TasksBoard = () => {
             </Droppable>
           </DragDropContext>
 
-          <ModalAddTask
-            mode={mode}
-            newTask={newTask}
-            setNewTask={setNewTask}
-            currentColumnId={currentColumnId}
-            addCard={addCard}
-            setIsModalOpen={closeModalTaskState}
-          />
+          <ModalAddTask />
 
           <ModalColumnMenu
             position={menuPosition}
             onEditColumn={handleEditColumn}
-            onDeleteColumn={() => handleDeleteColumn(currentColumnId)}
+            onDeleteColumn={() => handleDeleteColumn(currentColumnId)} 
             onAddTask={() => {
               setCurrentColumnId(currentColumnId);
               openModalTaskState();

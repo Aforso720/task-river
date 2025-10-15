@@ -21,10 +21,10 @@
 
 
     .flagsInTask{
-      background-color: #EDFAF6;
-      color: #60BF9D;
-      width: 33px;
-      max-width: 50px;
+      // background-color: #EDFAF6;
+      // color: #60BF9D;
+      // width: 33px;
+      max-width: 80px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -32,15 +32,37 @@
       border-radius: 10px;
       font-weight: 500;
       margin: 10px 0 0 0;
-      font-size: 12px;
+      font-size: 14px;
       font-family: 'Poppins';
+
+
+      
     }
 
+    .high-priority {
+  background-color: #FEE2E2;
+  color: #C40000;
+  border: 1px solid #FEE2E2;
+}
+
+.medium-priority {
+  background-color: #FEF9C3;
+  color: #A19519;
+  border: 1px solid #FEF9C3;
+}
+
+.low-priority {
+  background-color: #BBF7D0;
+  color: #009C36;
+  border: 1px solid #BBF7D0;
+}
+
+
     .card-content {
-    overflow-wrap: break-word;
-    word-break: break-word;
-    max-height: 80px;
-    overflow-y: auto;
+      display: -webkit-box;
+  -webkit-line-clamp: 2;        
+  -webkit-box-orient: vertical;
+  overflow: hidden;
     }
 
     h4 {

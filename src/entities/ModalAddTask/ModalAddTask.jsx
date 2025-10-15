@@ -1,29 +1,142 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./ModalAddTask.scss";
 import { ModalTaskState } from "./store/ModalTaskState";
+import { useWorkTasks } from "@/features/Kanban/api/useWorkTasks";
+import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
 
-const ModalAddTask = ({
-  newTask,
-  setNewTask,
-  currentColumnId,
-  addCard,
-  setIsModalOpen,
-  mode = "add",
-}) => {
+const difficultyByPriority = {
+  "Высокий": "HIGH",
+  "Средний": "MEDIUM",
+  "Низкий": "LOW",
+};
+
+export default function ModalAddTask() {
+  const {
+    modalInTaskState,
+    mode,                 // "add" | "edit" | "view"
+    selectedTask,         // объект выбранной карточки (как мы ранее договорились)
+    currentColumnId,      // колонка, к которой относится операция
+    closeModalTaskState,
+  } = ModalTaskState();
+
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
-  const isAddMode = mode === "add";
+  const isAddMode  = mode === "add";
 
-  const {modalInTaskState} = ModalTaskState();
+  const { activeBoardId } = useTargetEvent();
 
+  const {
+    postTasksFunc,
+    updateTasksFunc,
+    getTasksFunc,
+    loadingPost,
+    loadingPut,
+    tasks: tasksAll,
+  } = useWorkTasks();
+
+  const [form, setForm] = useState({ title: "", description: "" });
   const [priority, setPriority] = useState("Высокий");
   const [deadlineDate, setDeadlineDate] = useState("2025-06-23");
   const [deadlineTime, setDeadlineTime] = useState("14:30");
   const [files, setFiles] = useState([]);
 
+  // Инициализация формы при открытии
+  useEffect(() => {
+    if (!modalInTaskState) return;
+
+    if (isAddMode || !selectedTask) {
+      setForm({ title: "", description: "" });
+      setPriority("Высокий");
+    } else {
+      // edit/view — префилд из выбранной задачи
+      const raw = selectedTask.raw || selectedTask;
+      setForm({
+        title: raw?.title ?? "",
+        description: raw?.description ?? "",
+      });
+      const d = String(raw?.difficulty || "").trim().toUpperCase();
+      if (d === "HIGH") setPriority("Высокий");
+      else if (d === "MEDIUM") setPriority("Средний");
+      else setPriority("Низкий");
+    }
+    setFiles([]);
+  }, [modalInTaskState, isAddMode, selectedTask]);
+
+  if (!modalInTaskState) return null;
+
+  // вспом: позиция "в конец колонки"
+  const calcLastPositionInColumn = (colId) => {
+    const last = (tasksAll || [])
+      .filter((t) => t.columnId === colId)
+      .reduce((max, t) => Math.max(max, t.position ?? -1), -1);
+    return last; // вернём last, вызывать +1 снаружи — удобнее
+  };
+
+  const onSave = async () => {
+    if (isViewMode) return;
+    const title = (form.title || "").trim();
+    if (!title) return;
+
+    const description = (form.description || "").trim();
+    const difficulty = difficultyByPriority[priority] || "LOW";
+
+    try {
+      if (isAddMode) {
+        // создаём в currentColumnId, позиция в конец
+        const colId = currentColumnId;
+        const lastPos = calcLastPositionInColumn(colId);
+
+        const payload = {
+          title,
+          description,
+          difficulty,
+          columnId: colId,
+          position: lastPos + 1,
+          responsibleUserIds: ["68ad5e4b6f10733f3245325f"],
+          attachments: [],
+          // boardId: activeBoardId, // добавляй только если бэк требует это поле в body
+        };
+
+        await postTasksFunc(activeBoardId, payload);
+        await getTasksFunc(activeBoardId);
+        closeModalTaskState();
+      }
+
+      if (isEditMode && selectedTask) {
+        const prev = selectedTask.raw || selectedTask;
+        const prevColId = prev?.columnId;
+        const nextColId = currentColumnId || prevColId;
+
+        // если колонку сменили — ставим в конец новой
+        // иначе — оставляем прежнюю позицию
+        let position = prev?.position ?? 0;
+        if (nextColId !== prevColId) {
+          const lastPos = calcLastPositionInColumn(nextColId);
+          position = lastPos + 1;
+        }
+
+        const payload = {
+          title,
+          description,
+          difficulty,
+          columnId: nextColId,
+          position,
+          responsibleUserIds: prev?.responsibleUserIds || ["68ad5e4b6f10733f3245325f"],
+          attachments: prev?.attachments || [],
+        };
+
+        await updateTasksFunc(activeBoardId, prev.id, payload);
+        await getTasksFunc(activeBoardId);
+        closeModalTaskState();
+      }
+    } catch (err) {
+      console.error("Не удалось сохранить задачу:", err);
+    }
+  };
+
   const handleFileChange = (e) => {
     if (isViewMode) return;
-    const newFiles = [...files, ...Array.from(e.target.files)];
+    const newFiles = [...files, ...Array.from(e.target.files || [])];
     setFiles(newFiles);
   };
 
@@ -35,8 +148,6 @@ const ModalAddTask = ({
   const users = [
     { id: 1, firstName: "Екатерина", lastName: "Алексеева", avatar: null },
   ];
-
-  if(!modalInTaskState) return null
 
   return (
     <div className="modal-overlay">
@@ -53,20 +164,18 @@ const ModalAddTask = ({
             <input
               className="w-full"
               type="text"
-              value={newTask.title}
+              value={form.title}
               disabled={isViewMode}
-              onChange={(e) =>
-                setNewTask({ ...newTask, title: e.target.value })
-              }
+              onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))}
             />
 
             <label>Описание задачи</label>
             <textarea
               className="h-20 max-h-32 w-full"
-              value={newTask.description}
+              value={form.description}
               disabled={isViewMode}
               onChange={(e) =>
-                setNewTask({ ...newTask, description: e.target.value })
+                setForm((s) => ({ ...s, description: e.target.value }))
               }
             />
 
@@ -80,10 +189,7 @@ const ModalAddTask = ({
                   >
                     <div className="avatar ml-2">
                       {user.avatar ? (
-                        <img
-                          src={user.avatar}
-                          alt={`${user.firstName} ${user.lastName}`}
-                        />
+                        <img src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
                       ) : (
                         `${user.lastName[0]}${user.firstName[0]}`
                       )}
@@ -96,7 +202,7 @@ const ModalAddTask = ({
               </div>
 
               {!isViewMode && (
-                <button className="add-btn w-full flex justify-center rounded-xl">
+                <button className="add-btn w-full flex justify-center rounded-xl" type="button">
                   +
                 </button>
               )}
@@ -126,31 +232,28 @@ const ModalAddTask = ({
               <label>Приоритет</label>
               <div className="priority-options">
                 <button
-                  className={`high-priority ${
-                    priority === "Высокий" ? "selected" : ""
-                  }`}
+                  className={`high-priority ${priority === "Высокий" ? "selected" : ""}`}
                   onClick={() => !isViewMode && setPriority("Высокий")}
                   disabled={isViewMode}
+                  type="button"
                 >
                   Высокий
                 </button>
 
                 <button
-                  className={`medium-priority ${
-                    priority === "Средний" ? "selected" : ""
-                  }`}
+                  className={`medium-priority ${priority === "Средний" ? "selected" : ""}`}
                   onClick={() => !isViewMode && setPriority("Средний")}
                   disabled={isViewMode}
+                  type="button"
                 >
                   Средний
                 </button>
 
                 <button
-                  className={`low-priority ${
-                    priority === "Низкий" ? "selected" : ""
-                  }`}
+                  className={`low-priority ${priority === "Низкий" ? "selected" : ""}`}
                   onClick={() => !isViewMode && setPriority("Низкий")}
                   disabled={isViewMode}
+                  type="button"
                 >
                   Низкий
                 </button>
@@ -182,6 +285,7 @@ const ModalAddTask = ({
                         <button
                           onClick={() => removeFile(index)}
                           className="text-[#22333B] hover:text-red-500 transition-colors"
+                          type="button"
                         >
                           <img src="/image/CorzinaTask.svg" alt="" />
                         </button>
@@ -217,25 +321,24 @@ const ModalAddTask = ({
 
         <div className="modal-actions mx-5 mb-2">
           {!isViewMode && !isAddMode && (
-            <button className="delete-btn">Удалить</button>
+            <button className="delete-btn" type="button">
+              Удалить
+            </button>
           )}
 
           <div className="gap-5 flex">
-            <button onClick={() => setIsModalOpen()} className="cancel-btn">
+            <button onClick={closeModalTaskState} className="cancel-btn" type="button">
               Отмена
             </button>
 
             {!isViewMode && (
               <button
                 className="save-btn"
-                onClick={() => {
-                  addCard(currentColumnId);
-                  setIsModalOpen();
-                  setNewTask({ title: "", description: "" });
-                  setFiles([]);
-                }}
+                onClick={onSave}
+                type="button"
+                disabled={loadingPost || loadingPut}
               >
-                Сохранить
+                {(loadingPost || loadingPut) ? "Сохраняем…" : "Сохранить"}
               </button>
             )}
           </div>
@@ -243,6 +346,4 @@ const ModalAddTask = ({
       </div>
     </div>
   );
-};
-
-export default ModalAddTask;
+}

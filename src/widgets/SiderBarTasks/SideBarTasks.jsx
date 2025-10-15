@@ -20,7 +20,6 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
     ? boards.filter((item) => item.projectId === null) 
     : boards.filter((item) => item.projectId === activeProjectId); 
 
-  // Фильтруем задачи: для маршрута задач берем только задачи с boardId === null
   const activeTasks = isTasksRoute 
     ? tasks.filter((task) => task.boardId === null) 
     : tasks.filter((task) => task.boardId === activeBoardId); 

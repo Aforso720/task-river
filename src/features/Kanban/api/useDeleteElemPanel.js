@@ -7,7 +7,7 @@ const mapRuTypeToPath = (ruType) => {
   if (ruType === "Проекты") return "projects";
   if (ruType === "Доски")   return "boards";
   if (ruType === "Задачи")  return "tasks";
-  return ruType; // fallback: вдруг уже пришло на англ.
+  return ruType;
 };
 
 export const useDeleteElemPanel = create((set) => ({
@@ -19,8 +19,6 @@ export const useDeleteElemPanel = create((set) => ({
     try {
       const path = mapRuTypeToPath(ruType);
       await axiosInstance.delete(`/kanban/${path}/${id}`);
-
-      // рефетч общего списка для меню
       const refetch = useGetElemPanel.getState().getAllElemPanel;
       await refetch?.();
 
