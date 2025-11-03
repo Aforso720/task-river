@@ -68,17 +68,7 @@ const Updates = () => {
                 <li className={( listNavActive == 3 ? "activeListNav " : '') + "listNavUpdates text-2xl"} onClick={()=>setListNavActive(3)}>Фиксы</li>
                 <li className={( listNavActive == 4 ? "activeListNav " : '') + "listNavUpdates text-2xl"} onClick={()=>setListNavActive(4)}>Обновления интерфейса</li>
             </ul>
-            {arrOfUpdates.map((updt,id) => (
-                <article className='updatesPost flex justify-center items-center ' key={id}>
-                    <section className='flex flex-col justify-center items-center h-full py-3 px-5'>
-                        <h4 className='text-3xl font-bold'>{updt.title}</h4>
-                        <span className='text-xs'>{updt.date}</span>
-                        <p className='text-xl font-semibold'>{updt.descr}</p>
-                        <button className='text-xl font-bold'>Подробнее</button>
-                    </section>
-                    <img src={updt.image} alt="Картинки поста"/>
-                </article>
-            ))}
+            44.87px
         </section>
     </section>
     <article className=' newsSocial flex flex-col justify-center items-center gap-5'>

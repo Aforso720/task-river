@@ -4,7 +4,7 @@ import useAuthModalStore from '../features/Auth/store/authModal';
 
 const Header = () => {
   const location = useLocation();
-  const {openModalAuthState }=useAuthModalStore();
+  const {openModalAuthState}=useAuthModalStore();
 
   const navItems = [
     { label: 'Главное', path: '/' },
@@ -17,7 +17,7 @@ const Header = () => {
   return (
     <header className="Header flex justify-between items-center px-8 py-2">
       
-      <Link to='/panel/menu'>
+      <Link to='/admin'>
         <img src="image/LogoHead.svg" alt="Logotip" className='cursor-pointer' />
       </Link>
 

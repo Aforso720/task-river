@@ -2,10 +2,27 @@ import React from "react";
 import "./HeaderTaskBoard.scss";
 import ProgressBar from "../../shared/ProgressBar/ProgressBar";
 import useActiveStateBoard from "./store/useActiveStateBoard";
+import { useWorkMembers } from "@/features/Kanban/api/useWorkMembers";
+import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
 
 const HeaderTaskBoard = () => {
   const active = useActiveStateBoard((state) => state.activeStateBoard);
   const setActive = useActiveStateBoard((state) => state.editActiveStateBoard);
+  const {activeBoardId} = useTargetEvent()
+  const { getMembersBoard , membersBoard , addedBoardMembers  } = useWorkMembers()
+
+  React.useEffect(()=>{
+    getMembersBoard(activeBoardId)
+  },[])
+
+  const podilitice = () => {
+    addedBoardMembers(activeBoardId,
+            {
+              userId:"68f0f6da121027205e1ecce7",
+              role: "ADMIN",
+            }
+          )
+  }
 
   return (
     <header className="HeaderTaskBoard w-full flex flex-col px-6 gap-3 py-5">
@@ -15,7 +32,10 @@ const HeaderTaskBoard = () => {
           <ProgressBar />
         </div>
         <div className="shareBoard flex items-center">
-          <button className="bg-[#E6E4D8] text-[#22333B] text-xs font-semibold rounded-lg py-1 px-3">
+
+          <button className="bg-[#E6E4D8] text-[#22333B] text-xs font-semibold rounded-lg py-1 px-3"
+          onClick={podilitice}
+          >
             + Поделиться
           </button>
         </div>

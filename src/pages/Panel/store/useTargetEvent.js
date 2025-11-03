@@ -7,11 +7,11 @@ const useTargetEvent = create(
       activeProjectId: null,
       activeBoardId: null,
       activeTaskId: null,
-      activeSingleBoardId:null,
+      activeGroupBoardId: null,
       addProjectID: (newID) => set({ activeProjectId: newID }),
       addBoardID: (newID) => set({ activeBoardId: newID }),
       addTaskID: (newID) => set({ activeTaskId: newID }),
-      addSingleBoardID: (newID) => set({ activeSingleBoardId: newID }),
+      addGroupBoardId: (newID) => set({ activeGroupBoardId: newID }),
     }),
     {
       name: "target-event-store",
@@ -19,7 +19,7 @@ const useTargetEvent = create(
         activeProjectId: state.activeProjectId,
         activeBoardId: state.activeBoardId,
         activeTaskId: state.activeTaskId,
-        activeSingleBoardId: state.activeSingleBoardId,
+        activeGroupBoardId: state.activeGroupBoardId, // ✅ значение
       }),
     }
   )

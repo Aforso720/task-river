@@ -1,0 +1,43 @@
+.AdminBlog{
+
+    .updatesPost{
+            border-radius: 30px;
+            width: 1140px;
+            height: 273px;
+            box-shadow: 0 0 10px 0 #00000040;
+            margin: 20px 0;
+            padding: 0 20px;
+            font-family: 'TT Travels Trl', sans-serif;
+
+            img{
+                width: 436px;
+                height: 232px;
+            }
+
+            section{
+                h4{
+                   color: #22333B;
+                   align-self: flex-start;
+                }
+
+                span{
+                    margin-top: 0;
+                    align-self: flex-start;
+                    color: #8C6D51;
+                }
+
+                p{
+                    color: #22333B;
+                    margin: 20px 0;
+                }
+
+                button{
+                        background-color: #8C6D51;
+                        color: #E6E4D8;
+                        border-radius: 30px;
+                        padding: 5px 10px;
+                        align-self: flex-start;
+                }
+            }
+        }
+}

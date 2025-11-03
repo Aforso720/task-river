@@ -1,7 +1,7 @@
 .SettingProfile{
-    width: 100%;
-    min-height: 100vh;
-    height: 100%;
+        width: 100%;
+        min-height: 100vh;
+        height: 100%;
 
     .HeadArticle{
         font-size: 24px;
@@ -37,7 +37,12 @@
         margin-right: 10rem;
     }
 
-    input,label{
-        color: #22333B;
+    input{
+        background-color: #E6E4D8;
+        padding: 2px 3px;
+    }
+
+    input::placeholder {
+        color: black;
     }
 }

@@ -48,22 +48,31 @@ const SettingProfile = () => {
             </div>
           </article>
         </section>
-
-        <section>
+        <section className=''>
           <h5 className='HeadArticle'>Информация профиля</h5>
-          <article className='h-[444px]'>
-            {formElem.map((elem)=>{
-             <>
-              <label htmlFor={elem.id}>formElem</label>
-              <input type="text" id={elem.id} placeholder={elem.name}/>
-            </>
-            })}
+          <article className='h-[444px] flex flex-col justify-evenly'>
+            {formElem.map((elem)=>(
+             <div className='flex flex-col px-14 '>
+              <label className='text-[#00000099] flex' htmlFor={elem.id}>{elem.title}
+                <img src="/image/PenSettingsvg.svg" className='ml-2 cursor-pointer' alt="Карандаш" />
+              </label>
+              <input className='' type="text" id={elem.id} placeholder={elem.name}/>
+            </div>
+            ))}
           </article>
         </section>
 
         <section>
           <h5 className='HeadArticle'>Контактные данные</h5>
-          <article></article>
+          <article className='h-24 flex items-center'>
+            <div className='flex flex-col px-14 '>
+              <label className='text-[#00000099] flex' htmlFor='contact'>
+                Адрес электронной почты
+                <img src="/image/PenSettingsvg.svg" className='ml-2 cursor-pointer' alt="Карандаш" />
+              </label>
+              <input className='' type="text" id='contact' placeholder='imp.dev@inbox.ru'/>
+            </div>
+          </article>
         </section>
         
       </div>

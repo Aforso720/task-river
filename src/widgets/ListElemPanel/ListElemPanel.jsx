@@ -13,7 +13,8 @@ const ListElemPanel = ({ type, list, listBoards }) => {
   );
 
   const addProjectID = useTargetEvent((state) => state.addProjectID);
-  const addBoardID = useTargetEvent((state) => state.addBoardID);
+  const addGroupBoardId = useTargetEvent((state) => state.addGroupBoardId);
+  const addBoardID = useTargetEvent((state)=>state.addBoardID);
   const addTaskID = useTargetEvent((state) => state.addTaskID);
 
   const navigate = useNavigate();
@@ -28,8 +29,8 @@ const ListElemPanel = ({ type, list, listBoards }) => {
     if (type === "Проекты") {
       addProjectID?.(item.id);
       const projectBoards = listBoards?.filter((b) => b.projectId === item.id);
-      if (projectBoards?.length > 0) addBoardID?.(projectBoards[0].id);
-      else addBoardID?.(null);
+      if (projectBoards?.length > 0) addGroupBoardId?.(projectBoards[0].id);
+      else addGroupBoardId?.(null);
       navigate(`/panel/project/${item.id}`);
     } else if (type === "Доски") {
       addBoardID?.(item.id);
@@ -52,7 +53,6 @@ const ListElemPanel = ({ type, list, listBoards }) => {
     else openModalAddElem("task");
   };
 
-  // Клик по крестику → открыть модалку
   const askDelete = (e, item) => {
     e.stopPropagation();
     e.preventDefault();
@@ -60,7 +60,6 @@ const ListElemPanel = ({ type, list, listBoards }) => {
     setConfirmOpen(true);
   };
 
-  // Подтверждение удаления → стор
   const confirmDelete = async () => {
     if (!confirmItem) return;
     await deleteElemPanel(type, confirmItem.id);

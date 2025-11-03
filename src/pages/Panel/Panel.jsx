@@ -19,10 +19,11 @@
 
   const Panel = () => {
     const {finishedAuth} = useAuthStore();
+      console.log(useAuthStore.getState());
     const ModalAddElemState = useModalAddElemStore((state)=>state.ModalAddElemState);
     const activeProjectId = useTargetEvent((state) => state.activeProjectId);
-    const activeSingleBoardId = useTargetEvent(
-      (state) => state.activeSingleBoardId
+    const activeBoardId = useTargetEvent(
+      (state) => state.activeBoardId
     );
     const activeTaskId = useTargetEvent((state) => state.activeTaskId);
     const matchProject = useMatch("panel/project/:projectId");
@@ -39,7 +40,7 @@
 
     const myLocation = useLocation()
 
-    if(finishedAuth) return null
+    if(!finishedAuth) return null
 
     return (
       <section className="PanelPage">
@@ -96,9 +97,9 @@
                 <Route
                   path="/board"
                   element={
-                    activeSingleBoardId ? (
+                    activeBoardId ? (
                       <Navigate
-                        to={`/panel/board/${activeSingleBoardId}`}
+                        to={`/panel/board/${activeBoardId}`}
                         replace
                       />
                     ) : (
