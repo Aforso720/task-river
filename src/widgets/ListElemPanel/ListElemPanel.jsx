@@ -1,3 +1,4 @@
+// src/widgets/ListElemPanel/ListElemPanel.jsx
 import React, { useState } from "react";
 import "./ListElemPanel.scss";
 import { useNavigate } from "react-router";
@@ -14,7 +15,7 @@ const ListElemPanel = ({ type, list, listBoards }) => {
 
   const addProjectID = useTargetEvent((state) => state.addProjectID);
   const addGroupBoardId = useTargetEvent((state) => state.addGroupBoardId);
-  const addBoardID = useTargetEvent((state)=>state.addBoardID);
+  const addBoardID = useTargetEvent((state) => state.addBoardID);
   const addTaskID = useTargetEvent((state) => state.addTaskID);
 
   const navigate = useNavigate();
@@ -28,9 +29,11 @@ const ListElemPanel = ({ type, list, listBoards }) => {
   const handleClick = (item) => {
     if (type === "Проекты") {
       addProjectID?.(item.id);
+
       const projectBoards = listBoards?.filter((b) => b.projectId === item.id);
       if (projectBoards?.length > 0) addGroupBoardId?.(projectBoards[0].id);
       else addGroupBoardId?.(null);
+
       navigate(`/panel/project/${item.id}`);
     } else if (type === "Доски") {
       addBoardID?.(item.id);

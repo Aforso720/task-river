@@ -6,7 +6,7 @@ export default function AdminLayout() {
   return (
     <section className="AdminLayout">
       <AdminHeader />
-      <section>
+      <section className="flex justify-center">
         <Outlet />
       </section>
     </section>

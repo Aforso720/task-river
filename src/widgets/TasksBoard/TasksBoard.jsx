@@ -1,3 +1,4 @@
+// src/widgets/TasksBoard/TasksBoard.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "./TasksBoard.scss";
@@ -12,9 +13,14 @@ import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
 import { useWorkColumn } from "@/features/Kanban/api/useWorkColumn";
 import { useWorkTasks } from "@/features/Kanban/api/useWorkTasks";
 
-const TasksBoard = () => {
+const TasksBoard = (props) => {
+  const { boards } = props || {}; // boards есть только на /panel/project/:projectId
+
   const setTaskCounts = useListTaskInBoard((s) => s.setTaskCounts);
-  const { activeBoardId } = useTargetEvent();
+  const { activeBoardId, activeGroupBoardId, activeProjectId } = useTargetEvent();
+
+  const isProjectView = Array.isArray(boards);
+  const currentBoardId = isProjectView ? activeGroupBoardId : activeBoardId;
 
   const {
     getColumnFunc,
@@ -24,6 +30,7 @@ const TasksBoard = () => {
     loadingPost,
     deleteColumnFunc,
   } = useWorkColumn();
+
   const {
     getTasksFunc,
     tasks: tasksApi,
@@ -37,14 +44,14 @@ const TasksBoard = () => {
   const [columns, setColumns] = useState([]);
 
   useEffect(() => {
-    if (!activeBoardId) return;
+    if (!currentBoardId) return;
     (async () => {
       await Promise.all([
-        getColumnFunc(activeBoardId),
-        getTasksFunc(activeBoardId),
+        getColumnFunc(currentBoardId),
+        getTasksFunc(currentBoardId),
       ]);
     })();
-  }, [activeBoardId, getColumnFunc, getTasksFunc]);
+  }, [currentBoardId, getColumnFunc, getTasksFunc]);
 
   const builtColumns = useMemo(() => {
     const sortedCols = [...(columnsApi || [])].sort(
@@ -57,7 +64,7 @@ const TasksBoard = () => {
       arr.push(t);
       tasksByColumn.set(t.columnId, arr);
     });
-    for (const [_, arr] of tasksByColumn) {
+    for (const [, arr] of tasksByColumn) {
       arr.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
     }
 
@@ -65,7 +72,6 @@ const TasksBoard = () => {
       id: c.id,
       title: c.name,
       order: c.position ?? idx,
-
       cards: (tasksByColumn.get(c.id) || []).map((t) => ({
         id: t.id,
         title: t.title,
@@ -151,26 +157,25 @@ const TasksBoard = () => {
   };
 
   const handleDeleteColumn = async (columnId) => {
-    if (!activeBoardId || !columnId) return;
+    if (!currentBoardId || !columnId) return;
     try {
-      await deleteColumnFunc(activeBoardId, columnId); // вызов стора
-      await getColumnFunc(activeBoardId); // рефетчим список с сервера
+      await deleteColumnFunc(currentBoardId, columnId);
+      await getColumnFunc(currentBoardId);
       if (currentColumnId === columnId) setCurrentColumnId("");
     } catch (e) {
       console.error("Не удалось удалить колонку:", e);
-      // тут можно показать тост/уведомление об ошибке
     }
   };
 
   const handleAddColumn = async () => {
     const name = newColumnName.trim();
-    if (!name || !activeBoardId) return;
+    if (!name || !currentBoardId) return;
 
     const payload = { name, position: columns.length };
 
     try {
-      await postColumnFunc(activeBoardId, payload);
-      await getColumnFunc(activeBoardId);
+      await postColumnFunc(currentBoardId, payload);
+      await getColumnFunc(currentBoardId);
       setNewColumnName("");
       setIsAddColumnVisible(false);
     } catch (e) {
@@ -179,6 +184,39 @@ const TasksBoard = () => {
   };
 
   const loading = columnsLoading || tasksLoading;
+
+  const projectBoards = useMemo(() => {
+    if (!isProjectView || !activeProjectId) return [];
+    return (boards || []).filter((b) => b.projectId === activeProjectId);
+  }, [isProjectView, boards, activeProjectId]);
+
+  if (isProjectView && projectBoards.length === 0) {
+    return (
+      <div className="tasks-board-container">
+        <HeaderTaskBoard />
+        <div className="tasks-board-wrapper">
+          <div className="w-full h-full ml-5 text-4xl flex items-center justify-center text-center text-[#22333B]">
+            У выбранного проекта пока нет досок.
+            <br />
+            Создайте доску в панели слева, чтобы начать работу.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentBoardId) {
+    return (
+      <div className="tasks-board-container">
+        <HeaderTaskBoard />
+        <div className="tasks-board-wrapper">
+          <div className="w-full h-full ml-5 text-4xl flex items-center justify-center text-center text-[#22333B]">
+            Доска не выбрана
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="tasks-board-container">
@@ -213,7 +251,7 @@ const TasksBoard = () => {
                     {columns.map((column, index) => (
                       <Draggable
                         key={column.id}
-                        draggableId={column.id}
+                        draggableId={String(column.id)}
                         index={index}
                       >
                         {(provided, snapshot) => (
@@ -255,7 +293,7 @@ const TasksBoard = () => {
                                 />
                               </div>
 
-                              <Droppable droppableId={column.id}>
+                              <Droppable droppableId={String(column.id)}>
                                 {(provided) => (
                                   <CardBoard
                                     column={column}
@@ -328,7 +366,7 @@ const TasksBoard = () => {
           <ModalColumnMenu
             position={menuPosition}
             onEditColumn={handleEditColumn}
-            onDeleteColumn={() => handleDeleteColumn(currentColumnId)} 
+            onDeleteColumn={() => handleDeleteColumn(currentColumnId)}
             onAddTask={() => {
               setCurrentColumnId(currentColumnId);
               openModalTaskState();
