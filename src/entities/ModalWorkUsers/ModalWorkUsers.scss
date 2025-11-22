@@ -1,0 +1,354 @@
+.ModalWorkUsersOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45); // чуть темнее и более "стеклянно"
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.ModalWorkUsers {
+  width: 620px;
+  max-width: 95vw;
+  max-height: 80vh;
+  background: #e6e4d8;
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: "Poppins", sans-serif;
+  color: #22333b;
+}
+
+.dark .ModalWorkUsers {
+  background: #22333b;
+  color: #e6e4d8;
+}
+
+/* HEADER */
+
+.ModalWorkUsers__header {
+  padding: 16px 20px;
+  background: linear-gradient(90deg, #22333b 0%, #2d3f48 60%, #8c6d51 100%);
+  color: #e6e4d8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dark .ModalWorkUsers__header {
+  background: linear-gradient(90deg, #e6e4d8 0%, #d3cbbd 40%, #8c6d51 100%);
+  color: #22333b;
+}
+
+.ModalWorkUsers__title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ModalWorkUsers__subtitle {
+  margin-top: 2px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.ModalWorkUsers__close {
+  border: none;
+  background: rgba(230, 228, 216, 0.08);
+  color: inherit;
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.ModalWorkUsers__close:hover {
+  background: rgba(230, 228, 216, 0.22);
+  transform: scale(1.02);
+}
+
+/* ОБЩИЙ ЛЕЙАУТ ВНУТРИ */
+
+.ModalWorkUsers__body {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 20px 12px;
+  gap: 10px;
+  overflow: hidden;
+}
+
+/* БЛОК ПОИСКА / ДОБАВЛЕНИЯ */
+
+.ModalWorkUsers__searchBlock {
+  background: rgba(245, 243, 234, 0.9);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(34, 51, 59, 0.08);
+}
+
+.dark .ModalWorkUsers__searchBlock {
+  background: #2d3f48;
+  border-color: rgba(230, 228, 216, 0.1);
+}
+
+.ModalWorkUsers__searchForm {
+  display: flex;
+  gap: 8px;
+}
+
+.ModalWorkUsers__searchInput {
+  flex: 1;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 51, 59, 0.18);
+  background: #fdfbf5;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dark .ModalWorkUsers__searchInput {
+  background: #22333b;
+  color: #e6e4d8;
+  border-color: rgba(230, 228, 216, 0.25);
+}
+
+.ModalWorkUsers__searchInput:focus {
+  border-color: #8c6d51;
+  box-shadow: 0 0 0 1px rgba(140, 109, 81, 0.4);
+}
+
+.ModalWorkUsers__searchButton {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: #8c6d51;
+  color: #e6e4d8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: background 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.ModalWorkUsers__searchButton:hover:not(:disabled) {
+  background: #7a5c45;
+  transform: translateY(-0.5px);
+}
+
+.ModalWorkUsers__searchButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ModalWorkUsers__searchError {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #b3261e;
+}
+
+.ModalWorkUsers__searchResults {
+  margin-top: 8px;
+  border-top: 1px dashed rgba(34, 51, 59, 0.15);
+  padding-top: 6px;
+}
+
+.dark .ModalWorkUsers__searchResults {
+  border-top-color: rgba(230, 228, 216, 0.15);
+}
+
+.ModalWorkUsers__searchTitle {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.ModalWorkUsers__searchList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.ModalWorkUsers__searchItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: #fdfbf5;
+}
+
+.dark .ModalWorkUsers__searchItem {
+  background: #22333b;
+}
+
+/* СПИСОК ТЕКУЩИХ УЧАСТНИКОВ */
+
+.ModalWorkUsers__content {
+  flex: 1;
+  padding: 4px 0 0;
+  overflow-y: auto;
+}
+
+.ModalWorkUsers__empty {
+  font-size: 13px;
+  font-style: italic;
+  opacity: 0.8;
+  padding: 6px 4px 10px;
+}
+
+.ModalWorkUsers__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 6px;
+}
+
+.ModalWorkUsers__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f5f3ea;
+  border: 1px solid rgba(34, 51, 59, 0.06);
+}
+
+.dark .ModalWorkUsers__item {
+  background: #2d3f48;
+  border-color: rgba(230, 228, 216, 0.08);
+}
+
+.ModalWorkUsers__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ModalWorkUsers__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #8c6d51;
+  color: #e6e4d8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.ModalWorkUsers__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ModalWorkUsers__name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ModalWorkUsers__email {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* Блок действий (роль + кнопка) */
+
+.ModalWorkUsers__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ModalWorkUsers__roleSelect {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid #22333b;
+  background: #ffffff;
+  cursor: pointer;
+  outline: none;
+  max-width: 140px;
+}
+
+.dark .ModalWorkUsers__roleSelect {
+  background: #22333b;
+  color: #e6e4d8;
+  border-color: #e6e4d8;
+}
+
+.ModalWorkUsers__remove {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid #ff4a4a;
+  color: #ff4a4a;
+  background: #ffd8d8;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.ModalWorkUsers__remove:hover:not(:disabled) {
+  background: #ffb7b7;
+  transform: translateY(-0.5px);
+}
+
+.ModalWorkUsers__remove:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Если только показываем роль без управления */
+
+.ModalWorkUsers__roleValue {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #22333b;
+  color: #e6e4d8;
+}
+
+.dark .ModalWorkUsers__roleValue {
+  background: #e6e4d8;
+  color: #22333b;
+}
+
+/* FOOTER */
+
+.ModalWorkUsers__footer {
+  padding: 8px 20px 12px;
+  font-size: 11px;
+  opacity: 0.9;
+  border-top: 1px solid rgba(34, 51, 59, 0.15);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dark .ModalWorkUsers__footer {
+  border-top-color: rgba(230, 228, 216, 0.18);
+}
+
+.ModalWorkUsers__footer span {
+  white-space: nowrap;
+}

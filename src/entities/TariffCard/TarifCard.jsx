@@ -1,48 +1,83 @@
-import React from 'react'
-import './TariffCard.scss'
+// src/entities/TariffCard/TarifCard.jsx
+import React from "react";
+import "./TariffCard.scss";
 
-const TarifCard = ({statusTarif, textInfo, price}) => {
-const [active,setActive] = React.useState('month')
+const TarifCard = ({
+  id,
+  statusTarif,
+  textInfo,
+  price,
+  selected,
+  onDetails,
+  cardIndex,
+}) => {
+  const [active, setActive] = React.useState("month");
+
+  const isFree = Number(price) === 0;
 
   const getCardClass = () => {
-    if (statusTarif === "Бесплатно") {
-      return "TariffCardModuleFirst";
-    } else if (statusTarif === "Старндарт") {
-      return "TariffCardModuleTwo";
-    } else if (statusTarif === "Премиум") {
-      return "TariffCardModuleThree";
-    }
-    return "TariffCardModuleFirst"; 
+    if (cardIndex === 0) return "TariffCardModuleFirst";
+    if (cardIndex === 1) return "TariffCardModuleTwo";
+    if (cardIndex === 2) return "TariffCardModuleThree";
+    return "TariffCardModuleFirst";
+  };
+
+  const handleDetailsClick = () => {
+    if (onDetails) onDetails(id);
   };
 
   return (
-    <div className={`${getCardClass()} flex flex-col justify-between items-center`}>
+    <div
+      className={`${getCardClass()} flex flex-col justify-between items-center`}
+      style={
+        selected
+          ? {
+              boxShadow: "0 0 0 2px #8C6D51",
+              transform: "translateY(-2px)",
+              transition: "box-shadow 0.15s ease, transform 0.15s ease",
+            }
+          : { transition: "box-shadow 0.15s ease, transform 0.15s ease" }
+      }
+    >
       <div>
-        <h3 className='mt-5'>{statusTarif}</h3>
-        <p className='textCard'>{textInfo}</p>
+        <h3 className="mt-5">{statusTarif}</h3>
+        <p className="textCard">{textInfo}</p>
       </div>
-      {statusTarif !== "Бесплатно" && (
-        <div className='bandCard flex justify-center gap-10 items-center'>
-          <span 
-            className={(active === "month" ? "activeTariff " : "") + "flex justify-center items-center"}
-            onClick={() => setActive('month')}
-          >месяц</span>
-          <span 
-            className={(active === "year" ? "activeTariff " : "") + "flex justify-center items-center"}
+
+      {!isFree && (
+        <div className="bandCard flex justify-center gap-10 items-center">
+          <span
+            className={
+              (active === "month" ? "activeTariff " : "") +
+              "flex justify-center items-center"
+            }
+            onClick={() => setActive("month")}
+          >
+            месяц
+          </span>
+          <span
+            className={
+              (active === "year" ? "activeTariff " : "") +
+              "flex justify-center items-center"
+            }
             onClick={() => setActive("year")}
-          >год</span>
+          >
+            год
+          </span>
         </div>
       )}
-      <p className='priceCard'>
-        {price}₽
-      </p>
-      <button>Подключить</button>
-      {statusTarif !== "Бесплатно" && (
-        <p className="contact-us">Связаться с нами</p>
-      )}
-      <span className='aboutCard'>Посмотреть возможности</span>
-    </div>
-  )
-}
 
-export default TarifCard
+      <p className="priceCard">{Number(price || 0).toLocaleString("ru-RU")}₽</p>
+
+      <button>Подключить</button>
+
+      {!isFree && <p className="contact-us">Связаться с нами</p>}
+
+      <span className="aboutCard cursor-pointer" onClick={handleDetailsClick}>
+        Подробнее
+      </span>
+    </div>
+  );
+};
+
+export default TarifCard;

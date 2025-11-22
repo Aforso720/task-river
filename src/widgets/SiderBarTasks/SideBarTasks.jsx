@@ -1,3 +1,4 @@
+// src/widgets/SiderBarTasks/SideBarTasks.jsx
 import React from "react";
 import { useLocation } from "react-router";
 import "./SideBarTasks.scss";
@@ -5,24 +6,38 @@ import useTargetEvent from "../../pages/Panel/store/useTargetEvent";
 
 const SideBarTasks = ({ projects, boards, tasks }) => {
   const location = useLocation();
+
   const addProjectID = useTargetEvent((state) => state.addProjectID);
-  const addBoardID = useTargetEvent((state) => state.addBoardID);
+  const addBoardID = useTargetEvent((state) => state.addBoardID);             // одиночные доски
+  const addGroupBoardId = useTargetEvent((state) => state.addGroupBoardId);   // доски проекта
   const addTaskID = useTargetEvent((state) => state.addTaskID);
 
   const activeProjectId = useTargetEvent((state) => state.activeProjectId);
   const activeBoardId = useTargetEvent((state) => state.activeBoardId);
+  const activeGroupBoardId = useTargetEvent((state) => state.activeGroupBoardId);
   const activeTaskId = useTargetEvent((state) => state.activeTaskId);
 
-  const isBoardRoute = location.pathname.startsWith("/panel/board/");
+  const isBoardRoute = location.pathname.startsWith("/panel/board");
   const isTasksRoute = location.pathname.startsWith("/panel/tasks");
-  
-  const activeBoards = isBoardRoute 
-    ? boards.filter((item) => item.projectId === null) 
-    : boards.filter((item) => item.projectId === activeProjectId); 
 
-  const activeTasks = isTasksRoute 
-    ? tasks.filter((task) => task.boardId === null) 
-    : tasks.filter((task) => task.boardId === activeBoardId); 
+  const activeBoards = isBoardRoute
+    ? boards.filter((item) => item.projectId === null)
+    : boards.filter((item) => item.projectId === activeProjectId);
+
+  const activeTasks = isTasksRoute
+    ? tasks.filter((task) => task.boardId === null)
+    : tasks.filter((task) => task.boardId === activeBoardId);
+
+  const isBoardActive = (board) =>
+    isBoardRoute ? activeBoardId === board.id : activeGroupBoardId === board.id;
+
+  const handleBoardClick = (board) => {
+    if (isBoardRoute) {
+      addBoardID(board.id);        // одиночная доска
+    } else {
+      addGroupBoardId(board.id);   // доска проекта
+    }
+  };
 
   return (
     <aside className="SideBarTasks pt-14 px-5">
@@ -38,7 +53,9 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
                 key={project.id}
                 onClick={() => addProjectID(project.id)}
               >
-                {project.icon && <img src={`/image/${project.icon}`} alt={project.name} />}
+                {project.icon && (
+                  <img src={`/image/${project.icon}`} alt={project.name} />
+                )}
                 <p>{project.name}</p>
               </div>
             ))}
@@ -53,12 +70,14 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
             {activeBoards.map((board) => (
               <div
                 className={`cardItemSideBar ${
-                  activeBoardId === board.id ? "active" : ""
+                  isBoardActive(board) ? "active" : ""
                 }`}
                 key={board.id}
-                onClick={() => addBoardID(board.id)}
+                onClick={() => handleBoardClick(board)}
               >
-                {board.icon && <img src={`/image/${board.icon}`} alt={board.name} />}
+                {board.icon && (
+                  <img src={`/image/${board.icon}`} alt={board.name} />
+                )}
                 <p>{board.name}</p>
               </div>
             ))}
@@ -68,7 +87,9 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
 
       {isTasksRoute && (
         <section className="navInSideBar">
-          <h5 className="text-2xl text-[#22333B] font-bold mb-5">Личные задачи</h5>
+          <h5 className="text-2xl text-[#22333B] font-bold mb-5">
+            Личные задачи
+          </h5>
           <div className="cardsSideBarTasks">
             {activeTasks.map((task) => (
               <div
@@ -78,7 +99,9 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
                 key={task.id}
                 onClick={() => addTaskID(task.id)}
               >
-                {task.icon && <img src={`/image/${task.icon}`} alt={task.name} />}
+                {task.icon && (
+                  <img src={`/image/${task.icon}`} alt={task.name} />
+                )}
                 <p>{task.name}</p>
               </div>
             ))}

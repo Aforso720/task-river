@@ -1,0 +1,15 @@
+.AdminTariff{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    article{
+        border: 5px dashed #896A4F;
+    }
+    ul{
+
+        li{
+            border: 5px solid #896A4F;
+        }
+    }
+}

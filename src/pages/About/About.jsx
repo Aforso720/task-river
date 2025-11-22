@@ -1,11 +1,20 @@
-import React from 'react'
-import './About.scss'
-import InfoPage from '../../shared/UI/InfoPage/InfoPage'
-import SliderAbout from '../../widgets/SliderAbout/SliderAbout'
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
+import './About.scss';
+import InfoPage from '../../shared/UI/InfoPage/InfoPage';
+import SliderAbout from '../../widgets/SliderAbout/SliderAbout';
 
 const About = () => {
   return (
     <section className='AboutPage'>
+      <Helmet>
+        <title>О TaskRiver — команда и ценности</title>
+        <meta
+          name="description"
+          content="Узнайте больше о TaskRiver: ценности компании, команда, история и подход к созданию инструмента для управления задачами и проектами."
+        />
+      </Helmet>
+
       <InfoPage texth2={'О TaskRiver'} texth3={'Создаем инструмент , который упрощает сложное'}/>
       <SliderAbout/>
 
@@ -39,7 +48,7 @@ const About = () => {
         </div>
       </section>
 
-       <section className='blocksTextAbout'>
+      <section className='blocksTextAbout'>
         <h3 className='text-[#22333B] text-5xl font-bold'>Project Team</h3>
         <p className=' my-5 text-[#8B6D51] text-2xl font-normal'>The team keeping the project alive</p>
         <div className='infoTeamAbout'>
@@ -71,7 +80,7 @@ const About = () => {
       </section>
       
     </section>
-  )
-}
+  );
+};
 
-export default About
+export default About;

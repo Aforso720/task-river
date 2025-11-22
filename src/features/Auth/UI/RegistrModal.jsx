@@ -6,7 +6,15 @@ import useRegisterRequest from "../api/registerRequest";
 
 const RegistrModal = () => {
   const modalRef = React.useRef(null);
-  const { modalAuthRegistr, closeModalAuthRegistr } = useAuthModalStore();
+
+  const {
+    modalAuthRegistr,
+    closeModalAuthRegistr,
+    openModalAuthLogin,     // НОВОЕ: для переключения на логин
+    prefillEmail,           // НОВОЕ: email с главной
+    flowSource,             // НОВОЕ: откуда открыли («home»)
+  } = useAuthModalStore();
+
   const { registerRequest, loading, error, success, reset } = useRegisterRequest();
 
   const {
@@ -15,6 +23,7 @@ const RegistrModal = () => {
     watch,
     formState: { errors, isValid, isSubmitting },
     reset: resetForm,
+    setValue,
   } = useForm({
     mode: "onTouched",
     defaultValues: {
@@ -27,6 +36,7 @@ const RegistrModal = () => {
 
   const passwordValue = watch("password");
 
+  // клик вне модалки — закрыть
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -39,6 +49,7 @@ const RegistrModal = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [closeModalAuthRegistr, reset, resetForm]);
 
+  // успех регистрации — закрыть
   React.useEffect(() => {
     if (success && modalAuthRegistr) {
       reset();
@@ -47,18 +58,43 @@ const RegistrModal = () => {
     }
   }, [success, modalAuthRegistr, closeModalAuthRegistr, reset, resetForm]);
 
+  // автоподстановка email, если пришёл из стора (например, со страницы Home)
+  React.useEffect(() => {
+    if (modalAuthRegistr && prefillEmail) {
+      setValue("email", prefillEmail, { shouldValidate: true });
+    }
+  }, [modalAuthRegistr, prefillEmail, setValue]);
+
   if (!modalAuthRegistr) return null;
 
   const onSubmit = async (values) => {
     await registerRequest(values);
   };
 
+  const onBack = () => {
+    // если модалка регистрации открыта с главной — просто закрываем
+    if (flowSource === "home") {
+      reset();
+      resetForm();
+      closeModalAuthRegistr();
+      return;
+    }
+    // иначе — переключаемся на логин
+    reset();
+    resetForm();
+    closeModalAuthRegistr();
+    openModalAuthLogin();
+  };
+
   return (
     <article className="authModalOverlay flex items-center justify-center">
-      <div className="authModal p-10" ref={modalRef}>
-
-        <button className="absolute text-white font-bold text-xl">
-          {'< Назад'}
+      <div className="authModal p-10 relative" ref={modalRef}>
+        <button
+          className="absolute top-4 left-4 text-white font-bold text-xl"
+          onClick={onBack}
+          type="button"
+        >
+          {"< Назад"}
         </button>
 
         <img
@@ -66,6 +102,7 @@ const RegistrModal = () => {
           alt="Логотип сайта"
           className="w-40 h-40 rounded-xl mt-4 mb-3 mx-auto"
         />
+
         <form
           className="space-y-6 mx-auto w-[500px] flex flex-col justify-center"
           onSubmit={handleSubmit(onSubmit)}
@@ -111,8 +148,7 @@ const RegistrModal = () => {
               {...register("email", {
                 required: "Введите email",
                 pattern: {
-                  value:
-                    /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                   message: "Некорректный email",
                 },
               })}
@@ -157,8 +193,7 @@ const RegistrModal = () => {
               } shadow-sm focus:border-[#8C6D51] focus:outline-none focus:ring-[#8C6D51] sm:text-sm`}
               {...register("password_confirmation", {
                 required: "Повторите пароль",
-                validate: (value) =>
-                  value === passwordValue || "Пароли не совпадают",
+                validate: (value) => value === passwordValue || "Пароли не совпадают",
               })}
             />
             {errors.password_confirmation && (
@@ -178,7 +213,7 @@ const RegistrModal = () => {
             <button
               type="submit"
               disabled={loading || isSubmitting || !isValid}
-              className="flex  w-full justify-center rounded-md border border-transparent bg-[#22333B] py-2 px-4 text-xl font-bold text-white shadow-sm hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-[#8C6D51] focus:ring-offset-2 cursor-pointer"
+              className="flex w-full justify-center rounded-md border border-transparent bg-[#22333B] py-2 px-4 text-xl font-bold text-white shadow-sm hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-[#8C6D51] focus:ring-offset-2 cursor-pointer"
             >
               {loading || isSubmitting ? "Регистрируем..." : "Зарегистрироваться"}
             </button>

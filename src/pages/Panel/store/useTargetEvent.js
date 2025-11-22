@@ -1,3 +1,4 @@
+// src/pages/Panel/store/useTargetEvent.js
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -5,13 +6,14 @@ const useTargetEvent = create(
   persist(
     (set) => ({
       activeProjectId: null,
-      activeBoardId: null,
+      activeBoardId: null,       // одиночная доска (без проекта)
       activeTaskId: null,
-      activeSingleBoardId:null,
+      activeGroupBoardId: null,  // доска, прикреплённая к проекту
+
       addProjectID: (newID) => set({ activeProjectId: newID }),
       addBoardID: (newID) => set({ activeBoardId: newID }),
       addTaskID: (newID) => set({ activeTaskId: newID }),
-      addSingleBoardID: (newID) => set({ activeSingleBoardId: newID }),
+      addGroupBoardId: (newID) => set({ activeGroupBoardId: newID }),
     }),
     {
       name: "target-event-store",
@@ -19,7 +21,7 @@ const useTargetEvent = create(
         activeProjectId: state.activeProjectId,
         activeBoardId: state.activeBoardId,
         activeTaskId: state.activeTaskId,
-        activeSingleBoardId: state.activeSingleBoardId,
+        activeGroupBoardId: state.activeGroupBoardId,
       }),
     }
   )
