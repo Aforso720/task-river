@@ -36,8 +36,8 @@ const SettingProfile = () => {
   ]
   return (
     <section className='SettingProfile p-5'>
-      <h4 className='text-2xl font-semibold text-[#22333B]'>Профиль</h4>
-      <div className='flex gap-10 flex-col items-center '>
+      <h4 className='text-2xl font-semibold text-[#22333B] dark:text-[#E6E4D8]'>Профиль</h4>
+      <div className='flex gap-10 flex-col items-center'>
         <section>
           <h5 className='HeadArticle'>Фото профиля</h5>
           <article className='h-52'>
@@ -52,7 +52,7 @@ const SettingProfile = () => {
           <h5 className='HeadArticle'>Информация профиля</h5>
           <article className='h-[444px] flex flex-col justify-evenly'>
             {formElem.map((elem)=>(
-             <div className='flex flex-col px-14 '>
+             <div className='flex flex-col px-14' key={elem.id}>
               <label className='text-[#00000099] flex' htmlFor={elem.id}>{elem.title}
                 <img src="/image/PenSettingsvg.svg" className='ml-2 cursor-pointer' alt="Карандаш" />
               </label>

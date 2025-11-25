@@ -13,7 +13,7 @@ const HeaderSideBar = () => {
             <img src="/image/MailIcon.png" alt="Mail" />
             <img src="/image/СallIcon.png" alt="Call" />
         </div>
-        <img className='AvatarHeader' src="/image/LogoHead.png" alt="Avatar" />
+        <img className='AvatarHeader' src="/LogoHead.png" alt="Avatar" />
         <p className='text-2xl text-[#22333B] font-bold'>Qwerty A.</p>
       </section>
     </header>

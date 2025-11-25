@@ -98,7 +98,7 @@ const RegistrModal = () => {
         </button>
 
         <img
-          src="image/LogoHead.svg"
+          src="/LogoHead.svg"
           alt="Логотип сайта"
           className="w-40 h-40 rounded-xl mt-4 mb-3 mx-auto"
         />

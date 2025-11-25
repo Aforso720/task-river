@@ -33,3 +33,22 @@
         }
     }
 }
+
+.dark .SettingPanel{
+    color: #E6E4D8;
+
+    aside{
+        border-right: 1px solid #E6E4D8;
+        color: #E6E4D8;
+        ul{
+            li{
+                border: 1px solid #E6E4D8;
+            }
+
+            .active{
+                 background-color: #E6E4D8;
+                color: #22333B;
+            }
+        }
+    }
+}

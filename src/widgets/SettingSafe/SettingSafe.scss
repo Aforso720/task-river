@@ -1,0 +1,66 @@
+.SettingSafe {
+  width: 100%;
+  min-height: 100vh;
+  height: 100%;
+  color: #22333B;
+
+  &__title,
+  &__subtitle,
+  &__description,
+  &__label {
+    color: #22333B;
+  }
+
+  &__input {
+    background-color: #E6E4D8;
+    color: #22333B;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #22333B;
+  }
+
+  &__input::placeholder {
+    color: #000000;
+  }
+
+  &__button {
+    margin-top: 12px;
+    background-color: #22333B;
+    color: #E6E4D8;
+    border-radius: 8px;
+    padding: 8px 10px;
+    border: none;
+    cursor: pointer;
+  }ч
+
+  &__button:hover {
+    opacity: 0.9;
+  }
+}
+
+/* Тёмный режим */
+.dark .SettingSafe {
+  color: #E6E4D8;
+
+  &__title,
+  &__subtitle,
+  &__description,
+  &__label {
+    color: #E6E4D8;
+  }
+
+  &__input {
+    background-color: #22333B;
+    color: #E6E4D8;
+    border: 1px solid #E6E4D8;
+  }
+
+  &__input::placeholder {
+    color: #E6E4D8;
+  }
+
+  &__button {
+    background-color: #E6E4D8;
+    color: #22333B;
+  }
+}

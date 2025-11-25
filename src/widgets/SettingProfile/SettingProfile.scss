@@ -1,48 +1,75 @@
 .SettingProfile{
-        width: 100%;
-        min-height: 100vh;
-        height: 100%;
+  width: 100%;
+  min-height: 100vh;
+  height: 100%;
 
-    .HeadArticle{
-        font-size: 24px;
-        color: #000000;
-        font-weight: 600;
-    }
+  .HeadArticle{
+    font-size: 24px;
+    color: #000000;
+    font-weight: 600;
+  }
 
-    article{
-        width: 768px;
-        border: 1px solid #22333B;
-        border-radius: 10px;
-        position: relative;
-    }
+  article{
+    width: 768px;
+    border: 1px solid #22333B;
+    border-radius: 10px;
+    position: relative;
+  }
 
-    .topBlock{
-        background-color: #22333B;
-        height: 7.5rem;
-        border-radius: 10px 10px 0 0;
-        border: 1px solid #22333B;
-    }
-    .photoProf{
-        position: absolute;
-        bottom: 12.5%;
-        left: 10%;
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    .bottomBlock{
-        display: flex;
-        justify-content: end;
-        margin-right: 10rem;
-    }
+  .topBlock{
+    background-color: #22333B;
+    height: 7.5rem;
+    border-radius: 10px 10px 0 0;
+    border: 1px solid #22333B;
+  }
 
-    input{
-        background-color: #E6E4D8;
-        padding: 2px 3px;
-    }
+  .photoProf{
+    position: absolute;
+    bottom: 12.5%;
+    left: 10%;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 
-    input::placeholder {
-        color: black;
-    }
+  .bottomBlock{
+    display: flex;
+    justify-content: end;
+    margin-right: 10rem;
+  }
+
+  input{
+    background-color: #E6E4D8;
+    padding: 2px 3px;
+    color: #22333B;
+  }
+
+  input::placeholder {
+    color: black;
+  }
+}
+
+.dark .SettingProfile{
+  .HeadArticle{
+    color: #E6E4D8;
+  }
+
+  article{
+    border: 1px solid #E6E4D8;
+  }
+
+  .topBlock{
+    background-color: #E6E4D8;
+    border: 1px solid #E6E4D8;
+  }
+
+  input{
+    background-color: #22333B;
+    color: #E6E4D8;
+  }
+
+  input::placeholder{
+    color: #E6E4D8;
+  }
 }

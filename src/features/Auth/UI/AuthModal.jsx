@@ -63,7 +63,7 @@ const AuthModal = () => {
     <article className="authModalOverlay flex items-center justify-center">
       <div className="authModal p-10" ref={modalRef}>
         <img
-          src="image/LogoHead.svg"
+          src="/LogoHead.svg"
           alt="Логотип сайта"
           className="w-40 h-40 rounded-xl mt-12 mb-3 mx-auto"
         />

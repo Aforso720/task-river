@@ -9,6 +9,7 @@ import TariffSetting from "../../entities/TariffSetting/TariffSetting";
 import { useTariffs } from "@/features/Admin/api/useTariffs";
 import useTariffHighlight from "./store/useTariffHighlight";
 
+
 const mapPlanNameToUi = (name) => {
   if (!name) return "";
   const lower = String(name).toLowerCase();
@@ -16,7 +17,7 @@ const mapPlanNameToUi = (name) => {
   if (lower === "standard" || lower === "стандарт") return "Стандарт";
   if (lower === "premium" || lower === "премиум") return "Премиум";
   return name;
-};
+};    
 
 const Tariffs = () => {
   const { tariffs, getTariffs } = useTariffs();

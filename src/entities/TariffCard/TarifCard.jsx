@@ -1,6 +1,7 @@
 // src/entities/TariffCard/TarifCard.jsx
 import React from "react";
 import "./TariffCard.scss";
+import { formatPriceInt } from "@/shared/utils/formatPriceInt";
 
 const TarifCard = ({
   id,
@@ -25,6 +26,8 @@ const TarifCard = ({
   const handleDetailsClick = () => {
     if (onDetails) onDetails(id);
   };
+
+ 
 
   return (
     <div
@@ -67,7 +70,9 @@ const TarifCard = ({
         </div>
       )}
 
-      <p className="priceCard">{Number(price || 0).toLocaleString("ru-RU")}₽</p>
+      <p className="priceCard">
+        {formatPriceInt(active === "year" ? (price || 0) * 12 : price)}₽
+      </p>
 
       <button>Подключить</button>
 
