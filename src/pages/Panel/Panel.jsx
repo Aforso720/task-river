@@ -34,7 +34,7 @@ const Panel = () => {
 
   const showSidebarTasks = matchProject || matchBoard || matchTask;
 
-  const { projects, boards, tasks, getAllElemPanel } = useGetElemPanel();
+  const { projects, boards, tasks, getAllElemPanel , loading:loadingElem } = useGetElemPanel();
 
   React.useEffect(() => {
     getAllElemPanel();
@@ -57,7 +57,7 @@ const Panel = () => {
       <SideBar />
       <div className="wrapperSidebar">
         {showSidebarTasks && (
-          <SideBarTasks projects={projects} boards={boards} tasks={tasks} />
+          <SideBarTasks projects={projects} boards={boards} tasks={tasks} loading={loadingElem}/>
         )}
         <section className="mainPanelPage">
           {myLocation.pathname === "/panel/setting" ? null : <HeaderSideBar />}
@@ -71,12 +71,14 @@ const Panel = () => {
                       type={"Проекты"}
                       list={projects}
                       listBoards={boards}
+                      loading={loadingElem}
                     />
                     <ListElemPanel
                       type={"Доски"}
                       list={boards.filter((item) => item.projectId === null)}
+                      loading={loadingElem}
                     />
-                    <ListElemPanel type={"Задачи"} list={tasks} />
+                    <ListElemPanel type={"Задачи"} list={tasks} loading={loadingElem}  />
                   </>
                 }
               />

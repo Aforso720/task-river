@@ -130,8 +130,6 @@ const ModalWorkUsers = ({ membersProject = [] }) => {
 
     setActionLoadingId(member.id);
     try {
-      // ⚠️ ПОДПРАВЬ ПОД СВОЙ БЭК
-      // пример: DELETE /kanban/projects/:projectId/members/:userId
       await axiosInstance.delete(
         `/kanban/projects/${activeProjectId}/members/${member.id}`
       );

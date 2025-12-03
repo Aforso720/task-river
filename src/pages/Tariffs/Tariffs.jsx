@@ -8,6 +8,7 @@ import TableTariff from "../../shared/UI/TableTariff/TableTariff";
 import TariffSetting from "../../entities/TariffSetting/TariffSetting";
 import { useTariffs } from "@/features/Admin/api/useTariffs";
 import useTariffHighlight from "./store/useTariffHighlight";
+import CardSkeleton from "@/shared/Skeletons/SkeletonTariffCard";
 
 
 const mapPlanNameToUi = (name) => {
@@ -20,7 +21,7 @@ const mapPlanNameToUi = (name) => {
 };    
 
 const Tariffs = () => {
-  const { tariffs, getTariffs } = useTariffs();
+  const { tariffs, getTariffs , loading: loadingTariffs } = useTariffs();
   const highlightedTariffId = useTariffHighlight((s) => s.highlightedTariffId);
   const toggleHighlightedTariff = useTariffHighlight(
     (s) => s.toggleHighlightedTariff
@@ -62,7 +63,12 @@ const Tariffs = () => {
         />
         <section className="tariffsInfoCards flex flex-col justify-center items-center">
           <section className="tariffCards flex justify-center items-center gap-4 mt-10 mb-5 ">
-            {plans.map((plan, index) => (
+            {loadingTariffs ? 
+            Array.from({length:3}).map((_,index)=>(
+              <CardSkeleton classN={' bg-[#E6E4D8] '} key={index}/>  
+            ))
+            : (
+              plans.map((plan, index) => (
               <TarifCard
                 cardIndex={index}
                 key={plan.id}
@@ -77,7 +83,8 @@ const Tariffs = () => {
                 selected={highlightedTariffId === plan.id}
                 onDetails={handleDetails}
               />
-            ))}
+            ))
+            ) }
           </section>
           <button className="buttonTariff">Пользовательские настройки</button>
         </section>
@@ -87,7 +94,7 @@ const Tariffs = () => {
         <h2>
           Сравни все за и против, и <span>подбери тариф</span>
         </h2>
-        <TableTariff plans={plans} />
+        <TableTariff plans={plans} loadingTariffs={loadingTariffs}/>
       </section>
 
       <section className="tariffsSetting">

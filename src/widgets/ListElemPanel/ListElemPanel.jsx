@@ -7,8 +7,9 @@ import useModalAddElemStore from "../../widgets/AddElemModal/useModalAddElemStor
 import ConfirmDeleteModal from "@/shared/ConfirmDeleteModal/ConfirmDeleteModal";
 import CrossIcon from "@/shared/UI/CrossIcon";
 import { useDeleteElemPanel } from "@/features/Kanban/api/useDeleteElemPanel";
+import SkeletonMenuElem from "@/shared/Skeletons/SkeletonMenuElem";
 
-const ListElemPanel = ({ type, list, listBoards }) => {
+const ListElemPanel = ({ type, list, listBoards, loading }) => {
   const openModalAddElem = useModalAddElemStore(
     (state) => state.openModalAddElem
   );
@@ -76,45 +77,51 @@ const ListElemPanel = ({ type, list, listBoards }) => {
     >
       <h3 className="text-3xl font-bold text-[#22333B]">{type}</h3>
       <ul>
-        {list.map((item) => (
-          <li
-            key={item.id}
-            onClick={() => handleClick(item)}
-            className="relative cursor-pointer group"
-          >
-            {item.icon && (
-              <img
-                src={`/image/${item.icon}`}
-                alt="Icon"
-                className="item-icon"
-                style={{ width: 24, height: 24 }}
-              />
-            )}
-            <p className="font-medium text-xs text-[#22333B]">
-              {item.name ?? item.title}
-            </p>
+        {loading
+          ? Array.from({ length: 4 }).map((_, index) => (
+                <SkeletonMenuElem 
+                key={`skeleton-${index}`}
+                />
+            ))
+          : list.map((item) => (
+              <li
+                key={item.id}
+                onClick={() => handleClick(item)}
+                className="relative cursor-pointer group"
+              >
+                {item.icon && (
+                  <img
+                    src={`/image/${item.icon}`}
+                    alt="Icon"
+                    className="item-icon"
+                    style={{ width: 24, height: 24 }}
+                  />
+                )}
+                <p className="font-medium text-xs text-[#22333B]">
+                  {item.name ?? item.title}
+                </p>
 
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                askDelete(e, item);
-              }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-              aria-label="Удалить"
-              title="Удалить"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  askDelete(e, item);
-                }
-              }}
-              className="
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    askDelete(e, item);
+                  }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                  aria-label="Удалить"
+                  title="Удалить"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      askDelete(e, item);
+                    }
+                  }}
+                  className="
               absolute right-1.5 top-1/2 -translate-y-1/2
               w-[22px] h-[22px] grid place-items-center
               rounded-md cursor-pointer z-10
@@ -123,19 +130,20 @@ const ListElemPanel = ({ type, list, listBoards }) => {
               hover:bg-[rgba(34,51,59,0.08)]
               focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#22333B]
             "
-            >
-              <span
-                className="
+                >
+                  <span
+                    className="
                   pointer-events-none
                   transition-transform duration-300
                   group-hover:rotate-90 group-hover:scale-110
                 "
-              >
-                <CrossIcon />
-              </span>
-            </span>
-          </li>
-        ))}
+                  >
+                    <CrossIcon />
+                  </span>
+                </span>
+              </li>
+            ))}
+
         <li
           className="add-project-item text-xs text-[#22333B]"
           style={{ cursor: "pointer" }}

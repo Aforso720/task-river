@@ -4,8 +4,13 @@ import "./Home.scss";
 import VideoSetting from "@shared/UI/VideoSetting/VideoSetting";
 import SliderHome from "@widgets/SliderHome/SliderHome.jsx";
 import TextAuthHome from "@/entities/TextAuthHome/TextAuthHome";
+import axiosInstance from "@/app/api/axiosInstance";
 
 const Home = () => {
+  React.useEffect(()=>{
+   const arr = axiosInstance.get('/users')
+   console.log(arr.data)
+  },[])
   return (
     <section className="HomePage flex flex-col justify-center items-center">
       <Helmet>

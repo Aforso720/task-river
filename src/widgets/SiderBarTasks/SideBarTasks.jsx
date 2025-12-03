@@ -1,15 +1,15 @@
-// src/widgets/SiderBarTasks/SideBarTasks.jsx
 import React from "react";
 import { useLocation } from "react-router";
 import "./SideBarTasks.scss";
 import useTargetEvent from "../../pages/Panel/store/useTargetEvent";
+import SkeletonSideBar from "@/shared/Skeletons/SkeletonSideBar";
 
-const SideBarTasks = ({ projects, boards, tasks }) => {
+const SideBarTasks = ({ projects, boards, tasks, loading }) => {
   const location = useLocation();
 
   const addProjectID = useTargetEvent((state) => state.addProjectID);
-  const addBoardID = useTargetEvent((state) => state.addBoardID);             // одиночные доски
-  const addGroupBoardId = useTargetEvent((state) => state.addGroupBoardId);   // доски проекта
+  const addBoardID = useTargetEvent((state) => state.addBoardID);
+  const addGroupBoardId = useTargetEvent((state) => state.addGroupBoardId);
   const addTaskID = useTargetEvent((state) => state.addTaskID);
 
   const activeProjectId = useTargetEvent((state) => state.activeProjectId);
@@ -33,9 +33,9 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
 
   const handleBoardClick = (board) => {
     if (isBoardRoute) {
-      addBoardID(board.id);        // одиночная доска
+      addBoardID(board.id);
     } else {
-      addGroupBoardId(board.id);   // доска проекта
+      addGroupBoardId(board.id);
     }
   };
 
@@ -45,66 +45,94 @@ const SideBarTasks = ({ projects, boards, tasks }) => {
         <section className="navInSideBar">
           <h5 className="text-2xl text-[#22333B] font-bold mb-5">Проекты</h5>
           <div className="cardsSideBarTasks">
-            {projects.map((project) => (
-              <div
-                className={`cardItemSideBar ${
-                  activeProjectId === project.id ? "active" : ""
-                }`}
-                key={project.id}
-                onClick={() => addProjectID(project.id)}
-              >
-                {project.icon && (
-                  <img src={`/image/${project.icon}`} alt={project.name} />
-                )}
-                <p>{project.name}</p>
-              </div>
-            ))}
+            {loading
+              ? Array.from({ length: 4 }).map((_, index) => (
+                  <div
+                    className="cardItemSideBar"
+                    key={`projects-skeleton-${index}`}
+                  >
+                    <SkeletonSideBar />
+                  </div>
+                ))
+              : projects.map((project) => (
+                  <div
+                    className={`cardItemSideBar ${
+                      activeProjectId === project.id ? "active" : ""
+                    }`}
+                    key={project.id}
+                    onClick={() => addProjectID(project.id)}
+                  >
+                    {project.icon && (
+                      <img
+                        src={`/image/${project.icon}`}
+                        alt={project.name}
+                      />
+                    )}
+                    <p>{project.name}</p>
+                  </div>
+                ))}
           </div>
         </section>
       )}
-
       {!isTasksRoute && activeBoards.length > 0 && (
         <section className="navInSideBar">
           <h5 className="text-2xl text-[#22333B] font-bold mb-5">Доски</h5>
           <div className="cardsSideBarTasks">
-            {activeBoards.map((board) => (
-              <div
-                className={`cardItemSideBar ${
-                  isBoardActive(board) ? "active" : ""
-                }`}
-                key={board.id}
-                onClick={() => handleBoardClick(board)}
-              >
-                {board.icon && (
-                  <img src={`/image/${board.icon}`} alt={board.name} />
-                )}
-                <p>{board.name}</p>
-              </div>
-            ))}
+            {loading
+              ? Array.from({ length: 4 }).map((_, index) => (
+                  <div
+                    className="cardItemSideBar"
+                    key={`boards-skeleton-${index}`}
+                  >
+                    <SkeletonSideBar />
+                  </div>
+                ))
+              : activeBoards.map((board) => (
+                  <div
+                    className={`cardItemSideBar ${
+                      isBoardActive(board) ? "active" : ""
+                    }`}
+                    key={board.id}
+                    onClick={() => handleBoardClick(board)}
+                  >
+                    {board.icon && (
+                      <img src={`/image/${board.icon}`} alt={board.name} />
+                    )}
+                    <p>{board.name}</p>
+                  </div>
+                ))}
           </div>
         </section>
       )}
-
       {isTasksRoute && (
         <section className="navInSideBar">
           <h5 className="text-2xl text-[#22333B] font-bold mb-5">
             Личные задачи
           </h5>
           <div className="cardsSideBarTasks">
-            {activeTasks.map((task) => (
-              <div
-                className={`cardItemSideBar ${
-                  activeTaskId === task.id ? "active" : ""
-                }`}
-                key={task.id}
-                onClick={() => addTaskID(task.id)}
-              >
-                {task.icon && (
-                  <img src={`/image/${task.icon}`} alt={task.name} />
-                )}
-                <p>{task.name}</p>
-              </div>
-            ))}
+            {loading
+              ? Array.from({ length: 4 }).map((_, index) => (
+                  <div
+                    className="cardItemSideBar"
+                    key={`tasks-skeleton-${index}`}
+                  >
+                    <SkeletonSideBar />
+                  </div>
+                ))
+              : activeTasks.map((task) => (
+                  <div
+                    className={`cardItemSideBar ${
+                      activeTaskId === task.id ? "active" : ""
+                    }`}
+                    key={task.id}
+                    onClick={() => addTaskID(task.id)}
+                  >
+                    {task.icon && (
+                      <img src={`/image/${task.icon}`} alt={task.name} />
+                    )}
+                    <p>{task.name}</p>
+                  </div>
+                ))}
           </div>
         </section>
       )}
