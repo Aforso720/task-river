@@ -4,15 +4,10 @@ import "./Home.scss";
 import VideoSetting from "@shared/UI/VideoSetting/VideoSetting";
 import SliderHome from "@widgets/SliderHome/SliderHome.jsx";
 import TextAuthHome from "@/entities/TextAuthHome/TextAuthHome";
-import axiosInstance from "@/app/api/axiosInstance";
 
 const Home = () => {
-  React.useEffect(()=>{
-   const arr = axiosInstance.get('/users')
-   console.log(arr.data)
-  },[])
   return (
-    <section className="HomePage flex flex-col justify-center items-center">
+    <section className="HomePage flex flex-col justify-center items-center w-full">
       <Helmet>
         <title>TaskRiver — управление задачами и проектами</title>
         <meta
@@ -21,15 +16,30 @@ const Home = () => {
         />
       </Helmet>
 
-      <section className="authHome flex justify-between items-center gap-5">
+      <section
+        className="
+          authHome
+          flex justify-between items-center gap-5
+          w-[1140px] h-[685px] mt-[30px] mb-[90px]
+        "
+      >
         <TextAuthHome />
         <SliderHome />
       </section>
+
       <VideoSetting />
-      <section className="aboutHome flex flex-col justify-between items-center">
+
+      <section
+        className="
+          aboutHome
+          flex flex-col justify-between items-center
+          w-[1140px] h-[525px] my-[90px]
+        "
+      >
         <h2 className="text-5xl">Немного о нас</h2>
-        <div className="infoAboutHome flex justify-between items-center">
-          <p className="text-2xl font-bold ">
+
+        <div className="infoAboutHome flex justify-between items-center w-full">
+          <p className="text-2xl font-bold w-[625px] h-[252px]">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
