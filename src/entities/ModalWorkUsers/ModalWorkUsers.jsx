@@ -6,7 +6,6 @@ import axiosInstance from "@/app/api/axiosInstance";
 
 const ROLES = ["ADMIN", "EDITOR", "READER"];
 
-
 const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
   const isOpen = useModalWorkUsersStore((s) => s.isOpen);
   const closeModal = useModalWorkUsersStore((s) => s.closeModal);
@@ -19,6 +18,8 @@ const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
   const [searchError, setSearchError] = React.useState("");
 
   const [actionLoadingId, setActionLoadingId] = React.useState(null);
+  // Добавляем состояние для хранения ID найденного пользователя
+  const [foundUserId, setFoundUserId] = React.useState(null);
 
   const entityLabel = entityType === "project" ? "проекта" : "доски";
   const entityName = entityType === "project" ? "проект" : "доске";
@@ -44,6 +45,7 @@ const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
     setSearchResults([]);
     setSearchError("");
     setActionLoadingId(null);
+    setFoundUserId(null); // Сбрасываем ID при закрытии
     closeModal();
   };
 
@@ -55,19 +57,75 @@ const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
 
     setSearchLoading(true);
     setSearchError("");
+    setSearchResults([]);
+    setFoundUserId(null); // Сбрасываем предыдущий ID
+
     try {
-      const { data } = await axiosInstance.get("/kanban/users/search", {
-        params: { q: query },
-      });
+      const { data } = await axiosInstance.get(`/user/search?email=${query}`);
+
+      // Проверяем структуру ответа
+      console.log("Результат поиска:", data);
+      
+      // Обрабатываем разные форматы ответа
+      let users = [];
+      if (Array.isArray(data)) {
+        users = data;
+      } else if (data && typeof data === 'object') {
+        // Если ответ - объект, проверяем есть ли в нем массив пользователей
+        if (data.users && Array.isArray(data.users)) {
+          users = data.users;
+        } else if (data.data && Array.isArray(data.data)) {
+          users = data.data;
+        } else {
+          // Если объект содержит информацию о пользователе напрямую
+          users = [data];
+        }
+      }
+
+      if (users.length === 0) {
+        setSearchError("Пользователь не найден");
+        return;
+      }
+
+      // Сохраняем ID первого найденного пользователя
+      if (users[0]?.id) {
+        setFoundUserId(users[0].id);
+        console.log("Найден пользователь с ID:", users[0].id);
+      }
 
       const currentIds = new Set(members.map((m) => m.id));
-      const filtered = (data || []).filter((u) => !currentIds.has(u.id));
+      const filtered = users.filter((u) => u.id && !currentIds.has(u.id));
 
-      setSearchResults(filtered);
+      if (filtered.length === 0) {
+        setSearchError("Пользователь уже добавлен в проект");
+        setSearchResults([]);
+      } else {
+        setSearchResults(filtered);
+        setSearchError(""); // Убираем ошибку при успешном поиске
+      }
     } catch (err) {
       console.error("Ошибка поиска пользователей:", err);
-      setSearchError("Не удалось выполнить поиск");
+      
+      // Более информативное сообщение об ошибке
+      if (err.response) {
+        switch (err.response.status) {
+          case 404:
+            setSearchError("Пользователь не найден");
+            break;
+          case 400:
+            setSearchError("Неверный формат email");
+            break;
+          default:
+            setSearchError(`Ошибка сервера: ${err.response.status}`);
+        }
+      } else if (err.request) {
+        setSearchError("Нет ответа от сервера");
+      } else {
+        setSearchError("Не удалось выполнить поиск");
+      }
+      
       setSearchResults([]);
+      setFoundUserId(null);
     } finally {
       setSearchLoading(false);
     }
@@ -84,7 +142,11 @@ const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
   };
 
   const handleAddUser = async (user, role = "READER") => {
-    if (!entityId || !user?.id) return;
+    if (!entityId || !user?.id) {
+      console.error("Отсутствует entityId или user.id");
+      return;
+    }
+    
     setActionLoadingId(user.id);
     try {
       if (entityType === "project") {
@@ -101,9 +163,17 @@ const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
       
       await refreshMembers();
       
+      // Удаляем добавленного пользователя из результатов поиска
       setSearchResults((prev) => prev.filter((u) => u.id !== user.id));
+      
+      // Очищаем поисковое поле и результаты
+      setSearchValue("");
+      setFoundUserId(null);
     } catch (err) {
       console.error("Не удалось добавить участника:", err);
+      
+      // Показываем ошибку добавления
+      setSearchError("Не удалось добавить пользователя. Попробуйте снова.");
     } finally {
       setActionLoadingId(null);
     }
@@ -184,10 +254,13 @@ const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
             onSubmit={handleSearch}
           >
             <input
-              type="text"
-              placeholder="Найти пользователя по имени или email"
+              type="email"
+              placeholder="Найти пользователя по email"
               value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                setSearchError(""); // Сбрасываем ошибку при изменении поля
+              }}
               className="ModalWorkUsers__searchInput"
             />
             <button

@@ -45,26 +45,24 @@
             margin: 20px 0;
             padding: 0 20px;
             font-family: 'TT Travels Trl', sans-serif;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 250px;
 
-            img{
-                width: 436px;
-                height: 232px;
-            }
-
-
+            // Убираем старые медиа-запросы для фиксированных размеров
             @media (min-width:768px){
-            width: 750px;
-            height: 273px;
+                width: 100% !important;
+                height: auto !important;
             }
 
             @media (min-width:1024px){
-            width: 1140px;
-            height: 273px;
+                width: 100% !important;
+                height: auto !important;
             }
 
             @media (min-width:1280px){
-            width: 1140px;
-            height: 273px;
+                width: 100% !important;
+                height: auto !important;
             }
 
             section{
@@ -85,20 +83,60 @@
                 }
 
                 button{
-                        background-color: #8C6D51;
-                        color: #E6E4D8;
-                        border-radius: 30px;
-                        padding: 5px 10px;
-                        align-self: flex-start;
+                    background-color: #8C6D51;
+                    color: #E6E4D8;
+                    border-radius: 30px;
+                    padding: 5px 10px;
+                    align-self: flex-start;
                 }
             }
         }
     }
 
     .newsSocial {
-            h3 {
-                color: #22333B;
-                font-family: 'Segoe UI', sans-serif;
-            }
+        h3 {
+            color: #22333B;
+            font-family: 'Segoe UI', sans-serif;
+        }
     }
+}
+
+/* Анимация для аккордеона */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Улучшенный скроллбар для длинных текстов */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #8C6D51 #E6E4D8;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #E6E4D8;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #8C6D51;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #7A5D44;
 }
