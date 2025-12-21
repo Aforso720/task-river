@@ -1,4 +1,3 @@
-// "@/features/Kanban/api/useWorkColumn.js"
 import axiosInstance from "@/app/api/axiosInstance";
 import { create } from "zustand";
 
@@ -53,6 +52,40 @@ export const useWorkColumn = create((set, get) => ({
     }
   },
 
+  async putColumnFunc(boardId, columnId, payload) {
+    try {
+      set({ loadingPost: true, errorPost: null });
+
+      // Исправляем опечатку: преобразуем position -> postion
+      const apiPayload = {
+        name: payload.name,
+        postion: payload.position || payload.postion || 0, // ← используем поле "postion"
+      };
+
+      const resp = await axiosInstance.put(
+        // ← используем PUT метод
+        `kanban/boards/${boardId}/columns/${columnId}`,
+        apiPayload // ← передаем исправленный payload
+      );
+
+      const updatedColumn = resp.data;
+
+      // Обновляем локальное состояние
+      set((s) => ({
+        columns: (s.columns || []).map((c) =>
+          String(c.id) === String(columnId) ? { ...c, ...updatedColumn } : c
+        ),
+      }));
+
+      return updatedColumn;
+    } catch (error) {
+      set({ errorPost: error.message });
+      throw error;
+    } finally {
+      set({ loadingPost: false });
+    }
+  },
+
   async deleteColumnFunc(boardId, columnId) {
     try {
       set({ loadingDelete: true, errorDelete: null });
@@ -61,7 +94,9 @@ export const useWorkColumn = create((set, get) => ({
       );
 
       set((s) => ({
-        columns: (s.columns || []).filter((c) => String(c.id) !== String(columnId)),
+        columns: (s.columns || []).filter(
+          (c) => String(c.id) !== String(columnId)
+        ),
       }));
     } catch (error) {
       set({ errorDelete: error.message });

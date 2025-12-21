@@ -12,4 +12,34 @@
         color: #8C6D51;
         font-size: 32px;
     }
+
+     @media (min-width:768px)  {
+         h2{
+            font-size: 96px;
+        }
+
+        h3{
+            font-size: 24px;
+        }
+      }
+
+      @media (min-width:1024px)  {
+         h2{
+            font-size: 112px;
+        }
+
+        h3{
+            font-size: 28px;
+        }
+      }
+
+      @media (min-width:1280px)  {
+         h2{
+            font-size: 128px;
+        }
+
+        h3{
+            font-size: 32px;
+        }
+      }
 }

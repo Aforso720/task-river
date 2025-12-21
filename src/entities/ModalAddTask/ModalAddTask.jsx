@@ -5,23 +5,23 @@ import { useWorkTasks } from "@/features/Kanban/api/useWorkTasks";
 import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
 
 const difficultyByPriority = {
-  "Высокий": "HIGH",
+  "Высокий": "HARD",
   "Средний": "MEDIUM",
-  "Низкий": "LOW",
+  "Низкий": "EASY",
 };
 
 export default function ModalAddTask() {
   const {
     modalInTaskState,
-    mode,                 // "add" | "edit" | "view"
-    selectedTask,         // объект выбранной карточки (как мы ранее договорились)
-    currentColumnId,      // колонка, к которой относится операция
+    mode, 
+    selectedTask,
+    currentColumnId,
     closeModalTaskState,
   } = ModalTaskState();
 
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
-  const isAddMode  = mode === "add";
+  const isAddMode = mode === "add";
 
   const { activeBoardId } = useTargetEvent();
 
@@ -40,7 +40,6 @@ export default function ModalAddTask() {
   const [deadlineTime, setDeadlineTime] = useState("14:30");
   const [files, setFiles] = useState([]);
 
-  // Инициализация формы при открытии
   useEffect(() => {
     if (!modalInTaskState) return;
 
@@ -48,32 +47,33 @@ export default function ModalAddTask() {
       setForm({ title: "", description: "" });
       setPriority("Высокий");
     } else {
-      // edit/view — префилд из выбранной задачи
       const raw = selectedTask.raw || selectedTask;
       setForm({
         title: raw?.title ?? "",
         description: raw?.description ?? "",
       });
+
       const d = String(raw?.difficulty || "").trim().toUpperCase();
       if (d === "HIGH") setPriority("Высокий");
       else if (d === "MEDIUM") setPriority("Средний");
       else setPriority("Низкий");
     }
+
     setFiles([]);
   }, [modalInTaskState, isAddMode, selectedTask]);
 
   if (!modalInTaskState) return null;
 
-  // вспом: позиция "в конец колонки"
   const calcLastPositionInColumn = (colId) => {
     const last = (tasksAll || [])
       .filter((t) => t.columnId === colId)
       .reduce((max, t) => Math.max(max, t.position ?? -1), -1);
-    return last; // вернём last, вызывать +1 снаружи — удобнее
+    return last;
   };
 
   const onSave = async () => {
     if (isViewMode) return;
+
     const title = (form.title || "").trim();
     if (!title) return;
 
@@ -82,22 +82,28 @@ export default function ModalAddTask() {
 
     try {
       if (isAddMode) {
-        // создаём в currentColumnId, позиция в конец
         const colId = currentColumnId;
         const lastPos = calcLastPositionInColumn(colId);
+        const position = lastPos + 1;
 
-        const payload = {
-          title,
-          description,
-          difficulty,
-          columnId: colId,
-          position: lastPos + 1,
-          responsibleUserIds: ["68ad5e4b6f10733f3245325f"],
-          attachments: [],
-          // boardId: activeBoardId, // добавляй только если бэк требует это поле в body
-        };
+        const fd = new FormData();
+        fd.append("title", title);
+        fd.append("description", description);
+        fd.append("difficulty", difficulty);
 
-        await postTasksFunc(activeBoardId, payload);
+        fd.append("columnId", colId);
+
+        fd.append("position", String(position));
+
+        fd.append("boardId", activeBoardId);
+
+        fd.append("responsibleUserIds", "68ad5e4b6f10733f3245325f");
+
+        files.forEach((file) => {
+          fd.append("attachments", file);
+        });
+
+        await postTasksFunc(activeBoardId, fd);
         await getTasksFunc(activeBoardId);
         closeModalTaskState();
       }
@@ -107,8 +113,6 @@ export default function ModalAddTask() {
         const prevColId = prev?.columnId;
         const nextColId = currentColumnId || prevColId;
 
-        // если колонку сменили — ставим в конец новой
-        // иначе — оставляем прежнюю позицию
         let position = prev?.position ?? 0;
         if (nextColId !== prevColId) {
           const lastPos = calcLastPositionInColumn(nextColId);
@@ -121,7 +125,9 @@ export default function ModalAddTask() {
           difficulty,
           columnId: nextColId,
           position,
-          responsibleUserIds: prev?.responsibleUserIds || ["68ad5e4b6f10733f3245325f"],
+          responsibleUserIds: prev?.responsibleUserIds || [
+            "68ad5e4b6f10733f3245325f",
+          ],
           attachments: prev?.attachments || [],
         };
 
@@ -146,7 +152,7 @@ export default function ModalAddTask() {
   };
 
   const users = [
-    { id: 1, firstName: "Екатерина", lastName: "Алексеева", avatar: null },
+    // { id: 1, firstName: "Екатерина", lastName: "Алексеева", avatar: null },
   ];
 
   return (
@@ -189,7 +195,10 @@ export default function ModalAddTask() {
                   >
                     <div className="avatar ml-2">
                       {user.avatar ? (
-                        <img src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
+                        <img
+                          src={user.avatar}
+                          alt={`${user.firstName} ${user.lastName}`}
+                        />
                       ) : (
                         `${user.lastName[0]}${user.firstName[0]}`
                       )}
@@ -202,7 +211,10 @@ export default function ModalAddTask() {
               </div>
 
               {!isViewMode && (
-                <button className="add-btn w-full flex justify-center rounded-xl" type="button">
+                <button
+                  className="add-btn w-full flex justify-center rounded-xl"
+                  type="button"
+                >
                   +
                 </button>
               )}
@@ -232,7 +244,9 @@ export default function ModalAddTask() {
               <label>Приоритет</label>
               <div className="priority-options">
                 <button
-                  className={`high-priority ${priority === "Высокий" ? "selected" : ""}`}
+                  className={`high-priority ${
+                    priority === "Высокий" ? "selected" : ""
+                  }`}
                   onClick={() => !isViewMode && setPriority("Высокий")}
                   disabled={isViewMode}
                   type="button"
@@ -241,7 +255,9 @@ export default function ModalAddTask() {
                 </button>
 
                 <button
-                  className={`medium-priority ${priority === "Средний" ? "selected" : ""}`}
+                  className={`medium-priority ${
+                    priority === "Средний" ? "selected" : ""
+                  }`}
                   onClick={() => !isViewMode && setPriority("Средний")}
                   disabled={isViewMode}
                   type="button"
@@ -250,7 +266,9 @@ export default function ModalAddTask() {
                 </button>
 
                 <button
-                  className={`low-priority ${priority === "Низкий" ? "selected" : ""}`}
+                  className={`low-priority ${
+                    priority === "Низкий" ? "selected" : ""
+                  }`}
                   onClick={() => !isViewMode && setPriority("Низкий")}
                   disabled={isViewMode}
                   type="button"
@@ -327,7 +345,11 @@ export default function ModalAddTask() {
           )}
 
           <div className="gap-5 flex">
-            <button onClick={closeModalTaskState} className="cancel-btn" type="button">
+            <button
+              onClick={closeModalTaskState}
+              className="cancel-btn"
+              type="button"
+            >
               Отмена
             </button>
 
@@ -338,7 +360,7 @@ export default function ModalAddTask() {
                 type="button"
                 disabled={loadingPost || loadingPut}
               >
-                {(loadingPost || loadingPut) ? "Сохраняем…" : "Сохранить"}
+                {loadingPost || loadingPut ? "Сохраняем…" : "Сохранить"}
               </button>
             )}
           </div>

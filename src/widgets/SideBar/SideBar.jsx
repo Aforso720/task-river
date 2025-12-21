@@ -11,7 +11,7 @@ const SideBar = () => {
     if (location.pathname.includes("/panel/board")) return "board"
     if (location.pathname.includes("/panel/tasks")) return "task"
     if (location.pathname.includes("/panel/menu")) return "panel"
-    if (location.pathname.includes("/panel/market")) return "market"
+    // if (location.pathname.includes("/panel/market")) return "market"
     if (location.pathname.includes("/panel/setting")) return "setting"
     return ""
   }
@@ -41,16 +41,16 @@ const SideBar = () => {
             <img src="/image/BoardIcon.svg" alt="Boards" />
           </li>
         </Link>
-        <Link to="/panel/tasks">
-          <li className={`sideBar-item ${activeItem === "task" ? "active" : ""}`}>
-            <img src="/image/TaskIcon.svg" alt="Tasks" />
-          </li>
-        </Link>
-        <Link to="/panel/market">
+          {/* <Link to="/panel/tasks">
+            <li className={`sideBar-item ${activeItem === "task" ? "active" : ""}`}>
+              <img src="/image/TaskIcon.svg" alt="Tasks" />
+            </li>
+          </Link> */}
+        {/* <Link to="/panel/market">
           <li className={`sideBar-item my-1 ${activeItem === "market" ? "active" : ""}`}>
             <img src="/image/MarketIcon.svg" alt="Market" />
           </li>
-        </Link>
+        </Link> */}
 
         <li className="sideBar-item p-2 cursor-pointer" onClick={toggleTheme}>
           <img

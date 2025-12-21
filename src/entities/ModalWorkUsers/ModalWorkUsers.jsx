@@ -1,18 +1,17 @@
 import React from "react";
 import "./ModalWorkUsers.scss";
 import useModalWorkUsersStore from "./store/useModalWorkUsersStore";
-import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
 import { useWorkMembers } from "@/features/Kanban/api/useWorkMembers";
 import axiosInstance from "@/app/api/axiosInstance";
 
 const ROLES = ["ADMIN", "EDITOR", "READER"];
 
-const ModalWorkUsers = ({ membersProject = [] }) => {
+
+const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
   const isOpen = useModalWorkUsersStore((s) => s.isOpen);
   const closeModal = useModalWorkUsersStore((s) => s.closeModal);
 
-  const { activeProjectId } = useTargetEvent();
-  const { getMemberProject } = useWorkMembers();
+  const { getMemberProject, getMembersBoard, addedProjectMembers, addedBoardMembers } = useWorkMembers();
 
   const [searchValue, setSearchValue] = React.useState("");
   const [searchResults, setSearchResults] = React.useState([]);
@@ -21,8 +20,8 @@ const ModalWorkUsers = ({ membersProject = [] }) => {
 
   const [actionLoadingId, setActionLoadingId] = React.useState(null);
 
-  // сейчас просто включаем управление для всех — дальше можно завязать на текущего юзера
-  const canManage = true;
+  const entityLabel = entityType === "project" ? "проекта" : "доски";
+  const entityName = entityType === "project" ? "проект" : "доске";
 
   if (!isOpen) return null;
 
@@ -50,20 +49,18 @@ const ModalWorkUsers = ({ membersProject = [] }) => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!activeProjectId) return;
+    if (!entityId) return;
     const query = searchValue.trim();
     if (!query) return;
 
     setSearchLoading(true);
     setSearchError("");
     try {
-      // ⚠️ ПОДПРАВЬ URL ПОД СВОЙ БЭК
-      // Допустим, поиск пользователей: GET /kanban/users/search?q=...
       const { data } = await axiosInstance.get("/kanban/users/search", {
         params: { q: query },
       });
 
-      const currentIds = new Set(membersProject.map((m) => m.id));
+      const currentIds = new Set(members.map((m) => m.id));
       const filtered = (data || []).filter((u) => !currentIds.has(u.id));
 
       setSearchResults(filtered);
@@ -77,26 +74,33 @@ const ModalWorkUsers = ({ membersProject = [] }) => {
   };
 
   const refreshMembers = async () => {
-    if (!activeProjectId) return;
-    await getMemberProject(activeProjectId);
+    if (!entityId) return;
+    
+    if (entityType === "project") {
+      await getMemberProject(entityId);
+    } else {
+      await getMembersBoard(entityId);
+    }
   };
 
   const handleAddUser = async (user, role = "READER") => {
-    if (!activeProjectId || !user?.id) return;
+    if (!entityId || !user?.id) return;
     setActionLoadingId(user.id);
     try {
-      // используется тот запрос, который ты присылал:
-      // POST /kanban/projects/:projectId/members { userId, role }
-      await axiosInstance.post(
-        `/kanban/projects/${activeProjectId}/members`,
-        {
+      if (entityType === "project") {
+        await addedProjectMembers(entityId, {
           userId: user.id,
           role,
-        }
-      );
+        });
+      } else {
+        await addedBoardMembers(entityId, {
+          userId: user.id,
+          role,
+        });
+      }
+      
       await refreshMembers();
-
-      // убираем добавленного из результатов поиска
+      
       setSearchResults((prev) => prev.filter((u) => u.id !== user.id));
     } catch (err) {
       console.error("Не удалось добавить участника:", err);
@@ -106,15 +110,20 @@ const ModalWorkUsers = ({ membersProject = [] }) => {
   };
 
   const handleRoleChange = async (member, newRole) => {
-    if (!activeProjectId || !member?.id) return;
+    if (!entityId || !member?.id) return;
     setActionLoadingId(member.id);
     try {
-      // ⚠️ ПОДПРАВЬ ПОД СВОЙ БЭК
-      // пример: PATCH /kanban/projects/:projectId/members/:userId { role }
-      await axiosInstance.patch(
-        `/kanban/projects/${activeProjectId}/members/${member.id}`,
-        { role: newRole }
-      );
+      if (entityType === "project") {
+        await axiosInstance.patch(
+          `/kanban/projects/${entityId}/members/${member.id}`,
+          { role: newRole }
+        );
+      } else {
+        await axiosInstance.patch(
+          `/kanban/boards/${entityId}/members/${member.id}`,
+          { role: newRole }
+        );
+      }
       await refreshMembers();
     } catch (err) {
       console.error("Не удалось изменить роль:", err);
@@ -124,15 +133,21 @@ const ModalWorkUsers = ({ membersProject = [] }) => {
   };
 
   const handleRemoveMember = async (member) => {
-    if (!activeProjectId || !member?.id) return;
-    if (!window.confirm(`Удалить ${getDisplayName(member)} из проекта?`))
+    if (!entityId || !member?.id) return;
+    if (!window.confirm(`Удалить ${getDisplayName(member)} из ${entityLabel}?`))
       return;
 
     setActionLoadingId(member.id);
     try {
-      await axiosInstance.delete(
-        `/kanban/projects/${activeProjectId}/members/${member.id}`
-      );
+      if (entityType === "project") {
+        await axiosInstance.delete(
+          `/kanban/projects/${entityId}/members/${member.id}`
+        );
+      } else {
+        await axiosInstance.delete(
+          `/kanban/boards/${entityId}/members/${member.id}`
+        );
+      }
       await refreshMembers();
     } catch (err) {
       console.error("Не удалось удалить участника:", err);
@@ -146,9 +161,11 @@ const ModalWorkUsers = ({ membersProject = [] }) => {
       <article className="ModalWorkUsers" onClick={stop}>
         <header className="ModalWorkUsers__header">
           <div>
-            <h3 className="ModalWorkUsers__title">Участники проекта</h3>
+            <h3 className="ModalWorkUsers__title">
+              Участники {entityLabel}
+            </h3>
             <p className="ModalWorkUsers__subtitle">
-              Управляйте доступом пользователей к этому проекту
+              Управляйте доступом пользователей к этой {entityName}
             </p>
           </div>
           <button
@@ -236,13 +253,13 @@ const ModalWorkUsers = ({ membersProject = [] }) => {
 
         {/* СПИСОК УЧАСТНИКОВ */}
         <section className="ModalWorkUsers__content">
-          {membersProject.length === 0 ? (
+          {members.length === 0 ? (
             <div className="ModalWorkUsers__empty">
-              В этом проекте пока нет участников.
+              В этом {entityLabel} пока нет участников.
             </div>
           ) : (
             <ul className="ModalWorkUsers__list">
-              {membersProject.map((member) => (
+              {members.map((member) => (
                 <li className="ModalWorkUsers__item" key={member.id}>
                   <div className="ModalWorkUsers__user">
                     <div className="ModalWorkUsers__avatar">
@@ -261,37 +278,29 @@ const ModalWorkUsers = ({ membersProject = [] }) => {
                   </div>
 
                   <div className="ModalWorkUsers__actions">
-                    {canManage ? (
-                      <>
-                        <select
-                          className="ModalWorkUsers__roleSelect"
-                          value={member.role}
-                          disabled={actionLoadingId === member.id}
-                          onChange={(e) =>
-                            handleRoleChange(member, e.target.value)
-                          }
-                        >
-                          {ROLES.map((r) => (
-                            <option key={r} value={r}>
-                              {r}
-                            </option>
-                          ))}
-                        </select>
+                    <select
+                      className="ModalWorkUsers__roleSelect"
+                      value={member.role}
+                      disabled={actionLoadingId === member.id}
+                      onChange={(e) =>
+                        handleRoleChange(member, e.target.value)
+                      }
+                    >
+                      {ROLES.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
 
-                        <button
-                          type="button"
-                          className="ModalWorkUsers__remove"
-                          disabled={actionLoadingId === member.id}
-                          onClick={() => handleRemoveMember(member)}
-                        >
-                          Удалить
-                        </button>
-                      </>
-                    ) : (
-                      <span className="ModalWorkUsers__roleValue">
-                        {member.role}
-                      </span>
-                    )}
+                    <button
+                      type="button"
+                      className="ModalWorkUsers__remove"
+                      disabled={actionLoadingId === member.id}
+                      onClick={() => handleRemoveMember(member)}
+                    >
+                      Удалить
+                    </button>
                   </div>
                 </li>
               ))}

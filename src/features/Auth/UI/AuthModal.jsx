@@ -143,7 +143,7 @@ const AuthModal = () => {
             >
               {loading || isSubmitting ? "Входим..." : "Войти"}
             </button>
-            <div className="textInAuthModal text-white font-normal text-xs flex items-center justify-center">
+            <div className="textInAuthModal mt-4 text-white font-normal text-xs flex items-center justify-center">
               <span className="cursor-pointer hover:underline" onClick={goToRegister}>
                 У вас еще нет учетной записи? Зарегистрироваться бесплатно
               </span>

@@ -38,7 +38,8 @@ main {
     background-color: var(--firstColor);
     color: var(--secondColor);
     height: 45px;
-    width: 735px;
+    // width: 735px;
+    padding: 0 5px;
     border-radius: 34px;
 
     li {

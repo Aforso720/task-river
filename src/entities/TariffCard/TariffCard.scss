@@ -9,6 +9,20 @@
     text-align: center;
     position: relative;
 
+    @media (min-width:768px)  {
+       width: 200px;
+       height: 450px;
+    }
+
+    @media (min-width:1024px)  {
+       width: 300px;
+    }
+
+     @media (min-width:1280px)  {
+       width: 350px;
+       height: 500px;
+    }
+
     .bandCard{
         position: absolute;
         top: 25%;
@@ -20,31 +34,76 @@
         font-size: 16px;
 
         span{
-        width: 73px;
-        height: 29px;
-        cursor: pointer;
+            width: 73px;
+            height: 29px;
+            cursor: pointer;
         }
     }
 
     h3 {
         font-size: 40px;
         font-weight: 600;
+
+        @media (min-width:768px){
+            font-size: 32px;
+        }
+
+        @media (min-width:1024px){
+            font-size: 40px;
+        }
     }
 
     button {
         width: 80%;
         border-radius: 20px;
         height: 50px;
-        font-size: 32px;
         font-weight: 600;
+
+         @media (min-width:768px){
+            font-size: 24px;
+        }
+
+        @media (min-width:1024px){
+            font-size: 28px;
+        }
+
+        @media (min-width:1280px){
+            font-size: 32px;
+        }
     }
 
     .priceCard {
         font-weight: 300;
         font-size: 72px;
+
+        @media (min-width:768px){
+            font-size: 56px;
+        }
+
+        @media (min-width:1024px){
+            font-size: 64px;
+        }
+
+        @media (min-width:1280px){
+            font-size: 72px;
+        }
+
+
         
         .priceDate {
             font-size: 24px;
+
+            @media (min-width:768px){
+                font-size: 16px;
+            }
+
+            @media (min-width:1024px){
+                font-size: 20px;
+            }
+
+            @media (min-width:1280px){
+                font-size: 24px;
+            }
         }
     }
 
@@ -84,10 +143,6 @@
 
     .aboutCard {
         color: #8C6D51;
-    }
-
-    .priceCard{
-        // transform: translateY(-15px);
     }
 }
 

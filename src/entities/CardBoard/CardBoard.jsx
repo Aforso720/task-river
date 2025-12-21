@@ -3,15 +3,15 @@ import "./CardBoard.scss";
 import { ModalTaskState } from "../ModalAddTask/store/ModalTaskState";
 
 const PRIORITY_CLASS_BY_DIFFICULTY = {
-  HIGH: "high-priority",
+  HARD: "high-priority",
   MEDIUM: "medium-priority",
-  LOW: "low-priority",
+  EASY: "low-priority",
 };
 
 const PRIORITY_LABEL_BY_DIFFICULTY = {
-  HIGH: "Высокая",
+  HARD: "Высокая",
   MEDIUM: "Средняя",
-  LOW: "Низкая",
+  EASY: "Низкая",
 };
 
 function getPriorityInfo(difficultyRaw) {

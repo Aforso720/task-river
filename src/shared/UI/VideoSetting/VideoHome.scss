@@ -1,12 +1,17 @@
 .video{
         background-color: #8B6D51;
-        height: 824px;
-        width: 100%;
-
         h2{
             font-weight: 700;
             font-family: 'TT Travels Trl', sans-serif;
             font-size: 48px;
             color: #E6E4D8;
+
+            @media (min-width: 640px) {
+                font-size: 24px;
+            }
+
+            @media (min-width:768px){
+            font-size: 48px;
+            }
         }
 }

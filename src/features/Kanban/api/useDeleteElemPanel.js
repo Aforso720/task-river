@@ -1,4 +1,3 @@
-// "@/features/Kanban/api/useDeleteElemPanel.js"
 import { create } from "zustand";
 import axiosInstance from "@/app/api/axiosInstance";
 import { useGetElemPanel } from "@/pages/Panel/api/useGetElemPanel";

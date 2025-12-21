@@ -44,6 +44,8 @@
             width: 38px;
             height: 38px;
             border-radius: 30px;
+            background-color: #22333B;
+            color: #E6E4D8;
         }
     }
 }
@@ -70,6 +72,9 @@
                     filter: brightness(0) saturate(100%) invert(94%) sepia(6%) saturate(382%) hue-rotate(358deg) brightness(93%) contrast(89%);
             }
         }
-     
+        .AvatarHeader{
+            background-color: #E6E4D8;
+            color: #22333B;
+        }
     }
 }

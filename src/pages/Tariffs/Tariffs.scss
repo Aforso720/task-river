@@ -7,12 +7,10 @@ height: 100%;
 
         .tariffsInfoCards{
             background-color: #22333B;
-            width: 100%;
-            height: 750px;
             margin-bottom: 90px;
 
             .tariffCards{
-                width: 1200px;
+                width: 100%;
                 display: flex;
                 
             }
@@ -21,7 +19,7 @@ height: 100%;
         .buttonTariff{
             background-color: #E6E4D8;
             color: #896A4F;
-            width: 1200px;
+            width: 100%;
             height: 135px;
             border-radius: 20px;
             text-align: center;
@@ -37,6 +35,19 @@ height: 100%;
             font-weight: 700;
             font-size: 48px;
             color: #22333B;
+
+            @media (min-width:768px){
+                font-size: 32px;
+                margin-bottom: 20px;
+            }
+
+            @media (min-width:1024px){
+                font-size: 36px;
+            }
+
+            @media (min-width:1280px){
+                font-size: 48px;
+            }
 
             span{
                 text-decoration: none;

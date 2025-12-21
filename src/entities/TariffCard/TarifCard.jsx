@@ -1,4 +1,3 @@
-// src/entities/TariffCard/TarifCard.jsx
 import React from "react";
 import "./TariffCard.scss";
 import { formatPriceInt } from "@/shared/utils/formatPriceInt";

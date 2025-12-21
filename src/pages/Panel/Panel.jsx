@@ -78,7 +78,7 @@ const Panel = () => {
                       list={boards.filter((item) => item.projectId === null)}
                       loading={loadingElem}
                     />
-                    <ListElemPanel type={"Задачи"} list={tasks} loading={loadingElem}  />
+                    {/* <ListElemPanel type={"Задачи"} list={tasks} loading={loadingElem}  /> */}
                   </>
                 }
               />
@@ -129,9 +129,9 @@ const Panel = () => {
                   )
                 }
               />
-              <Route path="/tasks/:taskId" element={<NotesInTask />} />
+              {/* <Route path="/tasks/:taskId" element={<NotesInTask />} /> */}
 
-              <Route path="/market" element={<Templates />} />
+              {/* <Route path="/market" element={<Templates />} /> */}
 
               <Route path="/setting" element={<Setting />} />
             </Routes>

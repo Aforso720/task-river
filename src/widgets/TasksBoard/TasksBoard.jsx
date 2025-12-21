@@ -28,6 +28,7 @@ const TasksBoard = (props) => {
     columns: columnsApi,
     loading: columnsLoading,
     postColumnFunc,
+    putColumnFunc,
     loadingPost,
     deleteColumnFunc,
   } = useWorkColumn();
@@ -97,10 +98,27 @@ const TasksBoard = (props) => {
 
     if (type === "COLUMN") {
       if (destination.index === source.index) return;
+      
+      // Создаем новый массив колонок
       const newCols = [...columns];
       const [removed] = newCols.splice(source.index, 1);
       newCols.splice(destination.index, 0, removed);
-      setColumns(newCols.map((c, i) => ({ ...c, order: i })));
+      
+      // Обновляем порядок
+      const updatedCols = newCols.map((c, i) => ({ ...c, order: i }));
+      setColumns(updatedCols);
+      
+      // Отправляем запросы на обновление позиций всех затронутых колонок
+      // Можно раскомментировать если нужно отправлять на сервер сразу
+      /*
+      updatedCols.forEach((column, index) => {
+        putColumnFunc(currentBoardId, column.id, { 
+          name: column.title, 
+          postion: index 
+        }).catch(e => console.error("Ошибка обновления позиции:", e));
+      });
+      */
+      
       return;
     }
 
@@ -150,11 +168,34 @@ const TasksBoard = (props) => {
   const [isAddColumnVisible, setIsAddColumnVisible] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
 
-  const handleEditColumn = (newName) => {
-    if (!newName.trim()) return;
-    setColumns((prev) =>
-      prev.map((c) => (c.id === currentColumnId ? { ...c, title: newName } : c))
-    );
+  const handleEditColumn = async (newName) => {
+    if (!newName.trim() || !currentBoardId || !currentColumnId) return;
+    
+    try {
+      // Находим текущую позицию колонки
+      const currentColumn = columns.find(c => c.id === currentColumnId);
+      const currentPosition = currentColumn?.order || 0;
+      
+      // Вызываем API для обновления колонки с правильными полями
+      await putColumnFunc(currentBoardId, currentColumnId, { 
+        name: newName, 
+        postion: currentPosition // ← используем "postion" как в API
+      });
+      
+      // После успешного обновления на сервере, обновляем локальное состояние
+      setColumns((prev) =>
+        prev.map((c) =>
+          c.id === currentColumnId ? { ...c, title: newName } : c
+        )
+      );
+      
+      // Опционально: перезагружаем колонки с сервера для синхронизации
+      await getColumnFunc(currentBoardId);
+      
+    } catch (e) {
+      console.error("Не удалось изменить колонку:", e);
+      // Можно добавить уведомление об ошибке
+    }
   };
 
   const handleDeleteColumn = async (columnId) => {
@@ -187,7 +228,6 @@ const TasksBoard = (props) => {
   useEffect(() => {
     if (!currentBoardId) return;
 
-    // 👉 очищаем прошлые колонки сразу при смене доски
     setColumns([]);
 
     (async () => {
@@ -397,6 +437,7 @@ const TasksBoard = (props) => {
                   setCurrentColumnId(currentColumnId);
                   openModalTaskState();
                 }}
+                currentColumnName={columns.find(c => c.id === currentColumnId)?.title || ''}
               />
             </>
           )}

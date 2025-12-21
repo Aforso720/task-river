@@ -33,3 +33,52 @@
     box-sizing: border-box;
 }
 
+// Общие стили анимации для режима Full
+.full-transition {
+  &-enter {
+    opacity: 0;
+    transform: scale(0.95) translateX(-20px);
+  }
+  
+  &-enter-active {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+  }
+  
+  &-exit {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+  
+  &-exit-active {
+    opacity: 0;
+    transform: scale(0.95) translateX(-20px);
+    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+  }
+}
+
+// Для более плавного эффекта исчезновения в сторону
+.sidebar-full-transition {
+  &-enter {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  
+  &-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  &-exit {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  &-exit-active {
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}

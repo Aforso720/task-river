@@ -4,61 +4,16 @@ import "./Uptades.scss";
 import InfoPage from "../../shared/UI/InfoPage/InfoPage";
 import VideoSetting from "../../shared/UI/VideoSetting/VideoSetting";
 import BlockNews from "../../entities/BlokNews/BlockNews";
+import { useSocial } from "@/features/Admin/api/useSocial";
 
 const Updates = () => {
+  const {getSocials , socials} = useSocial();
   const [listNavActive, setListNavActive] = React.useState(1);
 
-  const arrOfUpdates = [
-    {
-      title: "Вышло расширение Таймтрекинг",
-      date: "28.01.2001",
-      descr:
-        "Новое расширение помогает узнать, сколько времени занимает работа над конкретной задачей и на что уходит время команжы",
-      image: "image/HomePagePhoto.png",
-    },
-    {
-      title: "Вышло расширение Таймтрекинг",
-      date: "28.01.2001",
-      descr:
-        "Новое расширение помогает узнать, сколько времени занимает работа над конкретной задачей и на что уходит время команжы",
-      image: "image/HomePagePhoto.png",
-    },
-    {
-      title: "Вышло расширение Таймтрекинг",
-      date: "28.01.2001",
-      descr:
-        "Новое расширение помогает узнать, сколько времени занимает работа над конкретной задачей и на что уходит время команжы",
-      image: "image/HomePagePhoto.png",
-    },
-    {
-      title: "Вышло расширение Таймтрекинг",
-      date: "28.01.2001",
-      descr:
-        "Новое расширение помогает узнать, сколько времени занимает работа над конкретной задачей и на что уходит время команжы",
-      image: "image/HomePagePhoto.png",
-    },
-  ];
+  React.useEffect(()=>{
+    getSocials()
+  },[])
 
-  const newsSocial = [
-    {
-      group: "VK Channel",
-      date: "2 hours ago",
-      info: "Yorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.",
-      like: 23,
-    },
-    {
-      group: "VK Channel",
-      date: "2 hours ago",
-      info: "Yorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.",
-      like: 23,
-    },
-    {
-      group: "VK Channel",
-      date: "2 hours ago",
-      info: "Yorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.",
-      like: 23,
-    },
-  ];
 
   return (
     <section className="UpdatesPages flex flex-col items-center justify-center">
@@ -118,29 +73,29 @@ const Updates = () => {
               Обновления интерфейса
             </li>
           </ul>
-          {arrOfUpdates.map((updt, id) => (
+          {socials.map((updt, id) => (
             <article
               className="updatesPost flex justify-center items-center "
               key={id}
             >
               <section className="flex flex-col justify-center items-center h-full py-3 px-5">
-                <h4 className="text-3xl font-bold">{updt.title}</h4>
+                <h4 className="md:text-xl lg:text-2xl xl:text-3xl font-bold">{updt.title}</h4>
                 <span className="text-xs">{updt.date}</span>
-                <p className="text-xl font-semibold">{updt.descr}</p>
-                <button className="text-xl font-bold">Подробнее</button>
+                <p className="md:text-xs lg:text-xs xl:text-xl font-semibold">{updt.descr}</p>
+                <button className="md:text-xs lg:text-xs xl:text-xl font-bold">Подробнее</button>
               </section>
               <img src={updt.image} alt="Картинки поста" />
             </article>
           ))}
         </section>
       </section>
-      <article className=" newsSocial flex flex-col justify-center items-center gap-5">
+      {/* <article className=" newsSocial flex flex-col justify-center items-center gap-5">
         <h3 className="text-3xl font-bold">Последние новости</h3>
         <section className="flex justify-center items-center gap-10 my-5">
           <BlockNews newsSocial={newsSocial} extraClass={false} />
           <BlockNews newsSocial={newsSocial} extraClass={true} />
         </section>
-      </article>
+      </article> */}
     </section>
   );
 };

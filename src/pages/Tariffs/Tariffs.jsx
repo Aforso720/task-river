@@ -1,4 +1,3 @@
-// src/pages/Tariffs/Tariffs.jsx
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import "./Tariffs.scss";
@@ -61,8 +60,11 @@ const Tariffs = () => {
           texth2={"Выберите тариф"}
           texth3={"который подходит по вашему стилю работы и масштабу команды"}
         />
-        <section className="tariffsInfoCards flex flex-col justify-center items-center">
-          <section className="tariffCards flex justify-center items-center gap-4 mt-10 mb-5 ">
+
+        <section className="tariffsInfoCards w-full h-[750px] flex flex-col justify-center items-center
+        md:px-5
+        ">
+          <section className="tariffCards w-full flex justify-center items-center gap-4 mt-10 mb-5 ">
             {loadingTariffs ? 
             Array.from({length:3}).map((_,index)=>(
               <CardSkeleton classN={' bg-[#E6E4D8] '} key={index}/>  

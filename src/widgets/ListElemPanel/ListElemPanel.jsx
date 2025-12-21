@@ -1,4 +1,3 @@
-// src/widgets/ListElemPanel/ListElemPanel.jsx
 import React, { useState } from "react";
 import "./ListElemPanel.scss";
 import { useNavigate } from "react-router";
@@ -39,16 +38,23 @@ const ListElemPanel = ({ type, list, listBoards, loading }) => {
     } else if (type === "Доски") {
       addBoardID?.(item.id);
       navigate(`/panel/board/${item.id}`);
-    } else {
-      addTaskID?.(item.id);
-      navigate(`/panel/tasks/${item.id}`);
     }
+    // else {
+    //   addTaskID?.(item.id);
+    //   navigate(`/panel/tasks/${item.id}`);
+    // }
   };
 
   const getTypeAddText = () => {
     if (type === "Проекты") return "проект";
     if (type === "Доски") return "доску";
     return "задачу";
+  };
+
+  const getTypeNoItemsText = () => {
+    if (type === "Проекты") return "проектов";
+    if (type === "Доски") return "досок";
+    return "задач";
   };
 
   const handleAddClick = () => {
@@ -83,7 +89,8 @@ const ListElemPanel = ({ type, list, listBoards, loading }) => {
                 key={`skeleton-${index}`}
                 />
             ))
-          : list.map((item) => (
+          : list.length > 0
+          ? list.map((item) => (
               <li
                 key={item.id}
                 onClick={() => handleClick(item)}
@@ -131,18 +138,26 @@ const ListElemPanel = ({ type, list, listBoards, loading }) => {
               focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#22333B]
             "
                 >
-                  <span
+                  
+                    <span
                     className="
                   pointer-events-none
                   transition-transform duration-300
-                  group-hover:rotate-90 group-hover:scale-110
+                  group-hover:rotate-90 group-hover:scale-110 
                 "
                   >
                     <CrossIcon />
                   </span>
                 </span>
               </li>
-            ))}
+            ))
+          : (
+              <li className="text-center py-4 px-2 text-[#6B7280] text-sm">
+                <p className="font-medium text-xs text-[#22333B]">
+                  У вас пока что нет {getTypeNoItemsText()} , вы можете создать их 👉
+                </p>
+              </li>
+            )}
 
         <li
           className="add-project-item text-xs text-[#22333B]"

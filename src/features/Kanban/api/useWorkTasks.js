@@ -1,7 +1,7 @@
 import axiosInstance from "@/app/api/axiosInstance";
 import { create } from "zustand";
 
-export const useWorkTasks = create((set, get) => ({
+export const useWorkTasks = create((set) => ({
   tasks: [],
   error: null,
   loading: false,
@@ -23,17 +23,13 @@ export const useWorkTasks = create((set, get) => ({
     }
   },
 
-  async postTasksFunc(boardId, payload) {
+  async postTasksFunc(boardId, formData) {
     try {
       set({ loadingPost: true, errorPost: null });
 
       const resp = await axiosInstance.post(
         `kanban/boards/${boardId}/task-cards`,
-        JSON.stringify(payload),
-        {
-          headers: { "Content-Type": "application/json;charset=UTF-8" },
-          transformRequest: [(d) => d], // не трогаем сериализованный JSON
-        }
+        formData
       );
 
       const created = resp?.data;
@@ -61,7 +57,6 @@ export const useWorkTasks = create((set, get) => ({
       );
 
       const updated = resp?.data;
-      // оптимистично подменим в сторе
       set((s) => ({
         tasks: (s.tasks || []).map((t) => (t.id === taskId ? updated : t)),
       }));

@@ -1,27 +1,87 @@
-.authModalOverlay{
-    position: fixed; 
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); 
-    z-index: 1000; 
-
-    .authModal{
-        border: 2px solid #FFFFFFC9;
-        min-width: 600px;
-        width: 40%;
-        height: 700px;
-        border-radius: 40px;
-
-        background-color: rgba(255, 255, 255, 0.1); 
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px); 
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-
-        .textInAuthModal{
-            margin-top: 12px;
-        }
-    }
+.authModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  overflow: hidden; 
 }
+
+.authModal {
+  background-color: rgba(255, 255, 255, 0.1); 
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px); 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  position: relative;
+  max-height: 90vh; 
+  overflow-y: auto; 
+}
+
+.authModal::-webkit-scrollbar {
+  width: 1px;
+}
+
+
+.password-hint {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  color: #9ca3af;
+}
+
+.password-hint ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.password-hint li {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.password-hint .valid {
+  color: #10b981;
+}
+
+.password-hint .invalid {
+  color: #9ca3af;
+}
+
+.phone-input-container {
+  position: relative;
+}
+
+.phone-prefix {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+
+.error-message {
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.success-message {
+  background-color: #d1fae5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+

@@ -18,9 +18,13 @@ const TextAuthHome = () => {
   };
 
   return (
-    <section className="textAuthHome flex flex-col justify-between items-center">
+    <section className="w-[530px] h-full flex flex-col justify-between items-center 
+    md:justify-end md:gap-10 
+    lg:justify-between
+    xl:justify-between
+    ">
       <h3 className="text-5xl align-top">
-        <b>Здесь</b> будет текст
+        Task River
       </h3>
 
       <div className="footTextAuthHome gap-2">

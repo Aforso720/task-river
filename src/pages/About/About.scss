@@ -6,6 +6,18 @@
         max-width: 1200px;
         margin: 40px auto;
 
+         @media (min-width:768px){
+            padding: 0 10px;
+        }
+
+        @media (min-width:1024px){
+            padding: 0 20px;  
+        }
+
+        @media (min-width:1280px){
+            padding: 0;
+        }
+
         .infoCompanyAbout{
         display: grid;
         grid-template-columns: repeat(2, 1fr);
