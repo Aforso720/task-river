@@ -3,10 +3,19 @@ import "./Setting.scss";
 import SettingProfile from "../../../widgets/SettingProfile/SettingProfile";
 import SettingSafe from "../../../widgets/SettingSafe/SettingSafe";
 import ConfirmDeleteModal from "@/shared/ConfirmDeleteModal/ConfirmDeleteModal";
+import useAuthStore from "@/features/Auth/api/loginRequest";
+import { useNavigate } from "react-router";
 
 const Setting = () => {
   const [activeSett, setActiveSett] = React.useState("Профиль");
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const {logout} = useAuthStore();
+  const navigate = useNavigate();
+
+  function logoutSett(){
+    logout()
+    navigate('/')
+  }
 
   return (
     <section className="SettingPanel">
@@ -24,6 +33,13 @@ const Setting = () => {
             onClick={() => setActiveSett("Безопасность")}
           >
             Безопасность
+          </li>
+
+          <li
+            className="mt-5"
+            onClick={logoutSett}
+          >
+            Выйти из аккаунта
           </li>
 
           <li

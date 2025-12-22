@@ -14,10 +14,10 @@ const Header = () => {
 
   return (
     <header className="Header flex justify-between items-center px-8 py-2 w-[1140px]">
-      <Link to="/admin">
+      {/* <Link to="/admin"> */}
         <img src="/LogoHead.svg" alt="Logotip" className="cursor-pointer" />
-      </Link>
-      
+      {/* </Link> */}
+        
       {!isMobile && (
         <>
           <nav>

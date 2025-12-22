@@ -21,11 +21,11 @@ const SideBar = () => {
   return (
     <aside className="sideBar">
       <ul>
-        <Link to='/'>
+        {/* <Link to='/'> */}
           <li className="mb-5">
             <img src="/image/LogoIcon.svg" alt="Logo" />
           </li>
-        </Link>
+        {/* </Link> */}
         <Link to="/panel/menu">
           <li className={`sideBar-item ${activeItem === "panel" ? "active" : ""}`}>
             <img src="/image/PanelIcon.svg" alt="Menu" />

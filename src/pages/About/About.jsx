@@ -21,7 +21,7 @@ const About = () => {
         texth3={'Создаём понятный инструмент для сложных процессов'}
       />
 
-      <VideoSetting  />
+      <SliderAbout  />
 
       {/* Блок про ценности и продукт */}
       <section className='blocksTextAbout'>
