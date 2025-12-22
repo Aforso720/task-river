@@ -50,9 +50,11 @@ const AuthModal = () => {
   if (!modalAuthLogin) return null;
 
   const onSubmit = async (values) => {
-    await loginRequest(values); 
-    navigate('panel/menu')
-  };
+  const result = await loginRequest(values);
+  if (result.success) {
+    navigate('panel/menu');
+  }
+};
 
   const goToRegister = () => {
     reset();
@@ -127,7 +129,7 @@ const AuthModal = () => {
 
           {error && (
             <div className="text-red-400 text-sm -mb-2" role="alert">
-              {error}
+              {error.message !== 'Bad credentials' && 'Неверный логин или пароль'}
             </div>
           )}
 

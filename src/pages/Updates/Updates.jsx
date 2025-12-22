@@ -57,12 +57,13 @@ const Updates = () => {
       <VideoSetting />
       <section className="catalogUpdate flex flex-col justify-center items-center w-full">
         <h2 className="text-5xl mb-12">
-          Категории <span>обновлений</span>
+          Статьи <span>обновлений</span>
         </h2>
+
         <section className="listOfUpdates flex justify-center items-center flex-col w-full max-w-[1200px] mb-10">
           <div className="w-full space-y-8">
             {error ? 
-              <h1 className="text-5xl text-[#22333B] font-semibold">Авторизируйтесь для просмотра новостей</h1>
+              <h1 className="text-5xl text-[#22333B] font-semibold text-center border-2 border-solid border-[#22333B] rounded-xl py-4 bg-[#8C6D51] ">Авторизируйтесь для просмотра статей</h1>
             : (
               socials.map((updt) => (
                 <article

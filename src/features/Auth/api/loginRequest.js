@@ -11,7 +11,7 @@ const planAutoLogout = (logout, token) => {
   clearTimeout(expTimer);
   const expMs = getExpMs ? getExpMs(token) : 0;
   if (!expMs) return;
-  const delta = expMs - Date.now() - 60_000; // за минуту до истечения
+  const delta = expMs - Date.now() - 60_000; 
   if (delta > 0) expTimer = setTimeout(logout, delta);
 };
 
@@ -27,10 +27,10 @@ const useAuthStore = create(
       loading: false,
       error: null,
 
-      // ВАЖНО: перед гидрацией false
       finishedAuth: false,
 
-      // селекторы
+      statusRes: false,
+
       isAuthenticated: () => !!get().sessionToken,
       hasRole: (role) => {
         const rs = get().roles;
@@ -59,7 +59,7 @@ const useAuthStore = create(
           roles: user.roles ?? null,
           loading: false,
           error: null,
-          finishedAuth: true, // мы точно «готовы»
+          finishedAuth: true,
         });
       },
 
@@ -68,12 +68,14 @@ const useAuthStore = create(
           set({ loading: true, error: null });
           const res = await axiosInstance.post("/auth/signin", payload);
           get().setAuthFromResponse(res?.data || {});
+          return { success: true, data: res.data }; 
         } catch (e) {
           const msg =
             e?.response?.data?.message ||
             e?.message ||
             "Не удалось войти. Проверьте данные.";
           set({ error: msg, loading: false });
+          return { success: false, error: msg }; 
         }
       },
 
