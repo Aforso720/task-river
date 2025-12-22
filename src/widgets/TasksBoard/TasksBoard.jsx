@@ -28,7 +28,7 @@ const TasksBoard = (props) => {
     columns: columnsApi,
     loading: columnsLoading,
     postColumnFunc,
-    putColumnFunc,
+    // putColumnFunc,
     loadingPost,
     deleteColumnFunc,
   } = useWorkColumn();
@@ -173,14 +173,14 @@ const TasksBoard = (props) => {
     
     try {
       // Находим текущую позицию колонки
-      const currentColumn = columns.find(c => c.id === currentColumnId);
-      const currentPosition = currentColumn?.order || 0;
+      // const currentColumn = columns.find(c => c.id === currentColumnId);
+      // const currentPosition = currentColumn?.order || 0;
       
       // Вызываем API для обновления колонки с правильными полями
-      await putColumnFunc(currentBoardId, currentColumnId, { 
-        name: newName, 
-        postion: currentPosition // ← используем "postion" как в API
-      });
+      // await putColumnFunc(currentBoardId, currentColumnId, { 
+      //   name: newName, 
+      //   position: currentPosition 
+      // });
       
       // После успешного обновления на сервере, обновляем локальное состояние
       setColumns((prev) =>
@@ -427,7 +427,9 @@ const TasksBoard = (props) => {
                 </Droppable>
               </DragDropContext>
 
-              <ModalAddTask />
+              <ModalAddTask 
+              typeBoard={currentBoardId}
+              />
 
               <ModalColumnMenu
                 position={menuPosition}

@@ -8,8 +8,8 @@ const AddElemModal = () => {
   const { ModalAddElemState, typeModalAddElem, closeModalAddElem } =
     useModalAddElemStore();
   const createElemPanel = usePostElemPanel((s) => s.createElemPanel);
+  // const error = usePostElemPanel((s)=>s.error);
 
-  // Подписываемся на части стора ОТДЕЛЬНЫМИ вызовами хука — так надёжнее
   const projects = useGetElemPanel((s) => s.projects) || [];
   const getAllElemPanel = useGetElemPanel((s) => s.getAllElemPanel);
 
@@ -22,7 +22,6 @@ const AddElemModal = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // При открытии модалки для "Доски" — подтянем проекты, если их нет
   useEffect(() => {
     if (
       ModalAddElemState &&
@@ -33,7 +32,6 @@ const AddElemModal = () => {
     }
   }, [ModalAddElemState, typeModalAddElem, projects.length, getAllElemPanel]);
 
-  // Сброс при закрытии
   useEffect(() => {
     if (!ModalAddElemState) {
       setFormData({
@@ -93,7 +91,6 @@ const AddElemModal = () => {
     const v = validate();
     setErrors(v);
     if (Object.keys(v).length) return;
-
     setIsSubmitting(true);
     try {
       const title = formData.title.trim();
@@ -108,9 +105,8 @@ const AddElemModal = () => {
       } else if (typeModalAddElem === "board") {
         url = "boards";
         payload = {
-          title, // бэку для board нужен title
+          title, 
           description,
-          // если не прикрепляем — отправляем null (или убери поле вовсе, если бэк не любит null)
           projectId: formData.attachToProject ? formData.projectId : null,
         };
       } else if (typeModalAddElem === "task") {
@@ -170,7 +166,7 @@ const AddElemModal = () => {
                 }
                 autoComplete="off"
               />
-              {errors.title && (
+              {errors.message && (
                 <div
                   id="add-elem-title-error"
                   className="text-xs"
@@ -238,7 +234,7 @@ const AddElemModal = () => {
               )}
 
               {/* твой блок ответственных как был */}
-              <div className="assignee-row">
+              {/* <div className="assignee-row">
                 <label>Ответственные</label>
                 <div className="assignees-column h-auto max-h-24 overflow-y-auto my-2" />
                 <button
@@ -247,7 +243,7 @@ const AddElemModal = () => {
                 >
                   +
                 </button>
-              </div>
+              </div> */}
             </div>
 
             <section>
@@ -271,7 +267,7 @@ const AddElemModal = () => {
               className="px-5"
               style={{ color: "#cc0000", textAlign: "left" }}
             >
-              {errors._form}
+              Заполните оба поля , минимум от 8 символов
             </div>
           )}
         </form>

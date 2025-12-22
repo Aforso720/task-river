@@ -4,9 +4,12 @@ import { create } from "zustand";
 export const usePostElemPanel = create((set) => ({
   error: null,
   async createElemPanel(payload, type) {
-    set({ error: null });
+    try{
     const res = await axiosInstance.post(`/kanban/${type}`, payload);
     return res.data; 
+    }catch(error){
+      set({ error: error });
+    }
   },
 
   async editBoard(boardId , payload){

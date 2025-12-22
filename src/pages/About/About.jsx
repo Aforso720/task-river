@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import './About.scss';
 import InfoPage from '../../shared/UI/InfoPage/InfoPage';
 import SliderAbout from '../../widgets/SliderAbout/SliderAbout';
+import VideoSetting from '@/shared/UI/VideoSetting/VideoSetting';
 
 const About = () => {
   return (
@@ -20,7 +21,7 @@ const About = () => {
         texth3={'Создаём понятный инструмент для сложных процессов'}
       />
 
-      <SliderAbout />
+      <VideoSetting  />
 
       {/* Блок про ценности и продукт */}
       <section className='blocksTextAbout'>

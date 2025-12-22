@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./ModalAddTask.scss";
 import { ModalTaskState } from "./store/ModalTaskState";
 import { useWorkTasks } from "@/features/Kanban/api/useWorkTasks";
-import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
+// import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
 
 const difficultyByPriority = {
   "Высокий": "HARD",
@@ -10,7 +10,7 @@ const difficultyByPriority = {
   "Низкий": "EASY",
 };
 
-export default function ModalAddTask() {
+export default function ModalAddTask({typeBoard}) {
   const {
     modalInTaskState,
     mode, 
@@ -23,7 +23,7 @@ export default function ModalAddTask() {
   const isEditMode = mode === "edit";
   const isAddMode = mode === "add";
 
-  const { activeBoardId } = useTargetEvent();
+  // const { activeBoardId , activeGroupBoardId } = useTargetEvent();
 
   const {
     postTasksFunc,
@@ -95,7 +95,7 @@ export default function ModalAddTask() {
 
         fd.append("position", String(position));
 
-        fd.append("boardId", activeBoardId);
+        fd.append("boardId", typeBoard);
 
         fd.append("responsibleUserIds", "68ad5e4b6f10733f3245325f");
 
@@ -103,8 +103,8 @@ export default function ModalAddTask() {
           fd.append("attachments", file);
         });
 
-        await postTasksFunc(activeBoardId, fd);
-        await getTasksFunc(activeBoardId);
+        await postTasksFunc(typeBoard, fd);
+        await getTasksFunc(typeBoard);
         closeModalTaskState();
       }
 
@@ -131,8 +131,11 @@ export default function ModalAddTask() {
           attachments: prev?.attachments || [],
         };
 
-        await updateTasksFunc(activeBoardId, prev.id, payload);
-        await getTasksFunc(activeBoardId);
+          await updateTasksFunc(typeBoard, prev.id, payload);
+          await getTasksFunc(typeBoard);
+
+
+
         closeModalTaskState();
       }
     } catch (err) {
