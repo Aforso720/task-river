@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './HeaderSideBar.scss'
 import { useUserData } from './useUserData'
 import { useFullVerse } from '@/features/Kanban/store/useFullVerse'

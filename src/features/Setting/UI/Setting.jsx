@@ -5,16 +5,21 @@ import SettingSafe from "../../../widgets/SettingSafe/SettingSafe";
 import ConfirmDeleteModal from "@/shared/ConfirmDeleteModal/ConfirmDeleteModal";
 import useAuthStore from "@/features/Auth/api/loginRequest";
 import { useNavigate } from "react-router";
+import {  useThemeStore } from "@/app/store/themeStore";
 
 const Setting = () => {
   const [activeSett, setActiveSett] = React.useState("Профиль");
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const {logout} = useAuthStore();
   const navigate = useNavigate();
+  const {theme,toggleTheme} = useThemeStore();
 
   function logoutSett(){
     logout()
     navigate('/')
+    if(theme === 'dark'){
+      toggleTheme();
+    }
   }
 
   return (

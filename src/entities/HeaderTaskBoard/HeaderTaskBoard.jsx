@@ -13,7 +13,7 @@ import { useDeleteElemPanel } from "@/features/Kanban/api/useDeleteElemPanel";
 import { useFullVerse } from "@/features/Kanban/store/useFullVerse";
 import useModalAddElemStore from "@/widgets/AddElemModal/useModalAddElemStore";
 // import { usePostElemPanel } from "@/features/Kanban/api/usePostElemPanel";
-// import { useUserData } from "@/widgets/HeaderSideBar/useUserData";
+import { useUserData } from "@/widgets/HeaderSideBar/useUserData";
 
 const HeaderTaskBoard = () => {
   const location = useLocation();
@@ -26,8 +26,9 @@ const HeaderTaskBoard = () => {
   const { deleteElemPanel, isDeleting } = useDeleteElemPanel();
   const { setFulled , isFull  } = useFullVerse();
   const {openModalAddElem} = useModalAddElemStore();
+
   // const { editBoard } = usePostElemPanel();
-  // const {userData,getUserData} = useUserData();
+  const {userData} = useUserData();
   
 
   // useEffect(()=>{
@@ -237,7 +238,7 @@ const HeaderTaskBoard = () => {
 
         <div className="bottomSide px-2 flex justify-between w-full">
           <div className="viewBoard flex gap-5 h-8 font-semibold text-[#E6E4D8]">
-            {activeSetting &&  
+            {userData.id && activeSetting &&  
             <>
               {/* {!isProjectPage && (
                 <button className="bg-[#8C6D51] text-xs rounded-lg px-2 py-1"
@@ -285,12 +286,12 @@ const HeaderTaskBoard = () => {
               alt="IconFull"
               onClick={()=>setFulled(!isFull)}
             />
-            <img
+            {userData.id && <img
               className="w-5 cursor-pointer"
               src="/image/IconSettingBoard.svg"
               alt="IconSettingBoard"
               onClick={() => setActiveSetting(!activeSetting)}
-            />
+            />}
           </div>
         </div>
 

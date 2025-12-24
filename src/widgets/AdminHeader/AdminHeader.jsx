@@ -15,14 +15,13 @@ const AdminHeader = () => {
   }, [location.pathname]);
   return (
     <header className="pl-5 pt-2 flex items-center justify-center gap-10">
-      <Link to={"/"}>
+      {/* <Link to={"/"}>
         <img
           className="h-18 cursor-pointer"
           src="/image/LogoAdmin.png"
           alt="Логотип админки"
         />
-        {/* <h1><b></b>TaskRiver.admin</h1> */}
-      </Link>
+      </Link> */}
       {location.pathname !== "/admin" ? (
         <div className="flex-auto">
           <ul className="listsNavUpdates flex justify-center items-center gap-6 font-bold">

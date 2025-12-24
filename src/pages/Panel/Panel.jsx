@@ -9,8 +9,8 @@ import SideBarTasks from "../../widgets/SiderBarTasks/SideBarTasks";
 import Templates from "../../entities/Templates/Templates";
 import NotesInTask from "../../entities/NotesInTask/NotesInTask";
 import AddElemModal from "../../widgets/AddElemModal/AddElemModal";
-import useModalAddElemStore from "../../widgets/AddElemModal/useModalAddElemStore";
 import { useGetElemPanel } from "./api/useGetElemPanel";
+import { useFullVerse } from "@/features/Kanban/store/useFullVerse";
 
 import { Routes, Route, useMatch, Navigate, useLocation } from "react-router";
 
@@ -19,10 +19,9 @@ import Setting from "../../features/Setting/UI/Setting";
 import useAuthStore from "@/features/Auth/api/loginRequest";
 
 const Panel = () => {
-  const { finishedAuth } = useAuthStore();
-  const ModalAddElemState = useModalAddElemStore(
-    (state) => state.ModalAddElemState
-  );
+  const finishedAuth= useAuthStore((state)=>state.finishedAuth);
+  
+  const setFulled = useFullVerse((state)=>state.setFulled);
 
   const activeTaskId = useTargetEvent((state) => state.activeTaskId);
   const activeBoardId = useTargetEvent((state) => state.activeBoardId);
@@ -34,15 +33,24 @@ const Panel = () => {
 
   const showSidebarTasks = matchProject || matchBoard || matchTask;
 
-  const { projects, boards, tasks, getAllElemPanel , loading:loadingElem } = useGetElemPanel();
+  if(showSidebarTasks){
+    setFulled(false)
+  }
 
+  const projects = useGetElemPanel((state)=>state.projects);
+  const boards = useGetElemPanel((state)=>state.boards);
+  const tasks = useGetElemPanel((state)=>state.tasks);
+  const getAllElemPanel = useGetElemPanel((state)=>state.getAllElemPanel);
+  const {loading:loadingElem} = useGetElemPanel((state)=>state.loading)
+ 
   React.useEffect(() => {
     getAllElemPanel();
-  }, [getAllElemPanel]);
+  }, []);
 
   const myLocation = useLocation();
 
   if (!finishedAuth) return null;
+  
 
   return (
     <section className="PanelPage">
@@ -55,6 +63,7 @@ const Panel = () => {
       </Helmet>
 
       <SideBar />
+
       <div className="wrapperSidebar">
         {showSidebarTasks && (
           <SideBarTasks projects={projects} boards={boards} tasks={tasks} loading={loadingElem}/>
@@ -139,7 +148,8 @@ const Panel = () => {
         </section>
       </div>
 
-      {ModalAddElemState && <AddElemModal />}
+      <AddElemModal />
+
     </section>
   );
 };

@@ -1,26 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "./AddElemModal.scss";
 import useModalAddElemStore from "./useModalAddElemStore";
 import { usePostElemPanel } from "@/features/Kanban/api/usePostElemPanel";
 import { useGetElemPanel } from "@/pages/Panel/api/useGetElemPanel";
+import { useForm } from "react-hook-form";
 
 const AddElemModal = () => {
   const { ModalAddElemState, typeModalAddElem, closeModalAddElem } =
     useModalAddElemStore();
+
   const createElemPanel = usePostElemPanel((s) => s.createElemPanel);
-  // const error = usePostElemPanel((s)=>s.error);
 
   const projects = useGetElemPanel((s) => s.projects) || [];
   const getAllElemPanel = useGetElemPanel((s) => s.getAllElemPanel);
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    attachToProject: false,
-    projectId: "",
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      title: "",
+      description: "",
+      attachToProject: false,
+      projectId: "",
+    },
   });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const attachToProject = watch("attachToProject");
 
   useEffect(() => {
     if (
@@ -34,15 +47,15 @@ const AddElemModal = () => {
 
   useEffect(() => {
     if (!ModalAddElemState) {
-      setFormData({
+      reset({
         title: "",
         description: "",
         attachToProject: false,
         projectId: "",
       });
-      setErrors({});
+      clearErrors();
     }
-  }, [ModalAddElemState]);
+  }, [ModalAddElemState, reset, clearErrors]);
 
   if (!ModalAddElemState) return null;
 
@@ -73,28 +86,12 @@ const AddElemModal = () => {
       ? "Добавление задачи"
       : "";
 
-  const validate = () => {
-    const next = {};
-    if (!formData.title.trim()) next.title = "Заполните название";
-    if (
-      typeModalAddElem === "board" &&
-      formData.attachToProject &&
-      !formData.projectId
-    ) {
-      next.projectId = "Выберите проект";
-    }
-    return next;
-  };
+  const onSubmit = async (data) => {
+    clearErrors("root");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const v = validate();
-    setErrors(v);
-    if (Object.keys(v).length) return;
-    setIsSubmitting(true);
     try {
-      const title = formData.title.trim();
-      const description = formData.description.trim() || undefined;
+      const title = (data.title || "").trim();
+      const description = (data.description || "").trim();
 
       let url = "";
       let payload = {};
@@ -105,11 +102,12 @@ const AddElemModal = () => {
       } else if (typeModalAddElem === "board") {
         url = "boards";
         payload = {
-          title, 
+          title,
           description,
-          projectId: formData.attachToProject ? formData.projectId : null,
+          projectId: data.attachToProject ? data.projectId : null,
         };
       } else if (typeModalAddElem === "task") {
+        // как было, не трогаю логику задач
         url = "tasks";
         payload = { name: title, description };
       } else {
@@ -119,18 +117,22 @@ const AddElemModal = () => {
       await createElemPanel(payload, url);
       await getAllElemPanel?.();
 
-      setFormData({
+      reset({
         title: "",
         description: "",
         attachToProject: false,
         projectId: "",
       });
+
       closeModalAddElem();
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || "Ошибка";
-      setErrors((s) => ({ ...s, _form: msg }));
-    } finally {
-      setIsSubmitting(false);
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Не удалось создать. Попробуйте ещё раз.";
+
+      // Показываем пользователю реальную причину (в т.ч. лимиты проекта/доски)
+      setError("root", { type: "server", message: msg });
     }
   };
 
@@ -146,33 +148,32 @@ const AddElemModal = () => {
           <h3>{renderTitle()}</h3>
         </header>
 
-        <form id="add-elem-form" onSubmit={handleSubmit} noValidate>
+        <form id="add-elem-form" onSubmit={handleSubmit(onSubmit)} noValidate>
           <section className="contentModalAdd flex">
             <div className="leftSide">
               <label htmlFor="add-elem-title">{getTitleLabel()}</label>
               <input
                 id="add-elem-title"
-                name="title"
                 className="w-72"
                 type="text"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
                 placeholder={`Введите ${getTitleLabel().toLowerCase()}`}
-                aria-invalid={!!errors.title}
-                aria-describedby={
-                  errors.title ? "add-elem-title-error" : undefined
-                }
                 autoComplete="off"
+                aria-invalid={!!errors.title}
+                aria-describedby={errors.title ? "add-elem-title-error" : undefined}
+                {...register("title", {
+                  required: "Заполните название",
+                  validate: (v) =>
+                    (v || "").trim().length >= 8 || "Минимум 8 символов",
+                })}
               />
-              {errors.message && (
+
+              {errors.title && (
                 <div
                   id="add-elem-title-error"
                   className="text-xs"
                   style={{ color: "#cc0000" }}
                 >
-                  {errors.title}
+                  {errors.title.message}
                 </div>
               )}
 
@@ -182,14 +183,22 @@ const AddElemModal = () => {
                     <input
                       id="attach-to-project"
                       type="checkbox"
-                      checked={formData.attachToProject}
-                      onChange={(e) =>
-                        setFormData((s) => ({
-                          ...s,
-                          attachToProject: e.target.checked,
-                          projectId: e.target.checked ? s.projectId : "", // сброс при выключении
-                        }))
-                      }
+                      checked={!!attachToProject}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setValue("attachToProject", checked, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+
+                        if (!checked) {
+                          setValue("projectId", "", {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                          clearErrors("projectId");
+                        }
+                      }}
                     />
                     <span className="attach-toggle__label">
                       Прикрепить к проекту
@@ -198,7 +207,7 @@ const AddElemModal = () => {
 
                   <div
                     className={`attach-project__collapsible ${
-                      formData.attachToProject ? "open" : ""
+                      attachToProject ? "open" : ""
                     }`}
                   >
                     <label
@@ -207,15 +216,18 @@ const AddElemModal = () => {
                     >
                       Выберите проект
                     </label>
+
                     <select
                       id="project-select"
                       className="attach-project__select"
-                      disabled={!formData.attachToProject}
-                      value={formData.projectId}
-                      onChange={(e) =>
-                        setFormData({ ...formData, projectId: e.target.value })
-                      }
-                      aria-invalid={!!errors?.projectId}
+                      disabled={!attachToProject}
+                      aria-invalid={!!errors.projectId}
+                      {...register("projectId", {
+                        validate: (v) => {
+                          if (!attachToProject) return true;
+                          return !!v || "Выберите проект";
+                        },
+                      })}
                     >
                       <option value="">— Не выбран —</option>
                       {projects.map((p) => (
@@ -224,26 +236,17 @@ const AddElemModal = () => {
                         </option>
                       ))}
                     </select>
-                    {errors?.projectId && (
+
+                    {errors.projectId && (
                       <div className="attach-project__error">
-                        {errors.projectId}
+                        {errors.projectId.message}
                       </div>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* твой блок ответственных как был */}
-              {/* <div className="assignee-row">
-                <label>Ответственные</label>
-                <div className="assignees-column h-auto max-h-24 overflow-y-auto my-2" />
-                <button
-                  className="add-btn w-full flex justify-center rounded-xl"
-                  type="button"
-                >
-                  +
-                </button>
-              </div> */}
+              {/* блок задач/ответственных не трогаю */}
             </div>
 
             <section>
@@ -252,22 +255,26 @@ const AddElemModal = () => {
                 id="add-elem-desc"
                 name="description"
                 className="h-20 max-h-32 w-full"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
                 placeholder={`Введите ${getDescriptionLabel().toLowerCase()}`}
                 aria-invalid={!!errors.description}
+                {...register("description", {
+                  required: "Заполните описание",
+                  validate: (v) =>
+                    (v || "").trim().length > 0 || "Заполните описание",
+                })}
               />
+
+              {errors.description && (
+                <div className="text-xs" style={{ color: "#cc0000" }}>
+                  {errors.description.message}
+                </div>
+              )}
             </section>
           </section>
 
-          {errors._form && (
-            <div
-              className="px-5"
-              style={{ color: "#cc0000", textAlign: "left" }}
-            >
-              Заполните оба поля , минимум от 8 символов
+          {errors.root?.message && (
+            <div className="px-5" style={{ color: "#cc0000", textAlign: "left" }}>
+              {errors.root.message}
             </div>
           )}
         </form>
@@ -281,11 +288,12 @@ const AddElemModal = () => {
           >
             Отмена
           </button>
+
           <button
             className="save-btn"
             type="submit"
             form="add-elem-form"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isValid}
           >
             {isSubmitting ? "Сохраняем…" : "Сохранить"}
           </button>

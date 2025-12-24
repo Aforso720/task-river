@@ -44,7 +44,7 @@ const CardBoard = ({ column, provided, setCurrentColumnId }) => {
                 onClick={() => openModal("view", card, column.id)}
               >
                 <div className="flex items-start">
-                  <img src="/image/IconWorld.png" alt="Avatar" className="mr-2" />
+                  {/* <img src="/image/IconWorld.png" alt="Avatar" className="mr-2" /> */}
                   <h4 className="font-semibold text-black my-auto flex-auto">
                     {card.title}
                   </h4>

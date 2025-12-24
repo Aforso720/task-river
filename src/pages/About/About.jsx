@@ -55,7 +55,7 @@ const About = () => {
               который ощущается как современный продукт: без лишней сложности,
               с понятной структурой и удобной панелью управления.
             </p>
-            <span className='text-2xl font-bold'>Проект развивается с 2024 года</span>
+            <span className='text-2xl font-bold'>Проект развивается с 2025 года</span>
           </div>
 
           <div className='blockThree'>

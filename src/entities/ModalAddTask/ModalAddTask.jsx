@@ -1,19 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./ModalAddTask.scss";
 import { ModalTaskState } from "./store/ModalTaskState";
 import { useWorkTasks } from "@/features/Kanban/api/useWorkTasks";
-// import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
+import { useForm } from "react-hook-form";
 
 const difficultyByPriority = {
-  "Высокий": "HARD",
-  "Средний": "MEDIUM",
-  "Низкий": "EASY",
+  Высокий: "HARD",
+  Средний: "MEDIUM",
+  Низкий: "EASY",
 };
 
-export default function ModalAddTask({typeBoard}) {
+const normalizeAttachment = (a, idx) => {
+  if (a == null) return null;
+
+  if (typeof a === "string" || typeof a === "number") {
+    const id = String(a);
+    return { id, name: `Файл #${id}`, size: null };
+  }
+
+  const id = a.id ?? a.fileId ?? a.attachmentId ?? a.uuid ?? a.key ?? null;
+  const name =
+    a.name ??
+    a.filename ??
+    a.originalName ??
+    a.title ??
+    (id ? `Файл #${id}` : `Файл ${idx + 1}`);
+
+  const size = a.size ?? a.fileSize ?? null;
+
+  return { id: id ? String(id) : null, name, size };
+};
+
+export default function ModalAddTask({ typeBoard }) {
   const {
     modalInTaskState,
-    mode, 
+    mode,
     selectedTask,
     currentColumnId,
     closeModalTaskState,
@@ -23,8 +44,6 @@ export default function ModalAddTask({typeBoard}) {
   const isEditMode = mode === "edit";
   const isAddMode = mode === "add";
 
-  // const { activeBoardId , activeGroupBoardId } = useTargetEvent();
-
   const {
     postTasksFunc,
     updateTasksFunc,
@@ -32,35 +51,54 @@ export default function ModalAddTask({typeBoard}) {
     loadingPost,
     loadingPut,
     tasks: tasksAll,
+    getFileTask,
+    loadingFile,
   } = useWorkTasks();
 
-  const [form, setForm] = useState({ title: "", description: "" });
   const [priority, setPriority] = useState("Высокий");
-  const [deadlineDate, setDeadlineDate] = useState("2025-06-23");
-  const [deadlineTime, setDeadlineTime] = useState("14:30");
   const [files, setFiles] = useState([]);
+  const [serverError, setServerError] = useState("");
+  const [downloadingId, setDownloadingId] = useState(null);
+
+  const rawTask = useMemo(() => (selectedTask?.raw ? selectedTask.raw : selectedTask), [selectedTask]);
+
+  const existingAttachments = useMemo(() => {
+    const arr = Array.isArray(rawTask?.attachments) ? rawTask.attachments : [];
+    return arr.map(normalizeAttachment).filter(Boolean);
+  }, [rawTask]);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: { title: "", description: "" },
+  });
 
   useEffect(() => {
     if (!modalInTaskState) return;
 
-    if (isAddMode || !selectedTask) {
-      setForm({ title: "", description: "" });
-      setPriority("Высокий");
-    } else {
-      const raw = selectedTask.raw || selectedTask;
-      setForm({
-        title: raw?.title ?? "",
-        description: raw?.description ?? "",
-      });
+    setServerError("");
+    setFiles([]);
 
-      const d = String(raw?.difficulty || "").trim().toUpperCase();
-      if (d === "HIGH") setPriority("Высокий");
-      else if (d === "MEDIUM") setPriority("Средний");
-      else setPriority("Низкий");
+    if (isAddMode || !rawTask) {
+      reset({ title: "", description: "" });
+      setPriority("Высокий");
+      return;
     }
 
-    setFiles([]);
-  }, [modalInTaskState, isAddMode, selectedTask]);
+    reset({
+      title: rawTask?.title ?? "",
+      description: rawTask?.description ?? "",
+    });
+
+    const d = String(rawTask?.difficulty || "").trim().toUpperCase();
+    if (d === "HIGH" || d === "HARD") setPriority("Высокий");
+    else if (d === "MEDIUM") setPriority("Средний");
+    else setPriority("Низкий");
+  }, [modalInTaskState, isAddMode, rawTask, reset]);
 
   if (!modalInTaskState) return null;
 
@@ -71,13 +109,57 @@ export default function ModalAddTask({typeBoard}) {
     return last;
   };
 
-  const onSave = async () => {
+  const handleFileChange = (e) => {
+    if (isViewMode) return;
+    const newFiles = [...files, ...Array.from(e.target.files || [])];
+    setFiles(newFiles);
+  };
+
+  const removeFile = (index) => {
+    if (isViewMode) return;
+    setFiles(files.filter((_, i) => i !== index));
+  };
+
+  const downloadAttachment = async (att) => {
+    if (!att?.id) return;
+
+    setServerError("");
+    setDownloadingId(att.id);
+
+    try {
+      const res = await getFileTask(typeBoard, att.id);
+
+      const blob = res?.blob instanceof Blob ? res.blob : new Blob([res?.blob]);
+
+      const filename = res?.filename || att.name || `file-${att.id}`;
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Не удалось скачать файл";
+      setServerError(msg);
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const onSave = handleSubmit(async (data) => {
     if (isViewMode) return;
 
-    const title = (form.title || "").trim();
-    if (!title) return;
+    setServerError("");
 
-    const description = (form.description || "").trim();
+    const title = (data.title || "").trim();
+    const description = (data.description || "").trim();
     const difficulty = difficultyByPriority[priority] || "LOW";
 
     try {
@@ -92,9 +174,7 @@ export default function ModalAddTask({typeBoard}) {
         fd.append("difficulty", difficulty);
 
         fd.append("columnId", colId);
-
         fd.append("position", String(position));
-
         fd.append("boardId", typeBoard);
 
         fd.append("responsibleUserIds", "68ad5e4b6f10733f3245325f");
@@ -108,12 +188,11 @@ export default function ModalAddTask({typeBoard}) {
         closeModalTaskState();
       }
 
-      if (isEditMode && selectedTask) {
-        const prev = selectedTask.raw || selectedTask;
-        const prevColId = prev?.columnId;
+      if (isEditMode && rawTask) {
+        const prevColId = rawTask?.columnId;
         const nextColId = currentColumnId || prevColId;
 
-        let position = prev?.position ?? 0;
+        let position = rawTask?.position ?? 0;
         if (nextColId !== prevColId) {
           const lastPos = calcLastPositionInColumn(nextColId);
           position = lastPos + 1;
@@ -125,38 +204,24 @@ export default function ModalAddTask({typeBoard}) {
           difficulty,
           columnId: nextColId,
           position,
-          responsibleUserIds: prev?.responsibleUserIds || [
+          responsibleUserIds: rawTask?.responsibleUserIds || [
             "68ad5e4b6f10733f3245325f",
           ],
-          attachments: prev?.attachments || [],
+          attachments: rawTask?.attachments || [],
         };
 
-          await updateTasksFunc(typeBoard, prev.id, payload);
-          await getTasksFunc(typeBoard);
-
-
-
+        await updateTasksFunc(typeBoard, rawTask.id, payload);
+        await getTasksFunc(typeBoard);
         closeModalTaskState();
       }
     } catch (err) {
-      console.error("Не удалось сохранить задачу:", err);
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Не удалось сохранить задачу";
+      setServerError(msg);
     }
-  };
-
-  const handleFileChange = (e) => {
-    if (isViewMode) return;
-    const newFiles = [...files, ...Array.from(e.target.files || [])];
-    setFiles(newFiles);
-  };
-
-  const removeFile = (index) => {
-    if (isViewMode) return;
-    setFiles(files.filter((_, i) => i !== index));
-  };
-
-  const users = [
-    // { id: 1, firstName: "Екатерина", lastName: "Алексеева", avatar: null },
-  ];
+  });
 
   return (
     <div className="modal-overlay">
@@ -173,76 +238,39 @@ export default function ModalAddTask({typeBoard}) {
             <input
               className="w-full"
               type="text"
-              value={form.title}
               disabled={isViewMode}
-              onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))}
+              aria-invalid={!!errors.title}
+              {...register("title", {
+                required: "Заполните заголовок",
+                validate: (v) =>
+                  (v || "").trim().length > 0 || "Заполните заголовок",
+              })}
             />
+            {errors.title && (
+              <div className="text-xs" style={{ color: "#cc0000" }}>
+                {errors.title.message}
+              </div>
+            )}
 
             <label>Описание задачи</label>
             <textarea
               className="h-20 max-h-32 w-full"
-              value={form.description}
               disabled={isViewMode}
-              onChange={(e) =>
-                setForm((s) => ({ ...s, description: e.target.value }))
-              }
+              aria-invalid={!!errors.description}
+              {...register("description", {
+                required: "Заполните описание",
+                validate: (v) =>
+                  (v || "").trim().length > 0 || "Заполните описание",
+              })}
             />
-
-            <div className="assignee-row">
-              <label>Ответственные</label>
-              <div className="assignees-column h-auto max-h-24 overflow-y-auto my-2">
-                {users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="assignee-item bg-[#F7F7F7] p-1 rounded-lg flex items-center"
-                  >
-                    <div className="avatar ml-2">
-                      {user.avatar ? (
-                        <img
-                          src={user.avatar}
-                          alt={`${user.firstName} ${user.lastName}`}
-                        />
-                      ) : (
-                        `${user.lastName[0]}${user.firstName[0]}`
-                      )}
-                    </div>
-                    <div className="user-name text-xs flex-grow">
-                      {user.firstName} {user.lastName}
-                    </div>
-                  </div>
-                ))}
+            {errors.description && (
+              <div className="text-xs" style={{ color: "#cc0000" }}>
+                {errors.description.message}
               </div>
-
-              {!isViewMode && (
-                <button
-                  className="add-btn w-full flex justify-center rounded-xl"
-                  type="button"
-                >
-                  +
-                </button>
-              )}
-            </div>
+            )}
           </div>
 
           <div className="ridthSide">
-            <div className="deadline-row flex flex-col ">
-              <label>Сроки</label>
-              <div className="flex gap-2">
-                <input
-                  type="date"
-                  value={deadlineDate}
-                  onChange={(e) => setDeadlineDate(e.target.value)}
-                  disabled={isViewMode}
-                />
-                <input
-                  type="time"
-                  value={deadlineTime}
-                  onChange={(e) => setDeadlineTime(e.target.value)}
-                  disabled={isViewMode}
-                />
-              </div>
-            </div>
-
             <div className="priority-row">
               <label>Приоритет</label>
               <div className="priority-options">
@@ -286,17 +314,50 @@ export default function ModalAddTask({typeBoard}) {
                 Прикрепленные файлы
               </label>
 
-              {files.length > 0 && (
+              {existingAttachments.length > 0 && (
                 <ul className="space-y-2">
-                  {files.map((file, index) => (
+                  {existingAttachments.map((att) => (
                     <li
-                      key={index}
+                      key={att.id || att.name}
                       className="fileElem flex items-center justify-between h-auto max-h-14 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200"
                     >
                       <div className="flex gap-2 text-xs font-medium w-64">
                         <img src="/image/FileTask.svg" alt="" />
                         <span className="flex flex-col truncate max-w-[80%]">
-                          {file.name}{" "}
+                          {att.name}
+                          {/* {att.size != null && (
+                            <span className="text-[#22333B] font-normal">
+                              ({(Number(att.size) / 1024 / 1024).toFixed(1)} MB)
+                            </span>
+                          )} */}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => downloadAttachment(att)}
+                        disabled={!att.id || loadingFile || downloadingId === att.id}
+                        className="text-[#22333B] hover:text-blue-600 transition-colors text-xs"
+                        title={!att.id ? "Нет id файла" : "Скачать файл"}
+                      >
+                        {downloadingId === att.id ? "Скачиваем…" : "Скачать"}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {files.length > 0 && (
+                <ul className="space-y-2">
+                  {files.map((file, index) => (
+                    <li
+                      key={`${file.name}-${index}`}
+                      className="fileElem flex items-center justify-between h-auto max-h-14 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200"
+                    >
+                      <div className="flex gap-2 text-xs font-medium w-64">
+                        <img src="/image/FileTask.svg" alt="" />
+                        <span className="flex flex-col truncate max-w-[80%]">
+                          {file.name}
                           <span className="text-[#22333B] font-normal">
                             ({(file.size / 1024 / 1024).toFixed(1)} MB)
                           </span>
@@ -340,6 +401,12 @@ export default function ModalAddTask({typeBoard}) {
           </div>
         </div>
 
+        {serverError && (
+          <div className="mx-5 mt-2" style={{ color: "#cc0000", textAlign: "left" }}>
+            {serverError}
+          </div>
+        )}
+
         <div className="modal-actions mx-5 mb-2">
           {!isViewMode && !isAddMode && (
             <button className="delete-btn" type="button">
@@ -352,6 +419,7 @@ export default function ModalAddTask({typeBoard}) {
               onClick={closeModalTaskState}
               className="cancel-btn"
               type="button"
+              disabled={isSubmitting}
             >
               Отмена
             </button>
@@ -361,7 +429,12 @@ export default function ModalAddTask({typeBoard}) {
                 className="save-btn"
                 onClick={onSave}
                 type="button"
-                disabled={loadingPost || loadingPut}
+                disabled={
+                  loadingPost ||
+                  loadingPut ||
+                  isSubmitting ||
+                  !isValid
+                }
               >
                 {loadingPost || loadingPut ? "Сохраняем…" : "Сохранить"}
               </button>

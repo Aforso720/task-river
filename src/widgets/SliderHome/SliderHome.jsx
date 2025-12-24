@@ -18,7 +18,7 @@ const SliderHome = () => {
     className='slaiderHome'
   >
         <SwiperSlide>
-            1
+            {/* <img src="/image/chrome_HJ4cvL0Cnw.png" className='object-cover h-full' alt="" /> */}
         </SwiperSlide>
         <SwiperSlide>
             2
