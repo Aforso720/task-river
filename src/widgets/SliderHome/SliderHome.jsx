@@ -7,6 +7,13 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 const SliderHome = () => {
+ 
+  const array = [
+    '/image/BannerFR.png',
+    '/image/BannerTH.png',
+    '/image/BannerTw.png',
+  ]
+
   return (
     <Swiper
     modules={[Navigation, Pagination]}
@@ -17,18 +24,11 @@ const SliderHome = () => {
     loop={true}
     className='slaiderHome'
   >
-        <SwiperSlide>
-            {/* <img src="/image/chrome_HJ4cvL0Cnw.png" className='object-cover h-full' alt="" /> */}
-        </SwiperSlide>
-        <SwiperSlide>
-            2
-        </SwiperSlide>
-        <SwiperSlide>
-            3
-        </SwiperSlide>
-        <SwiperSlide>
-            4
-        </SwiperSlide>
+            {array.map((img)=>(
+              <SwiperSlide key={img}>
+                <img src={img} className='object-cover h-full' alt="Баннер" />
+              </SwiperSlide>
+            ))}
     </Swiper>
   )
 }

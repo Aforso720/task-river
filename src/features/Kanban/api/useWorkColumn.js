@@ -1,29 +1,12 @@
 import axiosInstance from "@/app/api/axiosInstance";
 import { create } from "zustand";
 
-export const useWorkColumn = create((set, get) => ({
-  columns: [],
-  error: null,
-  loading: false,
-
-  // POST
+export const useWorkColumn = create((set) => ({
   errorPost: null,
   loadingPost: false,
 
-  // DELETE
   errorDelete: null,
   loadingDelete: false,
-
-  async getColumnFunc(boardId) {
-    try {
-      set({ loading: true, error: null });
-      const resp = await axiosInstance.get(`kanban/boards/${boardId}/columns`);
-      set({ loading: false, columns: resp.data || [] });
-    } catch (error) {
-      set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
 
   async postColumnFunc(boardId, payload) {
     try {
@@ -34,7 +17,6 @@ export const useWorkColumn = create((set, get) => ({
       );
       const created = resp?.data;
 
-      // оптимистично добавим в локальный стейт
       set((s) => ({
         columns: Array.isArray(s.columns)
           ? [...s.columns, created].sort(
@@ -56,21 +38,18 @@ export const useWorkColumn = create((set, get) => ({
     try {
       set({ loadingPost: true, errorPost: null });
 
-      // Исправляем опечатку: преобразуем position -> postion
       const apiPayload = {
         name: payload.name,
-        postion: payload.position || payload.postion || 0, // ← используем поле "postion"
+        position: payload.position ?? payload.postion ?? 0,
       };
 
       const resp = await axiosInstance.put(
-        // ← используем PUT метод
         `kanban/boards/${boardId}/columns/${columnId}`,
-        apiPayload // ← передаем исправленный payload
+        apiPayload
       );
 
       const updatedColumn = resp.data;
 
-      // Обновляем локальное состояние
       set((s) => ({
         columns: (s.columns || []).map((c) =>
           String(c.id) === String(columnId) ? { ...c, ...updatedColumn } : c
@@ -104,11 +83,5 @@ export const useWorkColumn = create((set, get) => ({
     } finally {
       set({ loadingDelete: false });
     }
-  },
-
-  async createAndReload(boardId, payload) {
-    const created = await get().postColumnFunc(boardId, payload);
-    await get().getColumnFunc(boardId);
-    return created;
   },
 }));

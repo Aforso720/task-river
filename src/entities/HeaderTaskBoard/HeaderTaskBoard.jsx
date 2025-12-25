@@ -8,57 +8,64 @@ import useModalWorkUsersStore from "../ModalWorkUsers/store/useModalWorkUsersSto
 import { useLocation, useNavigate } from "react-router";
 import ConfirmDeleteModal from "@/shared/ConfirmDeleteModal/ConfirmDeleteModal";
 import axiosInstance from "@/app/api/axiosInstance";
-import { useWorkColumn } from "@/features/Kanban/api/useWorkColumn";
 import { useDeleteElemPanel } from "@/features/Kanban/api/useDeleteElemPanel";
 import { useFullVerse } from "@/features/Kanban/store/useFullVerse";
 import useModalAddElemStore from "@/widgets/AddElemModal/useModalAddElemStore";
 // import { usePostElemPanel } from "@/features/Kanban/api/usePostElemPanel";
 import { useUserData } from "@/widgets/HeaderSideBar/useUserData";
+import { useGetColumns } from "@/features/Kanban/api/useGetColumns";
 
 const HeaderTaskBoard = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { activeBoardId, activeProjectId, addBoardID, addProjectID , addGroupBoardId , activeGroupBoardId} = useTargetEvent();
-  const { getMemberProject, getMembersBoard, membersProject, membersBoard } = useWorkMembers();
+
+  const {
+    activeBoardId,
+    activeProjectId,
+    addBoardID,
+    addProjectID,
+    addGroupBoardId,
+    activeGroupBoardId,
+  } = useTargetEvent();
+
+  const { getMemberProject, getMembersBoard, membersProject, membersBoard } =
+    useWorkMembers();
+
   const openUsersModal = useModalWorkUsersStore((s) => s.openModal);
   const [activeSetting, setActiveSetting] = useState(false);
-  const { getColumnFunc } = useWorkColumn();
   const { deleteElemPanel, isDeleting } = useDeleteElemPanel();
-  const { setFulled , isFull  } = useFullVerse();
-  const {openModalAddElem} = useModalAddElemStore();
+  const { setFulled, isFull } = useFullVerse();
+  const { openModalAddElem } = useModalAddElemStore();
 
-  // const { editBoard } = usePostElemPanel();
-  const {userData} = useUserData();
-  
+  const { userData } = useUserData();
 
-  // useEffect(()=>{
-  //   getUserData();
-  // },[])
-  
-  // const [payloadPut,setPayloadPut]=useState({
-  //   title: "",
-  //   description: "",
-  //   memberEmails: {
-  //     userData?.email: "EDITOR"
-  //   },
-  // })
-  
   const [deleteModal, setDeleteModal] = useState({
     open: false,
-    type: "", 
+    type: "",
     itemName: "",
     loading: false,
   });
-  
+
   const isProjectPage = location.pathname.includes("/project/");
   const isBoardPage = location.pathname.includes("/board/");
-  
+
   const currentEntityId = isProjectPage ? activeProjectId : activeBoardId;
   const entityType = isProjectPage ? "project" : "board";
-  
+
+  // ✅ Если ты на /project/:id — обычно доска берётся из activeGroupBoardId
+  // ✅ Если ты на /board/:id — из activeBoardId
+  const boardIdForColumns = isProjectPage ? activeGroupBoardId : activeBoardId;
+
+  // ✅ Новый хук колонок (React Query)
+  const {
+    refetch: refetchColumns,
+    fetching: columnsFetching,
+    // columns, loading, error — если понадобятся позже
+  } = useGetColumns(boardIdForColumns, { enabled: !!boardIdForColumns });
+
   useEffect(() => {
     if (!currentEntityId) return;
-    
+
     if (isProjectPage) {
       getMemberProject(currentEntityId).catch((e) =>
         console.error("Не удалось получить участников проекта:", e)
@@ -68,16 +75,21 @@ const HeaderTaskBoard = () => {
         console.error("Не удалось получить участников доски:", e)
       );
     }
-  }, [currentEntityId, isProjectPage, isBoardPage, getMemberProject, getMembersBoard]);
-  
+  }, [
+    currentEntityId,
+    isProjectPage,
+    isBoardPage,
+    getMemberProject,
+    getMembersBoard,
+  ]);
+
   const members = isProjectPage ? membersProject : membersBoard;
 
-  const getDisplayName = (m) =>
-    m.fullName || m.username || m.email || "Без имени";
+  const getDisplayName = (m) => m.fullName || m.username || m.email || "Без имени";
 
   const getInitials = (m) => {
     const name = getDisplayName(m);
-    const parts = name.trim().split(" ");
+    const parts = String(name).trim().split(" ");
     const first = parts[0]?.[0] || "";
     const second = parts[1]?.[0] || "";
     const initials = (first + second).toUpperCase();
@@ -112,39 +124,39 @@ const HeaderTaskBoard = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    setDeleteModal(prev => ({ ...prev, loading: true }));
-    
+    setDeleteModal((prev) => ({ ...prev, loading: true }));
+
     try {
       switch (deleteModal.type) {
         case "project":
           if (activeProjectId) {
             await deleteElemPanel("Проекты", activeProjectId);
             addProjectID(null);
-            navigate("/panel"); 
+            navigate("/panel");
           }
           break;
-          
+
         case "board":
           if (activeBoardId) {
             await deleteElemPanel("Доски", activeBoardId);
             addBoardID(null);
-            if (isBoardPage) {
-              navigate("/panel");
-            }
+            if (isBoardPage) navigate("/panel");
           }
           break;
-          
+
         case "boardFromProject":
-          if (activeProjectId && activeBoardId) {
-            await axiosInstance.delete(`/kanban/projects/${activeProjectId}/boards/${activeGroupBoardId}`);
+          if (activeProjectId && activeGroupBoardId) {
+            await axiosInstance.delete(
+              `/kanban/projects/${activeProjectId}/boards/${activeGroupBoardId}`
+            );
             addGroupBoardId(null);
           }
           break;
-          
+
         default:
           break;
       }
-      
+
       setDeleteModal({
         open: false,
         type: "",
@@ -152,11 +164,9 @@ const HeaderTaskBoard = () => {
         loading: false,
       });
       setActiveSetting(false);
-      
     } catch (error) {
       console.error("Ошибка при удалении:", error);
-      setDeleteModal(prev => ({ ...prev, loading: false }));
-
+      setDeleteModal((prev) => ({ ...prev, loading: false }));
     }
   };
 
@@ -220,7 +230,9 @@ const HeaderTaskBoard = () => {
                   type="button"
                   onClick={openUsersModal}
                   className="w-8 h-8 rounded-full bg-[#8C6D51] text-[#E6E4D8] text-lg font-semibold flex items-center justify-center border border-[#E6E4D8] cursor-pointer"
-                  title={`Добавить участников в ${isProjectPage ? "проект" : "доску"}`}
+                  title={`Добавить участников в ${
+                    isProjectPage ? "проект" : "доску"
+                  }`}
                 >
                   +
                 </button>
@@ -238,68 +250,58 @@ const HeaderTaskBoard = () => {
 
         <div className="bottomSide px-2 flex justify-between w-full">
           <div className="viewBoard flex gap-5 h-8 font-semibold text-[#E6E4D8]">
-            {userData.id && activeSetting &&  
-            <>
-              {/* {!isProjectPage && (
-                <button className="bg-[#8C6D51] text-xs rounded-lg px-2 py-1"
-                // onClick={()=>editBoard(activeBoardId,payloadPut)}
-                >
-                Редактировать {isProjectPage ? "проект" : "доску"}
-                </button>
-              )} */}
-              {/* {isProjectPage && activeGroupBoardId && (
-                <button 
-                  className="bg-[#cb2525] text-xs rounded-lg px-2 py-1"
-                  onClick={openDeleteBoardFromProjectModal}
-                >
-                  Удалить доску из проекта
-                </button>
-              )} */}
+            {userData?.id && activeSetting && (
+              <>
+                {isProjectPage && (
+                  <button
+                    className="bg-[#8C6D51] text-xs rounded-lg px-2 py-1"
+                    onClick={() => openModalAddElem("board")}
+                  >
+                    Добавить доску к проекту
+                  </button>
+                )}
 
-              {isProjectPage && (
-                <button 
-                  className="bg-[#8C6D51] text-xs rounded-lg px-2 py-1"
-                  onClick={()=>openModalAddElem("board")}
+                <button
+                  className="bg-[#cb2525] text-xs rounded-lg px-2 py-1"
+                  onClick={isProjectPage ? openDeleteProjectModal : openDeleteBoardModal}
                 >
-                  Добавить доску к проекту
+                  Удалить {isProjectPage ? "проект" : "доску"}
                 </button>
-              )}
-              <button 
-                className="bg-[#cb2525] text-xs rounded-lg px-2 py-1"
-                onClick={isProjectPage ? openDeleteProjectModal : openDeleteBoardModal}
-              >
-                Удалить {isProjectPage ? "проект" : "доску"}
-              </button>
-            </>
-            }
+              </>
+            )}
           </div>
+
           <div className="boardFunction flex gap-3">
             <img
               className="w-5 cursor-pointer"
               src="/image/IconRestart.svg"
               alt="IconRestart"
-              onClick={() => activeBoardId && getColumnFunc(activeBoardId)}
+              onClick={() => {
+                if (boardIdForColumns) refetchColumns();
+              }}
+              style={{ opacity: columnsFetching ? 0.6 : 1 }}
+              title={columnsFetching ? "Обновляем..." : "Обновить колонки"}
             />
+
             <img
               className="w-5 cursor-pointer"
               src="/image/IconFull.svg"
               alt="IconFull"
-              onClick={()=>setFulled(!isFull)}
+              onClick={() => setFulled(!isFull)}
             />
-            {userData.id && <img
-              className="w-5 cursor-pointer"
-              src="/image/IconSettingBoard.svg"
-              alt="IconSettingBoard"
-              onClick={() => setActiveSetting(!activeSetting)}
-            />}
+
+            {userData?.id && (
+              <img
+                className="w-5 cursor-pointer"
+                src="/image/IconSettingBoard.svg"
+                alt="IconSettingBoard"
+                onClick={() => setActiveSetting(!activeSetting)}
+              />
+            )}
           </div>
         </div>
 
-        <ModalWorkUsers 
-          members={members} 
-          entityType={entityType}
-          entityId={currentEntityId}
-        />
+        <ModalWorkUsers members={members} entityType={entityType} entityId={currentEntityId} />
       </header>
 
       <ConfirmDeleteModal

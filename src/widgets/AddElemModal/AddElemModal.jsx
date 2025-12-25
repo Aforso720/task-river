@@ -2,7 +2,8 @@ import React, { useEffect } from "react";
 import "./AddElemModal.scss";
 import useModalAddElemStore from "./useModalAddElemStore";
 import { usePostElemPanel } from "@/features/Kanban/api/usePostElemPanel";
-import { useGetElemPanel } from "@/pages/Panel/api/useGetElemPanel";
+// import { useGetElemPanel } from "@/pages/Panel/api/useGetElemPanel";
+import { usePanelData } from "@/pages/Panel/api/useGetElemPanel";
 import { useForm } from "react-hook-form";
 
 const AddElemModal = () => {
@@ -11,8 +12,8 @@ const AddElemModal = () => {
 
   const createElemPanel = usePostElemPanel((s) => s.createElemPanel);
 
-  const projects = useGetElemPanel((s) => s.projects) || [];
-  const getAllElemPanel = useGetElemPanel((s) => s.getAllElemPanel);
+  const {projects , refetch} = usePanelData();
+  // const getAllElemPanel = useGetElemPanel((s) => s.getAllElemPanel);
 
   const {
     register,
@@ -41,9 +42,9 @@ const AddElemModal = () => {
       typeModalAddElem === "board" &&
       projects.length === 0
     ) {
-      getAllElemPanel?.();
+      refetch();
     }
-  }, [ModalAddElemState, typeModalAddElem, projects.length, getAllElemPanel]);
+  }, [ModalAddElemState, typeModalAddElem, projects.length]);
 
   useEffect(() => {
     if (!ModalAddElemState) {
@@ -115,7 +116,7 @@ const AddElemModal = () => {
       }
 
       await createElemPanel(payload, url);
-      await getAllElemPanel?.();
+      await refetch();
 
       reset({
         title: "",

@@ -3,6 +3,7 @@ import "./ModalAddTask.scss";
 import { ModalTaskState } from "./store/ModalTaskState";
 import { useWorkTasks } from "@/features/Kanban/api/useWorkTasks";
 import { useForm } from "react-hook-form";
+import { useGetTasks } from "@/features/Kanban/api/useGetTasks";
 
 const difficultyByPriority = {
   Высокий: "HARD",
@@ -44,13 +45,20 @@ export default function ModalAddTask({ typeBoard }) {
   const isEditMode = mode === "edit";
   const isAddMode = mode === "add";
 
+  // ✅ GET задач теперь из React Query
+  const {
+    tasks: tasksAll,
+    loading: tasksLoading,
+    fetching: tasksFetching,
+    getTasksFunc,
+  } = useGetTasks(typeBoard, { enabled: modalInTaskState && !!typeBoard });
+
+  // ✅ POST/PUT/FILES остаются в zustand
   const {
     postTasksFunc,
     updateTasksFunc,
-    getTasksFunc,
     loadingPost,
     loadingPut,
-    tasks: tasksAll,
     getFileTask,
     loadingFile,
   } = useWorkTasks();
@@ -60,7 +68,10 @@ export default function ModalAddTask({ typeBoard }) {
   const [serverError, setServerError] = useState("");
   const [downloadingId, setDownloadingId] = useState(null);
 
-  const rawTask = useMemo(() => (selectedTask?.raw ? selectedTask.raw : selectedTask), [selectedTask]);
+  const rawTask = useMemo(
+    () => (selectedTask?.raw ? selectedTask.raw : selectedTask),
+    [selectedTask]
+  );
 
   const existingAttachments = useMemo(() => {
     const arr = Array.isArray(rawTask?.attachments) ? rawTask.attachments : [];
@@ -104,7 +115,7 @@ export default function ModalAddTask({ typeBoard }) {
 
   const calcLastPositionInColumn = (colId) => {
     const last = (tasksAll || [])
-      .filter((t) => t.columnId === colId)
+      .filter((t) => String(t.columnId) === String(colId))
       .reduce((max, t) => Math.max(max, t.position ?? -1), -1);
     return last;
   };
@@ -130,7 +141,6 @@ export default function ModalAddTask({ typeBoard }) {
       const res = await getFileTask(typeBoard, att.id);
 
       const blob = res?.blob instanceof Blob ? res.blob : new Blob([res?.blob]);
-
       const filename = res?.filename || att.name || `file-${att.id}`;
       const url = URL.createObjectURL(blob);
 
@@ -165,6 +175,12 @@ export default function ModalAddTask({ typeBoard }) {
     try {
       if (isAddMode) {
         const colId = currentColumnId;
+
+        // если задачи еще не успели загрузиться, не считаем позицию "вслепую"
+        if (tasksLoading || tasksFetching) {
+          await getTasksFunc(typeBoard);
+        }
+
         const lastPos = calcLastPositionInColumn(colId);
         const position = lastPos + 1;
 
@@ -184,7 +200,10 @@ export default function ModalAddTask({ typeBoard }) {
         });
 
         await postTasksFunc(typeBoard, fd);
+
+        // ✅ обновляем React Query кэш задач
         await getTasksFunc(typeBoard);
+
         closeModalTaskState();
       }
 
@@ -192,8 +211,12 @@ export default function ModalAddTask({ typeBoard }) {
         const prevColId = rawTask?.columnId;
         const nextColId = currentColumnId || prevColId;
 
+        if (tasksLoading || tasksFetching) {
+          await getTasksFunc(typeBoard);
+        }
+
         let position = rawTask?.position ?? 0;
-        if (nextColId !== prevColId) {
+        if (String(nextColId) !== String(prevColId)) {
           const lastPos = calcLastPositionInColumn(nextColId);
           position = lastPos + 1;
         }
@@ -211,7 +234,10 @@ export default function ModalAddTask({ typeBoard }) {
         };
 
         await updateTasksFunc(typeBoard, rawTask.id, payload);
+
+        // ✅ обновляем React Query кэш задач
         await getTasksFunc(typeBoard);
+
         closeModalTaskState();
       }
     } catch (err) {
@@ -325,18 +351,15 @@ export default function ModalAddTask({ typeBoard }) {
                         <img src="/image/FileTask.svg" alt="" />
                         <span className="flex flex-col truncate max-w-[80%]">
                           {att.name}
-                          {/* {att.size != null && (
-                            <span className="text-[#22333B] font-normal">
-                              ({(Number(att.size) / 1024 / 1024).toFixed(1)} MB)
-                            </span>
-                          )} */}
                         </span>
                       </div>
 
                       <button
                         type="button"
                         onClick={() => downloadAttachment(att)}
-                        disabled={!att.id || loadingFile || downloadingId === att.id}
+                        disabled={
+                          !att.id || loadingFile || downloadingId === att.id
+                        }
                         className="text-[#22333B] hover:text-blue-600 transition-colors text-xs"
                         title={!att.id ? "Нет id файла" : "Скачать файл"}
                       >
@@ -402,7 +425,10 @@ export default function ModalAddTask({ typeBoard }) {
         </div>
 
         {serverError && (
-          <div className="mx-5 mt-2" style={{ color: "#cc0000", textAlign: "left" }}>
+          <div
+            className="mx-5 mt-2"
+            style={{ color: "#cc0000", textAlign: "left" }}
+          >
             {serverError}
           </div>
         )}
@@ -433,7 +459,8 @@ export default function ModalAddTask({ typeBoard }) {
                   loadingPost ||
                   loadingPut ||
                   isSubmitting ||
-                  !isValid
+                  !isValid ||
+                  tasksLoading
                 }
               >
                 {loadingPost || loadingPut ? "Сохраняем…" : "Сохранить"}

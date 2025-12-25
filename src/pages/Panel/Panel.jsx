@@ -9,7 +9,7 @@ import SideBarTasks from "../../widgets/SiderBarTasks/SideBarTasks";
 import Templates from "../../entities/Templates/Templates";
 import NotesInTask from "../../entities/NotesInTask/NotesInTask";
 import AddElemModal from "../../widgets/AddElemModal/AddElemModal";
-import { useGetElemPanel } from "./api/useGetElemPanel";
+import { usePanelData } from "./api/useGetElemPanel";
 import { useFullVerse } from "@/features/Kanban/store/useFullVerse";
 
 import { Routes, Route, useMatch, Navigate, useLocation } from "react-router";
@@ -27,30 +27,31 @@ const Panel = () => {
   const activeBoardId = useTargetEvent((state) => state.activeBoardId);
   const activeProjectId = useTargetEvent((state) => state.activeProjectId);
 
-  const matchProject = useMatch("panel/project/:projectId");
-  const matchBoard = useMatch("panel/board/:boardId");
-  const matchTask = useMatch("panel/tasks/:taskId");
+  const matchProject = useMatch("/panel/project/:projectId");
+  const matchBoard = useMatch("/panel/board/:boardId");
+  const matchTask = useMatch("/panel/tasks/:taskId");
 
   const showSidebarTasks = matchProject || matchBoard || matchTask;
 
-  if(showSidebarTasks){
-    setFulled(false)
-  }
-
-  const projects = useGetElemPanel((state)=>state.projects);
-  const boards = useGetElemPanel((state)=>state.boards);
-  const tasks = useGetElemPanel((state)=>state.tasks);
-  const getAllElemPanel = useGetElemPanel((state)=>state.getAllElemPanel);
-  const {loading:loadingElem} = useGetElemPanel((state)=>state.loading)
- 
   React.useEffect(() => {
-    getAllElemPanel();
-  }, []);
+    if (showSidebarTasks) setFulled(false);
+  }, [showSidebarTasks, setFulled]);
+
+  // const projects = useGetElemPanel((state)=>state.projects);
+  // const boards = useGetElemPanel((state)=>state.boards);
+  // const tasks = useGetElemPanel((state)=>state.tasks);
+  // const getAllElemPanel = useGetElemPanel((state)=>state.getAllElemPanel);
+  // const {loading:loadingElem} = useGetElemPanel((state)=>state.loading)
+
+  
+  const { projects, boards, loading: loadingElem } = usePanelData({
+    enabled: finishedAuth,
+  });
+
 
   const myLocation = useLocation();
 
   if (!finishedAuth) return null;
-  
 
   return (
     <section className="PanelPage">
@@ -66,7 +67,11 @@ const Panel = () => {
 
       <div className="wrapperSidebar">
         {showSidebarTasks && (
-          <SideBarTasks projects={projects} boards={boards} tasks={tasks} loading={loadingElem}/>
+          <SideBarTasks 
+          projects={projects} 
+          boards={boards} 
+          // tasks={tasks} 
+          loading={loadingElem}/>
         )}
         <section className="mainPanelPage">
           {myLocation.pathname === "/panel/setting" ? null : <HeaderSideBar />}

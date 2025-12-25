@@ -16,38 +16,51 @@ const PRIORITY_LABEL_BY_DIFFICULTY = {
 
 function getPriorityInfo(difficultyRaw) {
   const key = String(difficultyRaw || "").trim().toUpperCase();
+
+  // fallback должен быть на EASY, а не LOW (LOW у тебя нет)
   const cls =
-    PRIORITY_CLASS_BY_DIFFICULTY[key] ?? PRIORITY_CLASS_BY_DIFFICULTY.LOW;
+    PRIORITY_CLASS_BY_DIFFICULTY[key] ?? PRIORITY_CLASS_BY_DIFFICULTY.EASY;
   const label =
-    PRIORITY_LABEL_BY_DIFFICULTY[key] ?? PRIORITY_LABEL_BY_DIFFICULTY.LOW;
+    PRIORITY_LABEL_BY_DIFFICULTY[key] ?? PRIORITY_LABEL_BY_DIFFICULTY.EASY;
+
   return { cls, label };
 }
 
-const CardBoard = ({ column, provided, setCurrentColumnId }) => {
+const CardBoard = ({ column, provided: dropProvided, setCurrentColumnId }) => {
   const openModal = ModalTaskState((s) => s.openModalTaskState);
 
   return (
-    <div className="cards" ref={provided.innerRef} {...provided.droppableProps}>
+    <div
+      className="cards"
+      ref={dropProvided.innerRef}
+      {...dropProvided.droppableProps}
+    >
       {column.cards.map((card, index) => {
         const difficulty = card?.raw?.difficulty || card?.difficulty;
         const { cls: priorityClass, label: priorityLabel } =
           getPriorityInfo(difficulty);
 
+        // ВАЖНО: draggableId всегда строка
+        const draggableId = String(card.id);
+
         return (
-          <Draggable key={card.id} draggableId={card.id} index={index}>
-            {(provided) => (
+          <Draggable key={draggableId} draggableId={draggableId} index={index}>
+            {(dragProvided, snapshot) => (
               <div
-                className="card text-xs text-[#959BA3]"
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
+                className={`card text-xs text-[#959BA3] ${
+                  snapshot.isDragging ? "is-dragging" : ""
+                }`}
+                ref={dragProvided.innerRef}
+                {...dragProvided.draggableProps}
+                {...dragProvided.dragHandleProps}
+                style={dragProvided.draggableProps.style} // ВАЖНО
                 onClick={() => openModal("view", card, column.id)}
               >
                 <div className="flex items-start">
-                  {/* <img src="/image/IconWorld.png" alt="Avatar" className="mr-2" /> */}
                   <h4 className="font-semibold text-black my-auto flex-auto">
                     {card.title}
                   </h4>
+
                   <img
                     className="cursor-pointer w-5 h-5 ml-2"
                     src="/image/MenuModelBoard.png"
@@ -70,15 +83,14 @@ const CardBoard = ({ column, provided, setCurrentColumnId }) => {
         );
       })}
 
-      {provided.placeholder}
+      {dropProvided.placeholder}
 
       <div className="add-card">
         <button
           className="add-card-button"
+          type="button"
           onClick={() => {
-            // оставлю твой прежний вызов, если он где-то нужен
             setCurrentColumnId?.(column.id);
-            // основной вызов — открываем модалку в режиме "add" для этой колонки
             openModal("add", null, column.id);
           }}
         >

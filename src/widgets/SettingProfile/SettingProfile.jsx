@@ -3,7 +3,7 @@ import "./SettingProfile.scss";
 import { useUserData } from "../HeaderSideBar/useUserData";
 
 const SettingProfile = () => {
-  const { userData, getUserData, putUserData } = useUserData();
+  const { userData, putUserData } = useUserData();
 
   // какое поле сейчас редактируется (по id), null = ничего
   const [editId, setEditId] = React.useState(null);
@@ -16,9 +16,9 @@ const SettingProfile = () => {
     email: "",
   });
 
-  React.useEffect(() => {
-    getUserData();
-  }, []);
+  // React.useEffect(() => {
+  //   getUserData();
+  // }, []);
 
   // когда userData пришли — заполняем черновик
   React.useEffect(() => {

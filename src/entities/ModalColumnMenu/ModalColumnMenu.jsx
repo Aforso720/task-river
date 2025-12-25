@@ -2,19 +2,35 @@ import React, { useEffect, useRef, useState } from "react";
 import "./ModalColumnMenu.scss";
 import useOpenColumnMenu from "./useOpenColumnMenu";
 
-const ModalColumnMenu = ({ position, onEditColumn, onDeleteColumn, onAddTask }) => {
+const ModalColumnMenu = ({
+  position,
+  currentColumnName,
+  onEditColumn,
+  onDeleteColumn,
+  onAddTask,
+}) => {
   const menuRef = useRef();
   const [newColumnName, setNewColumnName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const {closeModalColumnMenu,isModalColumnMenu} = useOpenColumnMenu();
+  const { closeModalColumnMenu, isModalColumnMenu } = useOpenColumnMenu();
 
-  const handleSave = () => {
-    if (newColumnName.trim()) {
-      onEditColumn(newColumnName);
+  useEffect(() => {
+    if (isEditing) {
+      setNewColumnName(currentColumnName || "");
     }
-    setIsEditing(false);
-    setNewColumnName("");
-    closeModalColumnMenu();
+  }, [isEditing, currentColumnName]);
+
+  const handleSave = async () => {
+    const next = String(newColumnName || "").trim();
+    if (!next) return;
+
+    try {
+      await onEditColumn(next);
+    } finally {
+      setIsEditing(false);
+      setNewColumnName("");
+      closeModalColumnMenu();
+    }
   };
 
   useEffect(() => {
@@ -26,25 +42,21 @@ const ModalColumnMenu = ({ position, onEditColumn, onDeleteColumn, onAddTask }) 
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [closeModalColumnMenu]);
 
-  
-  if(!isModalColumnMenu) return null;
-
+  if (!isModalColumnMenu) return null;
 
   if (isEditing) {
     return (
-      <div 
+      <div
         ref={menuRef}
         className="modal-column-menu-container"
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: position?.top || 0,
           left: position?.left || 0,
-          zIndex: 1000
+          zIndex: 1000,
         }}
       >
         <div className="ModalColumnMenu edit-mode">
@@ -54,42 +66,64 @@ const ModalColumnMenu = ({ position, onEditColumn, onDeleteColumn, onAddTask }) 
             onChange={(e) => setNewColumnName(e.target.value)}
             placeholder="Новое название"
             autoFocus
-            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
           />
           <div className="edit-actions">
-            <button onClick={handleSave}>Сохранить</button>
-            <button onClick={() => {
-              setIsEditing(false);
-              closeModalColumnMenu();
-            }}>Отмена</button>
+            <button type="button" onClick={handleSave}>
+              Сохранить
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(false);
+                closeModalColumnMenu();
+              }}
+            >
+              Отмена
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
-
   return (
-    <div 
+    <div
       ref={menuRef}
       className="modal-column-menu-container"
       style={{
-        position: 'absolute',
+        position: "absolute",
         top: position?.top || 0,
         left: position?.left || 0,
-        zIndex: 1000
+        zIndex: 1000,
       }}
     >
       <ul className="ModalColumnMenu">
-        <li onClick={() => setIsEditing(true)}>Редактировать название</li>
-        <li onClick={() => {
-          onAddTask();
-          closeModalColumnMenu();
-        }}>Добавить задачу</li>
-        <li onClick={() => {
-          onDeleteColumn();
-          closeModalColumnMenu();
-        }}>Удалить колонку</li>
+        <li
+          onClick={() => {
+            setIsEditing(true);
+          }}
+        >
+          Редактировать название
+        </li>
+
+        <li
+          onClick={() => {
+            onAddTask();
+            closeModalColumnMenu();
+          }}
+        >
+          Добавить задачу
+        </li>
+
+        <li
+          onClick={() => {
+            onDeleteColumn();
+            closeModalColumnMenu();
+          }}
+        >
+          Удалить колонку
+        </li>
       </ul>
     </div>
   );

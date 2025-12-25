@@ -4,7 +4,6 @@ import { create } from "zustand";
 const parseFilenameFromDisposition = (disposition) => {
   if (!disposition) return null;
 
-  // content-disposition: attachment; filename="name.ext"
   const match = /filename\*?=(?:UTF-8''|")?([^";\n]+)/i.exec(disposition);
   if (!match?.[1]) return null;
 
@@ -16,9 +15,6 @@ const parseFilenameFromDisposition = (disposition) => {
 };
 
 export const useWorkTasks = create((set) => ({
-  tasks: [],
-  error: null,
-  loading: false,
 
   loadingPost: false,
   errorPost: null,
@@ -29,17 +25,6 @@ export const useWorkTasks = create((set) => ({
   getFile: null,
   errorFile: null,
   loadingFile: false,
-
-  async getTasksFunc(boardId) {
-    try {
-      set({ loading: true, error: null });
-      const resp = await axiosInstance.get(`kanban/boards/${boardId}/task-cards`);
-      set({ loading: false, tasks: resp.data || [] });
-    } catch (error) {
-      set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
 
   async postTasksFunc(boardId, formData) {
     try {
