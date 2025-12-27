@@ -1,5 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { DragDropContext, Draggable } from "@hello-pangea/dnd";
+import { useDebouncedCallback } from "use-debounce";
+import { useQueryClient } from "@tanstack/react-query";
+
 import "./TasksBoard.scss";
 import ModalAddTask from "../../entities/ModalAddTask/ModalAddTask";
 import ModalColumnMenu from "../../entities/ModalColumnMenu/ModalColumnMenu";
@@ -11,12 +14,72 @@ import { ModalTaskState } from "../../entities/ModalAddTask/store/ModalTaskState
 import useTargetEvent from "@/pages/Panel/store/useTargetEvent";
 import { useWorkColumn } from "@/features/Kanban/api/useWorkColumn";
 import { useGetColumns } from "@/features/Kanban/api/useGetColumns";
-import { useGetTasks } from "@/features/Kanban/api/useGetTasks"; // ✅ NEW: задачи через React Query
+import { useGetTasks } from "@/features/Kanban/api/useGetTasks";
+import { useWorkTasks } from "@/features/Kanban/api/useWorkTasks"; // ✅ добавили
 import SkeletonColumn from "@/shared/Skeletons/SkeletonColumn";
 import StrictModeDroppable from "@/shared/StrictModeDroppable";
 
+const FALLBACK_USER_ID = "68ad5e4b6f10733f3245325f";
+
+const extractTasksArray = (res) => {
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res?.tasks)) return res.tasks;
+  if (Array.isArray(res?.data)) return res.data;
+  return null;
+};
+
+const sortTasks = (arr) => {
+  if (!Array.isArray(arr)) return [];
+  return [...arr].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+};
+
+const normalizeIds = (v) => {
+  if (Array.isArray(v)) return v.map(String).filter(Boolean);
+  if (v == null) return [];
+  return [String(v)].filter(Boolean);
+};
+
+const appendResponsibleUserIds = (fd, ids) => {
+  const uniq = Array.from(new Set(normalizeIds(ids)));
+  const safe = uniq.length ? uniq : [FALLBACK_USER_ID];
+  safe.forEach((id) => fd.append("responsibleUserIds", String(id)));
+};
+
+// ✅ из локальных columns строим массив raw tasks для React Query кэша
+const buildTasksFromColumns = (cols) => {
+  const out = [];
+  (cols || []).forEach((col) => {
+    (col.cards || []).forEach((card, idx) => {
+      const raw = card.raw || {};
+      out.push({
+        ...raw,
+        id: raw.id ?? card.id,
+        columnId: String(col.id),
+        position: idx,
+      });
+    });
+  });
+  return sortTasks(out);
+};
+
+// ✅ обновляет raw у карточек: columnId/position, чтобы PUT отправлял правильные значения
+const reindexColumnCards = (col) => ({
+  ...col,
+  cards: (col.cards || []).map((card, idx) => ({
+    ...card,
+    raw: {
+      ...(card.raw || {}),
+      id: (card.raw || {}).id ?? card.id,
+      columnId: String(col.id),
+      position: idx,
+    },
+  })),
+});
+
 const TasksBoard = (props) => {
   const { boards } = props || {};
+
+  const queryClient = useQueryClient();
 
   const setTaskCounts = useListTaskInBoard((s) => s.setTaskCounts);
   const { activeBoardId, activeGroupBoardId, activeProjectId } = useTargetEvent();
@@ -24,20 +87,23 @@ const TasksBoard = (props) => {
   const isProjectView = Array.isArray(boards);
   const currentBoardId = isProjectView ? activeGroupBoardId : activeBoardId;
 
-  const { postColumnFunc, loadingPost, deleteColumnFunc, putColumnFunc } =
-    useWorkColumn();
+  const { postColumnFunc, loadingPost, deleteColumnFunc, putColumnFunc } = useWorkColumn();
 
   const {
     columns: columnsApi,
     loading: columnsLoading,
     refetch: refetchColumns,
+    // error: columnsError,
   } = useGetColumns(currentBoardId, { enabled: !!currentBoardId });
 
-  // ✅ GET задач теперь из React Query, без zustand.getTasksFunc
   const {
     tasks: tasksApi,
     loading: tasksLoading,
+    error: tasksError,
+    refetch: refetchTasks, // ✅ пригодится если что-то пошло не так
   } = useGetTasks(currentBoardId, { enabled: !!currentBoardId });
+
+  const updateTasksFunc = useWorkTasks((s) => s.updateTasksFunc); // ✅ PUT карточки
 
   const { editModalColumnMenu, menuPosition } = useOpenColumnMenu();
   const { openModalTaskState } = ModalTaskState();
@@ -46,6 +112,9 @@ const TasksBoard = (props) => {
   const [columns, setColumns] = useState([]);
   const [currentColumnId, setCurrentColumnId] = useState("");
 
+  // =========================
+  // 1) Сборка колонок + задач
+  // =========================
   const builtColumns = useMemo(() => {
     const sortedCols = [...(columnsApi || [])].sort(
       (a, b) => (a.position ?? 0) - (b.position ?? 0)
@@ -81,11 +150,195 @@ const TasksBoard = (props) => {
     }));
   }, [columnsApi, tasksApi]);
 
+  // ==========================================
+  // 2) Debounce очередь сохранения порядка колонок
+  // ==========================================
+  const pendingColRef = useRef(null);
+
+  const commitPendingColumnOrder = useDebouncedCallback(async () => {
+    const pending = pendingColRef.current;
+    if (!pending) return;
+
+    pendingColRef.current = null;
+
+    const { boardId, cols, start, end } = pending;
+    if (!boardId || !Array.isArray(cols) || cols.length === 0) return;
+
+    const safeStart = Math.max(0, start ?? 0);
+    const safeEnd = Math.min(cols.length - 1, end ?? cols.length - 1);
+
+    const slice = cols.slice(safeStart, safeEnd + 1);
+
+    try {
+      await Promise.all(
+        slice.map((col, i) => {
+          const position = safeStart + i;
+          return putColumnFunc(boardId, col.id, { name: col.title, position });
+        })
+      );
+
+      await refetchColumns();
+    } catch (e) {
+      console.error("Не удалось сохранить порядок колонок:", e);
+      await refetchColumns();
+    }
+  }, 800);
+
+  const queuePersistColumnPositions = (nextCols, sourceIndex, destIndex) => {
+    if (!currentBoardId) return;
+
+    const start = Math.min(sourceIndex, destIndex);
+    const end = Math.max(sourceIndex, destIndex);
+
+    const prev = pendingColRef.current;
+
+    if (prev && prev.boardId === currentBoardId) {
+      pendingColRef.current = {
+        boardId: currentBoardId,
+        cols: nextCols,
+        start: Math.min(prev.start, start),
+        end: Math.max(prev.end, end),
+      };
+    } else {
+      pendingColRef.current = { boardId: currentBoardId, cols: nextCols, start, end };
+    }
+
+    commitPendingColumnOrder();
+  };
+
+  // ==========================================
+  // 3) Debounce очередь сохранения карточек
+  // ==========================================
+  /**
+   * pendingTaskRef хранит:
+   * - boardId
+   * - cols (последнее состояние columns с карточками)
+   * - affectedColumnIds (Set) — какие колонки надо пересохранить (позиции + columnId)
+   */
+  const pendingTaskRef = useRef(null);
+
+  const commitPendingTaskOrder = useDebouncedCallback(async () => {
+    const pending = pendingTaskRef.current;
+    if (!pending) return;
+
+    pendingTaskRef.current = null;
+
+    const { boardId, cols, affectedColumnIds } = pending;
+    if (!boardId || !Array.isArray(cols) || !affectedColumnIds?.size) return;
+
+    const affectedCols = cols.filter((c) => affectedColumnIds.has(String(c.id)));
+
+    let lastTasksFromServer = null;
+
+    try {
+      // ⚠️ специально последовательно (не Promise.all), чтобы не DDOS-ить бэк
+      for (const col of affectedCols) {
+        for (let i = 0; i < (col.cards || []).length; i++) {
+          const card = col.cards[i];
+          const raw = card.raw || {};
+          const taskId = raw.id ?? card.id;
+          if (!taskId) continue;
+
+          const fd = new FormData();
+          fd.append("title", String(raw.title ?? card.title ?? ""));
+          fd.append("description", String(raw.description ?? card.description ?? ""));
+          fd.append("difficulty", String(raw.difficulty ?? "LOW"));
+          fd.append("columnId", String(col.id));
+          fd.append("position", String(i));
+          fd.append("boardId", String(boardId));
+
+          // ✅ responsibleUserIds: каждый id отдельным append
+          appendResponsibleUserIds(fd, raw.responsibleUserIds);
+
+          const res = await updateTasksFunc(boardId, taskId, fd);
+          const arr = extractTasksArray(res);
+          if (arr) lastTasksFromServer = arr;
+        }
+      }
+
+      // ✅ если бэк возвращает массив задач — заменяем им кэш
+      if (Array.isArray(lastTasksFromServer)) {
+        queryClient.setQueryData(["tasks", boardId], sortTasks(lastTasksFromServer));
+      } else {
+        // иначе оставляем оптимистичный кэш из cols
+        queryClient.setQueryData(["tasks", boardId], buildTasksFromColumns(cols));
+      }
+    } catch (e) {
+      console.error("Не удалось сохранить порядок задач:", e);
+      // откат/синхронизация: лучше один GET, чем рассинхрон навсегда
+      try {
+        await refetchTasks();
+      }catch(err){console.log(err)}
+    }
+  }, 800);
+
+  const queuePersistTaskPositions = (nextCols, columnIds) => {
+    if (!currentBoardId) return;
+
+    const prev = pendingTaskRef.current;
+    const ids = new Set((columnIds || []).map(String));
+
+    if (prev && prev.boardId === currentBoardId) {
+      // объединяем набор колонок, чтобы не потерять изменения
+      const merged = new Set([...prev.affectedColumnIds, ...ids]);
+      pendingTaskRef.current = {
+        boardId: currentBoardId,
+        cols: nextCols,
+        affectedColumnIds: merged,
+      };
+    } else {
+      pendingTaskRef.current = {
+        boardId: currentBoardId,
+        cols: nextCols,
+        affectedColumnIds: ids,
+      };
+    }
+
+    commitPendingTaskOrder();
+  };
+
+  // ======================================================
+  // 4) Не перетираем локальный порядок, пока есть pending по колонкам
+  // ======================================================
   useEffect(() => {
+    if (pendingColRef.current) return;
     setColumns(builtColumns);
   }, [builtColumns]);
 
-  // ✅ Редактирование названия колонки из модалки
+  // ======================================================
+  // 5) Flush при уходе / смене доски / скрытии вкладки
+  // ======================================================
+  useEffect(() => {
+    const onHide = () => {
+      void commitPendingColumnOrder.flush?.();
+      void commitPendingTaskOrder.flush?.();
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") onHide();
+    };
+
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("beforeunload", onHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("beforeunload", onHide);
+      void commitPendingColumnOrder.flush?.();
+      void commitPendingTaskOrder.flush?.();
+    };
+  }, [commitPendingColumnOrder, commitPendingTaskOrder]);
+
+  useEffect(() => {
+    return () => {
+      void commitPendingColumnOrder.flush?.();
+      void commitPendingTaskOrder.flush?.();
+    };
+  }, [currentBoardId, commitPendingColumnOrder, commitPendingTaskOrder]);
+
+  // ==========================================
+  // 6) Редактирование названия колонки
+  // ==========================================
   const handleEditColumnName = async (newNameRaw) => {
     const newName = String(newNameRaw || "").trim();
     if (!newName || !currentBoardId || !currentColumnId) return;
@@ -109,36 +362,14 @@ const TasksBoard = (props) => {
     }
   };
 
-  // ✅ PUT только для затронутого диапазона колонок
-  const persistColumnPositions = async (nextCols, sourceIndex, destIndex) => {
-    if (!currentBoardId) return;
-
-    const start = Math.min(sourceIndex, destIndex);
-    const end = Math.max(sourceIndex, destIndex);
-    const slice = nextCols.slice(start, end + 1);
-
-    try {
-      await Promise.all(
-        slice.map((col, i) => {
-          const position = start + i;
-          return putColumnFunc(currentBoardId, col.id, {
-            name: col.title,
-            position,
-          });
-        })
-      );
-
-      await refetchColumns();
-    } catch (e) {
-      console.error("Не удалось сохранить порядок колонок:", e);
-      await refetchColumns();
-    }
-  };
-
+  // ==========================================
+  // 7) Drag & Drop
+  // ==========================================
   const onDragEnd = async (result) => {
     const { destination, source, type } = result;
     if (!destination) return;
 
+    // ---------- COLUMN ----------
     if (type === "COLUMN") {
       if (destination.index === source.index) return;
 
@@ -149,11 +380,11 @@ const TasksBoard = (props) => {
       const updatedCols = newCols.map((c, i) => ({ ...c, order: i }));
       setColumns(updatedCols);
 
-      await persistColumnPositions(updatedCols, source.index, destination.index);
+      queuePersistColumnPositions(updatedCols, source.index, destination.index);
       return;
     }
 
-    // карточки — локально как было
+    // ---------- CARD ----------
     const startColId = String(source.droppableId);
     const finishColId = String(destination.droppableId);
 
@@ -167,25 +398,44 @@ const TasksBoard = (props) => {
     const startCol = newCols[startIdx];
     const finishCol = newCols[finishIdx];
 
+    // перемещение в пределах одной колонки
     if (startIdx === finishIdx) {
       const newCards = [...startCol.cards];
       const [removed] = newCards.splice(source.index, 1);
       newCards.splice(destination.index, 0, removed);
-      newCols[startIdx] = { ...startCol, cards: newCards };
+
+      newCols[startIdx] = reindexColumnCards({ ...startCol, cards: newCards });
+
       setColumns(newCols);
+
+      // ✅ оптимистично обновляем кэш задач (чтобы builtColumns не откатывал UI)
+      queryClient.setQueryData(["tasks", currentBoardId], buildTasksFromColumns(newCols));
+
+      // ✅ сохраняем на бэке с debounce только эту колонку
+      queuePersistTaskPositions(newCols, [startColId]);
       return;
     }
 
+    // перемещение между колонками
     const startCards = [...startCol.cards];
     const [moved] = startCards.splice(source.index, 1);
     const finishCards = [...finishCol.cards];
     finishCards.splice(destination.index, 0, moved);
 
-    newCols[startIdx] = { ...startCol, cards: startCards };
-    newCols[finishIdx] = { ...finishCol, cards: finishCards };
+    newCols[startIdx] = reindexColumnCards({ ...startCol, cards: startCards });
+    newCols[finishIdx] = reindexColumnCards({ ...finishCol, cards: finishCards });
+
     setColumns(newCols);
+
+    queryClient.setQueryData(["tasks", currentBoardId], buildTasksFromColumns(newCols));
+
+    // ✅ сохраняем две колонки: источник и назначение
+    queuePersistTaskPositions(newCols, [startColId, finishColId]);
   };
 
+  // ==========================================
+  // 8) Подсчёт задач
+  // ==========================================
   useEffect(() => {
     const totalTasks = columns.reduce((acc, c) => acc + c.cards.length, 0);
     const doneColumn = columns.find(
@@ -195,11 +445,18 @@ const TasksBoard = (props) => {
     setTaskCounts(totalTasks, doneTasks);
   }, [columns, setTaskCounts]);
 
+  // ==========================================
+  // 9) Add/Delete column
+  // ==========================================
   const [isAddColumnVisible, setIsAddColumnVisible] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
 
   const handleDeleteColumn = async (columnId) => {
     if (!currentBoardId || !columnId) return;
+
+    void commitPendingColumnOrder.flush?.();
+    void commitPendingTaskOrder.flush?.();
+
     try {
       await deleteColumnFunc(currentBoardId, columnId);
       await refetchColumns();
@@ -212,6 +469,9 @@ const TasksBoard = (props) => {
   const handleAddColumn = async () => {
     const name = newColumnName.trim();
     if (!name || !currentBoardId) return;
+
+    void commitPendingColumnOrder.flush?.();
+    void commitPendingTaskOrder.flush?.();
 
     const payload = { name, position: columns.length };
 
@@ -254,6 +514,21 @@ const TasksBoard = (props) => {
         <div className="tasks-board-wrapper">
           <div className="w-full h-full ml-5 text-4xl flex items-center justify-center text-center text-[#22333B]">
             Доска не выбрана
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (tasksError) {
+    return (
+      <div className="tasks-board-container">
+        <HeaderTaskBoard />
+        <div className="tasks-board-wrapper">
+          <div className="w-full h-full ml-5 text-2xl flex items-center justify-center text-center">
+            Ошибка загрузки задач этой доски (500).
+            <br />
+            Попробуй открыть другую доску или обновить страницу.
           </div>
         </div>
       </div>
@@ -327,13 +602,11 @@ const TasksBoard = (props) => {
                                       alt="Menu Column"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        const rect =
-                                          e.currentTarget.getBoundingClientRect();
+                                        const rect = e.currentTarget.getBoundingClientRect();
                                         editModalColumnMenu(
                                           {
                                             top: rect.bottom + window.scrollY,
-                                            left:
-                                              rect.left + window.scrollX + 5,
+                                            left: rect.left + window.scrollX + 5,
                                           },
                                           column.id
                                         );
@@ -342,9 +615,7 @@ const TasksBoard = (props) => {
                                     />
                                   </div>
 
-                                  <StrictModeDroppable
-                                    droppableId={String(column.id)}
-                                  >
+                                  <StrictModeDroppable droppableId={String(column.id)}>
                                     {(innerProvided) => (
                                       <CardBoard
                                         column={column}
@@ -365,13 +636,9 @@ const TasksBoard = (props) => {
                               <input
                                 type="text"
                                 value={newColumnName}
-                                onChange={(e) =>
-                                  setNewColumnName(e.target.value)
-                                }
+                                onChange={(e) => setNewColumnName(e.target.value)}
                                 placeholder="Название колонки"
-                                onKeyDown={(e) =>
-                                  e.key === "Enter" && handleAddColumn()
-                                }
+                                onKeyDown={(e) => e.key === "Enter" && handleAddColumn()}
                               />
                               <button
                                 className="add-column-button"
@@ -414,8 +681,8 @@ const TasksBoard = (props) => {
               <ModalColumnMenu
                 position={menuPosition}
                 currentColumnName={
-                  columns.find((c) => String(c.id) === String(currentColumnId))
-                    ?.title || ""
+                  columns.find((c) => String(c.id) === String(currentColumnId))?.title ||
+                  ""
                 }
                 onEditColumn={handleEditColumnName}
                 onDeleteColumn={() => handleDeleteColumn(currentColumnId)}

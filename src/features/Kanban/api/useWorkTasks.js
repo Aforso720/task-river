@@ -14,30 +14,44 @@ const parseFilenameFromDisposition = (disposition) => {
   }
 };
 
-export const useWorkTasks = create((set) => ({
+// аккуратно достаём tasks из ответа (на случай разных форматов)
+const extractTasksFromResponse = (data) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.tasks)) return data.tasks;
+  if (Array.isArray(data?.data)) return data.data;
+  return null;
+};
 
+export const useWorkTasks = create((set) => ({
   loadingPost: false,
   errorPost: null,
 
   loadingPut: false,
   errorPut: null,
 
+  loadingDelete: false,
+  errorDelete: null,
+
   getFile: null,
   errorFile: null,
   loadingFile: false,
 
+  // ✅ POST: возвращаем ВЕСЬ список задач из response
   async postTasksFunc(boardId, formData) {
     try {
       set({ loadingPost: true, errorPost: null });
 
       const resp = await axiosInstance.post(
         `kanban/boards/${boardId}/task-cards`,
-        formData
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
 
-      const created = resp?.data;
-      set((s) => ({ tasks: [...(s.tasks || []), created] }));
-      return created;
+      const tasks = extractTasksFromResponse(resp?.data);
+      // если бэк вдруг вернул не список — вернём пустой массив, чтобы не падать
+      return tasks ?? [];
     } catch (error) {
       set({ errorPost: error.message });
       throw error;
@@ -46,30 +60,45 @@ export const useWorkTasks = create((set) => ({
     }
   },
 
-  async updateTasksFunc(boardId, taskId, payload) {
+  // ✅ PUT: отправляем FormData и тоже возвращаем ВЕСЬ список задач из response
+  async updateTasksFunc(boardId, taskId, formData) {
     try {
       set({ loadingPut: true, errorPut: null });
 
       const resp = await axiosInstance.put(
         `kanban/boards/${boardId}/task-cards/${taskId}`,
-        JSON.stringify(payload),
+        formData,
         {
-          headers: { "Content-Type": "application/json;charset=UTF-8" },
-          transformRequest: [(d) => d],
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
-      const updated = resp?.data;
-      set((s) => ({
-        tasks: (s.tasks || []).map((t) => (t.id === taskId ? updated : t)),
-      }));
-
-      return updated;
+      const tasks = extractTasksFromResponse(resp?.data);
+      return tasks ?? [];
     } catch (error) {
       set({ errorPut: error.message });
       throw error;
     } finally {
       set({ loadingPut: false });
+    }
+  },
+
+  async deleteTasksFunc(boardId, taskId) {
+    try {
+      set({ loadingDelete: true, errorDelete: null });
+
+      const resp = await axiosInstance.delete(
+        `kanban/boards/${boardId}/task-cards/${taskId}`
+      );
+
+      // если бэк вернул список задач — можно вернуть его тоже
+      const tasks = extractTasksFromResponse(resp?.data);
+      return tasks ?? true;
+    } catch (error) {
+      set({ errorDelete: error.message });
+      throw error;
+    } finally {
+      set({ loadingDelete: false });
     }
   },
 
@@ -83,7 +112,8 @@ export const useWorkTasks = create((set) => ({
       );
 
       const disposition =
-        res?.headers?.["content-disposition"] || res?.headers?.["Content-Disposition"];
+        res?.headers?.["content-disposition"] ||
+        res?.headers?.["Content-Disposition"];
 
       const filename = parseFilenameFromDisposition(disposition);
 

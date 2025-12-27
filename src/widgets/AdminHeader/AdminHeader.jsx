@@ -23,7 +23,7 @@ const AdminHeader = () => {
         />
       </Link> */}
       {location.pathname !== "/admin" ? (
-        <div className="flex-auto">
+        // <div className="flex  flex-auto w-full">
           <ul className="listsNavUpdates flex justify-center items-center gap-6 font-bold">
             <Link to={"/admin/blog"}>
               <li
@@ -59,7 +59,7 @@ const AdminHeader = () => {
               </li>
             </Link>
           </ul>
-        </div>
+        // </div>
       ) : null}
     </header>
   );

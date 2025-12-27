@@ -1,0 +1,422 @@
+.AdminUsersPage {
+  padding: 20px;
+  background: var(--firstColor);
+  color: #22333B;
+  font-family: "TT Travels Trl", sans-serif;
+  width: 100%;
+}
+
+.dark .AdminUsersPage {
+  color: var(--firstColor); 
+}
+
+.AdminUsersHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  .left {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0;
+    color: #22333B;
+  }
+
+  .subtitle {
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.75;
+    color: #22333B;
+  }
+}
+
+.dark .AdminUsersHeader {
+  .title,
+  .subtitle {
+    color: #E6E4D8;
+  }
+}
+
+/* Toolbar */
+.AdminUsersToolbar {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 560px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 2px solid var(--secondColor);
+    border-radius: 30px;
+    padding: 10px 14px;
+
+    img {
+      width: 16px;
+      height: 16px;
+      opacity: 0.85;
+    }
+
+    input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: #22333B;
+
+      &::placeholder {
+        color: rgba(34, 51, 59, 0.65);
+      }
+    }
+  }
+}
+
+.dark .AdminUsersToolbar {
+  .search {
+    background: rgba(0, 0, 0, 0.15);
+    border-color: var(--secondColor);
+
+    input {
+      color: #E6E4D8;
+
+      &::placeholder {
+        color: rgba(230, 228, 216, 0.65);
+      }
+    }
+  }
+}
+
+/* State blocks */
+.AdminUsersState {
+  margin-top: 18px;
+  padding: 14px 16px;
+  background: var(--firstColor);
+  border: 2px solid var(--secondColor);
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #22333B;
+
+  &.error {
+    border-color: #cb2525;
+    color: #cb2525;
+    background: rgba(203, 37, 37, 0.08);
+  }
+}
+
+.dark .AdminUsersState {
+  color: #E6E4D8;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* List */
+.AdminUsersList {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* Card */
+.UserCard {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 14px;
+  align-items: center;
+
+  background: rgba(255, 255, 255, 0.35);
+  border: 2px solid var(--secondColor);
+  border-radius: 30px;
+  padding: 14px 16px;
+
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: var(--firstColor);
+    border: 2px solid var(--secondColor);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .initials {
+      font-weight: 700;
+      color: var(--secondColor);
+      font-size: 16px;
+    }
+  }
+
+  .info {
+    min-width: 0;
+
+    .top {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #22333B;
+    }
+
+    .username {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(34, 51, 59, 0.7);
+    }
+
+    .meta {
+      margin-top: 6px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+
+      .metaItem {
+        font-size: 13px;
+        font-weight: 500;
+
+        .label {
+          color: rgba(34, 51, 59, 0.7);
+        }
+
+        .value {
+          color: rgba(34, 51, 59, 0.95);
+          word-break: break-word;
+        }
+      }
+    }
+
+    .roles {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+
+      .roleBadge {
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 10px;
+        border-radius: 30px;
+        background: var(--secondColor);
+        color: var(--firstColor);
+      }
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
+
+.dark .UserCard {
+  background: rgba(0, 0, 0, 0.15);
+
+  .info {
+    .name {
+      color: #E6E4D8;
+    }
+    .username {
+      color: rgba(230, 228, 216, 0.75);
+    }
+    .meta {
+      .metaItem {
+        .label {
+          color: rgba(230, 228, 216, 0.65);
+        }
+        .value {
+          color: rgba(230, 228, 216, 0.95);
+        }
+      }
+    }
+  }
+}
+
+/* Buttons */
+.btn {
+  border: none;
+  outline: none;
+  border-radius: 30px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: "TT Travels Trl", sans-serif;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.primary {
+    background: var(--secondColor);
+    color: var(--firstColor);
+  }
+
+  &.secondary {
+    background: var(--firstColor);
+    color: var(--secondColor);
+    border: 2px solid var(--secondColor);
+  }
+
+  &.danger {
+    background: #cb2525;
+    color: #fff;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(0.98);
+  }
+}
+
+/* Modal */
+.ModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 9999;
+}
+
+.Modal {
+  width: 100%;
+  max-width: 620px;
+  background: var(--firstColor);
+  border-radius: 30px;
+  border: 3px solid var(--secondColor);
+  overflow: hidden;
+
+  &.small {
+    max-width: 460px;
+  }
+}
+
+.dark .Modal {
+  background: #22333B;
+}
+
+.ModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: var(--secondColor);
+  color: var(--firstColor);
+}
+
+.ModalTitle {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.IconBtn {
+  border: 2px solid var(--firstColor);
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 30px;
+  color: var(--firstColor);
+
+  &:hover {
+    background: rgba(230, 228, 216, 0.15);
+  }
+}
+
+.ModalBody {
+  padding: 16px 18px;
+}
+
+.FormGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #22333B;
+  }
+
+  input {
+    border: 2px solid var(--secondColor);
+    border-radius: 30px;
+    padding: 10px 12px;
+    outline: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #22333B;
+    background: rgba(255, 255, 255, 0.35);
+
+    &:focus {
+      filter: brightness(0.98);
+    }
+  }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dark .FormGrid {
+  label {
+    color: #E6E4D8;
+  }
+
+  input {
+    color: #E6E4D8;
+    background: rgba(0, 0, 0, 0.15);
+  }
+}
+
+.confirmText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #22333B;
+}
+
+.dark .confirmText {
+  color: #E6E4D8;
+}
+
+.ModalFooter {
+  padding: 14px 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 2px solid rgba(140, 109, 81, 0.35);
+  background: transparent;
+}

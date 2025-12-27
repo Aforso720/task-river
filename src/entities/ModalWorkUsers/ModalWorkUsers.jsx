@@ -302,7 +302,7 @@ const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
                         )}
                       </div>
                     </div>
-
+{/* 
                     <div className="ModalWorkUsers__actions">
                       <select
                         className="ModalWorkUsers__roleSelect"
@@ -316,7 +316,9 @@ const ModalWorkUsers = ({ members = [], entityType, entityId }) => {
                         <option value="EDITOR">Добавить как EDITOR</option>
                         <option value="ADMIN">Добавить как ADMIN</option>
                       </select>
-                    </div>
+                    </div> */}
+
+                    <p className="font-light text-xs text-[#]">На данный момент добавления других пользователей невозможно</p>
                   </li>
                 ))}
               </ul>

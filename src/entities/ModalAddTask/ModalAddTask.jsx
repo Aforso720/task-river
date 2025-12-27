@@ -4,6 +4,9 @@ import { ModalTaskState } from "./store/ModalTaskState";
 import { useWorkTasks } from "@/features/Kanban/api/useWorkTasks";
 import { useForm } from "react-hook-form";
 import { useGetTasks } from "@/features/Kanban/api/useGetTasks";
+import { useQueryClient } from "@tanstack/react-query";
+import { useWorkMembers } from "@/features/Kanban/api/useWorkMembers";
+import ConfirmDeleteModal from "@/shared/ConfirmDeleteModal/ConfirmDeleteModal";
 
 const difficultyByPriority = {
   Высокий: "HARD",
@@ -32,7 +35,26 @@ const normalizeAttachment = (a, idx) => {
   return { id: id ? String(id) : null, name, size };
 };
 
+const sortTasks = (arr) => {
+  if (!Array.isArray(arr)) return [];
+  return [...arr].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+};
+
+// ✅ helper: добавляем responsibleUserIds как повторяющиеся поля FormData
+const appendResponsibleUserIds = (fd, ids) => {
+  const uniq = Array.from(
+    new Set((ids || []).map((x) => String(x)).filter(Boolean))
+  );
+  uniq.forEach((id) => fd.append("responsibleUserIds", id));
+};
+
+// аккуратно вытаскиваем id из members (на случай разных форматов)
+const pickMemberId = (m) =>
+  m?.id ?? m?.userId ?? m?.memberId ?? m?.accountId ?? null;
+
 export default function ModalAddTask({ typeBoard }) {
+  const queryClient = useQueryClient();
+
   const {
     modalInTaskState,
     mode,
@@ -45,23 +67,45 @@ export default function ModalAddTask({ typeBoard }) {
   const isEditMode = mode === "edit";
   const isAddMode = mode === "add";
 
-  // ✅ GET задач теперь из React Query
   const {
     tasks: tasksAll,
     loading: tasksLoading,
     fetching: tasksFetching,
-    getTasksFunc,
+    refetch: refetchTasks,
   } = useGetTasks(typeBoard, { enabled: modalInTaskState && !!typeBoard });
 
-  // ✅ POST/PUT/FILES остаются в zustand
   const {
     postTasksFunc,
     updateTasksFunc,
+    deleteTasksFunc,
     loadingPost,
     loadingPut,
+    loadingDelete,
     getFileTask,
     loadingFile,
   } = useWorkTasks();
+
+  // ✅ members из zustand
+  const membersBoard = useWorkMembers((s) => s.membersBoard);
+  const getMembersBoard = useWorkMembers((s) => s.getMembersBoard);
+
+  // ✅ confirm modal state
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
+  // ✅ грузим участников, когда модалка открылась
+  useEffect(() => {
+    if (!modalInTaskState || !typeBoard) return;
+    getMembersBoard(typeBoard).catch(() => {});
+  }, [modalInTaskState, typeBoard, getMembersBoard]);
+
+  const boardMemberIds = useMemo(() => {
+    const ids = (membersBoard || [])
+      .map(pickMemberId)
+      .filter(Boolean)
+      .map(String);
+
+    return Array.from(new Set(ids));
+  }, [membersBoard]);
 
   const [priority, setPriority] = useState("Высокий");
   const [files, setFiles] = useState([]);
@@ -93,6 +137,7 @@ export default function ModalAddTask({ typeBoard }) {
 
     setServerError("");
     setFiles([]);
+    setConfirmDeleteOpen(false);
 
     if (isAddMode || !rawTask) {
       reset({ title: "", description: "" });
@@ -154,12 +199,38 @@ export default function ModalAddTask({ typeBoard }) {
       URL.revokeObjectURL(url);
     } catch (err) {
       const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Не удалось скачать файл";
+        err?.response?.data?.message || err?.message || "Не удалось скачать файл";
       setServerError(msg);
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  // ✅ реальное удаление после подтверждения
+  const doDelete = async () => {
+    if (!typeBoard || !rawTask?.id) return;
+
+    setServerError("");
+
+    try {
+      const res = await deleteTasksFunc(typeBoard, rawTask.id);
+
+      if (Array.isArray(res)) {
+        queryClient.setQueryData(["tasks", typeBoard], sortTasks(res));
+      } else {
+        queryClient.setQueryData(["tasks", typeBoard], (old = []) => {
+          if (!Array.isArray(old)) return old;
+          return old.filter((t) => String(t.id) !== String(rawTask.id));
+        });
+      }
+
+      setConfirmDeleteOpen(false);
+      closeModalTaskState();
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message || err?.message || "Не удалось удалить задачу";
+      setServerError(msg);
+      setConfirmDeleteOpen(false);
     }
   };
 
@@ -176,9 +247,8 @@ export default function ModalAddTask({ typeBoard }) {
       if (isAddMode) {
         const colId = currentColumnId;
 
-        // если задачи еще не успели загрузиться, не считаем позицию "вслепую"
         if (tasksLoading || tasksFetching) {
-          await getTasksFunc(typeBoard);
+          await refetchTasks();
         }
 
         const lastPos = calcLastPositionInColumn(colId);
@@ -188,22 +258,22 @@ export default function ModalAddTask({ typeBoard }) {
         fd.append("title", title);
         fd.append("description", description);
         fd.append("difficulty", difficulty);
-
-        fd.append("columnId", colId);
+        fd.append("columnId", String(colId));
         fd.append("position", String(position));
-        fd.append("boardId", typeBoard);
+        fd.append("boardId", String(typeBoard));
 
-        fd.append("responsibleUserIds", "68ad5e4b6f10733f3245325f");
+        // ✅ responsibleUserIds: по одному id (из membersBoard)
+        if (boardMemberIds.length > 0) {
+          appendResponsibleUserIds(fd, boardMemberIds);
+        } else {
+          appendResponsibleUserIds(fd, ["68ad5e4b6f10733f3245325f"]);
+        }
 
-        files.forEach((file) => {
-          fd.append("attachments", file);
-        });
+        files.forEach((file) => fd.append("attachments", file));
 
-        await postTasksFunc(typeBoard, fd);
+        const tasksFromServer = await postTasksFunc(typeBoard, fd);
 
-        // ✅ обновляем React Query кэш задач
-        await getTasksFunc(typeBoard);
-
+        queryClient.setQueryData(["tasks", typeBoard], sortTasks(tasksFromServer));
         closeModalTaskState();
       }
 
@@ -212,7 +282,7 @@ export default function ModalAddTask({ typeBoard }) {
         const nextColId = currentColumnId || prevColId;
 
         if (tasksLoading || tasksFetching) {
-          await getTasksFunc(typeBoard);
+          await refetchTasks();
         }
 
         let position = rawTask?.position ?? 0;
@@ -221,36 +291,51 @@ export default function ModalAddTask({ typeBoard }) {
           position = lastPos + 1;
         }
 
-        const payload = {
-          title,
-          description,
-          difficulty,
-          columnId: nextColId,
-          position,
-          responsibleUserIds: rawTask?.responsibleUserIds || [
-            "68ad5e4b6f10733f3245325f",
-          ],
-          attachments: rawTask?.attachments || [],
-        };
+        const fd = new FormData();
+        fd.append("title", title);
+        fd.append("description", description);
+        fd.append("difficulty", difficulty);
+        fd.append("columnId", String(nextColId));
+        fd.append("position", String(position));
+        fd.append("boardId", String(typeBoard));
 
-        await updateTasksFunc(typeBoard, rawTask.id, payload);
+        // ✅ responsibleUserIds: по одному id
+        const fallbackIds =
+          Array.isArray(rawTask?.responsibleUserIds) &&
+          rawTask.responsibleUserIds.length
+            ? rawTask.responsibleUserIds
+            : ["68ad5e4b6f10733f3245325f"];
 
-        // ✅ обновляем React Query кэш задач
-        await getTasksFunc(typeBoard);
+        if (boardMemberIds.length > 0) {
+          appendResponsibleUserIds(fd, boardMemberIds);
+        } else {
+          appendResponsibleUserIds(fd, fallbackIds);
+        }
 
+        files.forEach((file) => fd.append("attachments", file));
+
+        const tasksFromServer = await updateTasksFunc(typeBoard, rawTask.id, fd);
+
+        queryClient.setQueryData(["tasks", typeBoard], sortTasks(tasksFromServer));
         closeModalTaskState();
       }
     } catch (err) {
       const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Не удалось сохранить задачу";
+        err?.response?.data?.message || err?.message || "Не удалось сохранить задачу";
       setServerError(msg);
     }
   });
 
   return (
     <div className="modal-overlay">
+      <ConfirmDeleteModal
+        open={confirmDeleteOpen}
+        itemName={rawTask?.title || "задачу"}
+        loading={loadingDelete}
+        onCancel={() => setConfirmDeleteOpen(false)}
+        onConfirm={doDelete}
+      />
+
       <div className="modal">
         <h3 className="font-medium text-xl text-[#000000] text-center w-full">
           {isAddMode && "Добавление задачи"}
@@ -357,11 +442,8 @@ export default function ModalAddTask({ typeBoard }) {
                       <button
                         type="button"
                         onClick={() => downloadAttachment(att)}
-                        disabled={
-                          !att.id || loadingFile || downloadingId === att.id
-                        }
+                        disabled={!att.id || loadingFile || downloadingId === att.id}
                         className="text-[#22333B] hover:text-blue-600 transition-colors text-xs"
-                        title={!att.id ? "Нет id файла" : "Скачать файл"}
                       >
                         {downloadingId === att.id ? "Скачиваем…" : "Скачать"}
                       </button>
@@ -386,6 +468,7 @@ export default function ModalAddTask({ typeBoard }) {
                           </span>
                         </span>
                       </div>
+
                       {!isViewMode && (
                         <button
                           onClick={() => removeFile(index)}
@@ -425,24 +508,29 @@ export default function ModalAddTask({ typeBoard }) {
         </div>
 
         {serverError && (
-          <div
-            className="mx-5 mt-2"
-            style={{ color: "#cc0000", textAlign: "left" }}
-          >
+          <div className="mx-5 mt-2" style={{ color: "#cc0000", textAlign: "left" }}>
             {serverError}
           </div>
         )}
 
         <div className="modal-actions mx-5 mb-2">
           {!isViewMode && !isAddMode && (
-            <button className="delete-btn" type="button">
-              Удалить
+            <button
+              className="delete-btn"
+              type="button"
+              onClick={() => setConfirmDeleteOpen(true)}
+              disabled={loadingDelete || loadingPost || loadingPut}
+            >
+              {loadingDelete ? "Удаляем…" : "Удалить"}
             </button>
           )}
 
           <div className="gap-5 flex">
             <button
-              onClick={closeModalTaskState}
+              onClick={() => {
+                setConfirmDeleteOpen(false);
+                closeModalTaskState();
+              }}
               className="cancel-btn"
               type="button"
               disabled={isSubmitting}
@@ -458,6 +546,7 @@ export default function ModalAddTask({ typeBoard }) {
                 disabled={
                   loadingPost ||
                   loadingPut ||
+                  loadingDelete ||
                   isSubmitting ||
                   !isValid ||
                   tasksLoading
