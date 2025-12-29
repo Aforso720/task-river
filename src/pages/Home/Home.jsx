@@ -49,7 +49,7 @@ const Home = () => {
             команде, и в одиночку.
           </p>
           <img
-            src="image/HomeBlock.png"
+            src="/image/i.webp"
             alt="Иллюстрация TaskRiver"
             className="md:w-[300px] lg:w-[350px] xl:w-[400px]"
           />

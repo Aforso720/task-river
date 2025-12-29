@@ -14,7 +14,6 @@ const parseFilenameFromDisposition = (disposition) => {
   }
 };
 
-// аккуратно достаём tasks из ответа (на случай разных форматов)
 const extractTasksFromResponse = (data) => {
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.tasks)) return data.tasks;
@@ -36,7 +35,6 @@ export const useWorkTasks = create((set) => ({
   errorFile: null,
   loadingFile: false,
 
-  // ✅ POST: возвращаем ВЕСЬ список задач из response
   async postTasksFunc(boardId, formData) {
     try {
       set({ loadingPost: true, errorPost: null });
@@ -50,7 +48,6 @@ export const useWorkTasks = create((set) => ({
       );
 
       const tasks = extractTasksFromResponse(resp?.data);
-      // если бэк вдруг вернул не список — вернём пустой массив, чтобы не падать
       return tasks ?? [];
     } catch (error) {
       set({ errorPost: error.message });
@@ -60,7 +57,6 @@ export const useWorkTasks = create((set) => ({
     }
   },
 
-  // ✅ PUT: отправляем FormData и тоже возвращаем ВЕСЬ список задач из response
   async updateTasksFunc(boardId, taskId, formData) {
     try {
       set({ loadingPut: true, errorPut: null });
@@ -91,7 +87,6 @@ export const useWorkTasks = create((set) => ({
         `kanban/boards/${boardId}/task-cards/${taskId}`
       );
 
-      // если бэк вернул список задач — можно вернуть его тоже
       const tasks = extractTasksFromResponse(resp?.data);
       return tasks ?? true;
     } catch (error) {

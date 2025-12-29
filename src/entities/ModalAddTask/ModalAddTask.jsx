@@ -262,7 +262,6 @@ export default function ModalAddTask({ typeBoard }) {
         fd.append("position", String(position));
         fd.append("boardId", String(typeBoard));
 
-        // ✅ responsibleUserIds: по одному id (из membersBoard)
         if (boardMemberIds.length > 0) {
           appendResponsibleUserIds(fd, boardMemberIds);
         } else {
@@ -299,7 +298,6 @@ export default function ModalAddTask({ typeBoard }) {
         fd.append("position", String(position));
         fd.append("boardId", String(typeBoard));
 
-        // ✅ responsibleUserIds: по одному id
         const fallbackIds =
           Array.isArray(rawTask?.responsibleUserIds) &&
           rawTask.responsibleUserIds.length
