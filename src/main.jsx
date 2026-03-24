@@ -11,7 +11,7 @@ document.documentElement.classList.toggle("dark", savedTheme === "dark");
 createRoot(document.getElementById("root")).render(
   <HelmetProvider>
     <BrowserRouter>
-      {/* <StrictMode> */}
+      {/* <StrictMode>. */}
       <App />
       {/* </StrictMode> */}
     </BrowserRouter>
