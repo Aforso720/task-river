@@ -1,6 +1,7 @@
 import React from "react";
 import "./TariffCard.scss";
 import { formatPriceInt } from "@/shared/utils/formatPriceInt";
+import useAuthModalStore from "@/features/Auth/store/authModal";
 
 const TarifCard = ({
   id,
@@ -14,6 +15,7 @@ const TarifCard = ({
   const [active, setActive] = React.useState("month");
 
   const isFree = Number(price) === 0;
+  const {openModalAuthRegistr} = useAuthModalStore()
 
   const getCardClass = () => {
     if (cardIndex === 0) return "TariffCardModuleFirst";
@@ -21,6 +23,13 @@ const TarifCard = ({
     if (cardIndex === 2) return "TariffCardModuleThree";
     return "TariffCardModuleFirst";
   };
+
+  const handleConnect = () => {
+    if (cardIndex === 0) return openModalAuthRegistr();
+    // if (cardIndex === 1) return "TariffCardModuleTwo";
+    // if (cardIndex === 2) return "TariffCardModuleThree";
+    // return "TariffCardModuleFirst";
+  }
 
   const handleDetailsClick = () => {
     if (onDetails) onDetails(id);
@@ -73,7 +82,7 @@ const TarifCard = ({
         {formatPriceInt(active === "year" ? (price || 0) * 12 : price)}₽
       </p>
 
-      <button>Подключить</button>
+      <button onClick={handleConnect}>Подключить</button>
 
       {!isFree && <p className="contact-us">Связаться с нами</p>}
 

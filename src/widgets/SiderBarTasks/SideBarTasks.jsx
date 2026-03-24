@@ -14,12 +14,12 @@ const SideBarTasks = ({ projects, boards, tasks, loading }) => {
   const addProjectID = useTargetEvent((state) => state.addProjectID);
   const addBoardID = useTargetEvent((state) => state.addBoardID);
   const addGroupBoardId = useTargetEvent((state) => state.addGroupBoardId);
-  const addTaskID = useTargetEvent((state) => state.addTaskID);
+  // const addTaskID = useTargetEvent((state) => state.addTaskID);
 
   const activeProjectId = useTargetEvent((state) => state.activeProjectId);
   const activeBoardId = useTargetEvent((state) => state.activeBoardId);
   const activeGroupBoardId = useTargetEvent((state) => state.activeGroupBoardId);
-  const activeTaskId = useTargetEvent((state) => state.activeTaskId);
+  // const activeTaskId = useTargetEvent((state) => state.activeTaskId);
 
   const isProjectRoute = location.pathname.startsWith("/panel/project");
   const isBoardRoute = location.pathname.startsWith("/panel/board");
@@ -29,9 +29,9 @@ const SideBarTasks = ({ projects, boards, tasks, loading }) => {
     ? boards.filter((item) => item.projectId === null)
     : boards.filter((item) => item.projectId === activeProjectId);
 
-  const activeTasks = isTasksRoute
-    ? tasks.filter((task) => task.boardId === null)
-    : tasks.filter((task) => task.boardId === activeBoardId);
+  // const activeTasks = isTasksRoute
+  //   ? tasks.filter((task) => task.boardId === null)
+  //   : tasks.filter((task) => task.boardId === activeBoardId);
 
   const isBoardActive = (board) =>
     isBoardRoute ? activeBoardId === board.id : activeGroupBoardId === board.id;
@@ -44,13 +44,11 @@ const SideBarTasks = ({ projects, boards, tasks, loading }) => {
     }
   };
 
-  // 👉 Заголовок при загрузке в зависимости от route
   let loadingTitle = "Загрузка...";
   if (isProjectRoute) loadingTitle = "Проекты";
   else if (isBoardRoute) loadingTitle = "Доски";
   else if (isTasksRoute) loadingTitle = "Личные задачи";
 
-  // 👉 Показать текст + 4 скелетона, пока идет загрузка
   if (loading) {
     return (
       <CSSTransition
@@ -129,7 +127,7 @@ const SideBarTasks = ({ projects, boards, tasks, loading }) => {
           </section>
         )}
 
-        {isTasksRoute && (
+        {/* {isTasksRoute && (
           <section className="navInSideBar">
             <h5 className="text-2xl text-[#22333B] font-bold mb-5">
               Личные задачи
@@ -151,7 +149,7 @@ const SideBarTasks = ({ projects, boards, tasks, loading }) => {
               ))}
             </div>
           </section>
-        )}
+        )} */}
       </aside>
     </CSSTransition>
   );

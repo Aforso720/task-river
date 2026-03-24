@@ -17,7 +17,7 @@ const AdminCard = () => {
       {cards.map((item) => (
         <section
           key={item.url}
-          className="AdminCard border-[3px] rounded-3xl border-[#22333B] flex items-center justify-center"
+          className="AdminCard border-[3px] rounded-3xl border-[#22333B]  flex items-center justify-center"
         >
           <h4
             onClick={() => linkCard(item.url)}

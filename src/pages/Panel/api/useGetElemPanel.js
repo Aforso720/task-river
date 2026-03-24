@@ -1,30 +1,45 @@
-import { create } from "zustand";
+import { useQueries } from "@tanstack/react-query";
 import axiosInstance from "@/app/api/axiosInstance";
 
-export const useGetElemPanel = create((set) => ({
-  projects: [],
-  boards: [],
-  tasks: [],
-  error: null,
-  loading: false,
+const fetchProjects = async () => {
+  const { data } = await axiosInstance.get("/kanban/projects");
+  return data || [];
+};
 
-  getAllElemPanel: async () => {
-    set({ loading: true });
-    try {
-      const [resProjects, resBoards, resTasks] = await Promise.all([
-        axiosInstance.get("/kanban/projects"),
-        axiosInstance.get("/kanban/boards"),
-        axiosInstance.get("/kanban/projects"),
-      ]);
-      set({
-        projects: resProjects.data || [],
-        boards: resBoards.data || [],
-        tasks: resTasks.data || [],
-        loading: false,
-        error: null,
-      });
-    } catch (error) {
-      set({ error: error.message, loading: false });
-    }
-  },
-}));
+const fetchBoards = async () => {
+  const { data } = await axiosInstance.get("/kanban/boards");
+  return data || [];
+};
+
+export function usePanelData({ enabled = true } = {}) {
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: ["projects"],
+        queryFn: fetchProjects,
+        enabled,
+        staleTime: 60_000, 
+      },
+      {
+        queryKey: ["boards"],
+        queryFn: fetchBoards,
+        enabled,
+        staleTime: 30_000,
+      },
+    ],
+  });
+
+  const projectsQ = results[0];
+  const boardsQ = results[1];
+
+  return {
+    projects: projectsQ.data || [],
+    boards: boardsQ.data || [],
+    loading: projectsQ.isLoading || boardsQ.isLoading,
+    error: projectsQ.error || boardsQ.error,
+    refetch: () => {
+      projectsQ.refetch();
+      boardsQ.refetch();
+    },
+  };
+}

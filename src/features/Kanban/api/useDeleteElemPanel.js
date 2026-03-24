@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import axiosInstance from "@/app/api/axiosInstance";
-import { useGetElemPanel } from "@/pages/Panel/api/useGetElemPanel";
+// import { useGetElemPanel } from "@/pages/Panel/api/useGetElemPanel";
 
 const mapRuTypeToPath = (ruType) => {
   if (ruType === "Проекты") return "projects";
@@ -18,8 +18,6 @@ export const useDeleteElemPanel = create((set) => ({
     try {
       const path = mapRuTypeToPath(ruType);
       await axiosInstance.delete(`/kanban/${path}/${id}`);
-      const refetch = useGetElemPanel.getState().getAllElemPanel;
-      await refetch?.();
 
       set({ isDeleting: false });
     } catch (e) {

@@ -14,6 +14,7 @@ import Forbidden from "@/pages/Forbidden";
 import { RequireAuth, RequireRole } from "@/shared/router/guards";
 import AdminBlog from "@/features/Admin/UI/AdminBlog/AdminBlog";
 import AdminTariff from "@/features/Admin/UI/AdminTariff/AdminTariff";
+import AdminUsers from "@/features/Admin/UI/AdminUsers/AdminUsers";
 
 const AdminLayout = lazy(() => import("./route/AdminLayout"));
 const AdminCard    = lazy(() => import("@/widgets/AdminCard/AdminCard"));
@@ -53,7 +54,7 @@ export default function App() {
 
             <Route path="blog" element={<AdminBlog/>} />
             <Route path="tariff" element={<AdminTariff/>} />
-            <Route path="users" element={<div>Пользователи админки</div>} />
+            <Route path="users" element={<AdminUsers/>} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

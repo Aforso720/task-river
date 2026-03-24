@@ -9,8 +9,8 @@ import SideBarTasks from "../../widgets/SiderBarTasks/SideBarTasks";
 import Templates from "../../entities/Templates/Templates";
 import NotesInTask from "../../entities/NotesInTask/NotesInTask";
 import AddElemModal from "../../widgets/AddElemModal/AddElemModal";
-import useModalAddElemStore from "../../widgets/AddElemModal/useModalAddElemStore";
-import { useGetElemPanel } from "./api/useGetElemPanel";
+import { usePanelData } from "./api/useGetElemPanel";
+import { useFullVerse } from "@/features/Kanban/store/useFullVerse";
 
 import { Routes, Route, useMatch, Navigate, useLocation } from "react-router";
 
@@ -19,26 +19,35 @@ import Setting from "../../features/Setting/UI/Setting";
 import useAuthStore from "@/features/Auth/api/loginRequest";
 
 const Panel = () => {
-  const { finishedAuth } = useAuthStore();
-  const ModalAddElemState = useModalAddElemStore(
-    (state) => state.ModalAddElemState
-  );
+  const finishedAuth= useAuthStore((state)=>state.finishedAuth);
+  
+  const setFulled = useFullVerse((state)=>state.setFulled);
 
   const activeTaskId = useTargetEvent((state) => state.activeTaskId);
   const activeBoardId = useTargetEvent((state) => state.activeBoardId);
   const activeProjectId = useTargetEvent((state) => state.activeProjectId);
 
-  const matchProject = useMatch("panel/project/:projectId");
-  const matchBoard = useMatch("panel/board/:boardId");
-  const matchTask = useMatch("panel/tasks/:taskId");
+  const matchProject = useMatch("/panel/project/:projectId");
+  const matchBoard = useMatch("/panel/board/:boardId");
+  const matchTask = useMatch("/panel/tasks/:taskId");
 
   const showSidebarTasks = matchProject || matchBoard || matchTask;
 
-  const { projects, boards, tasks, getAllElemPanel , loading:loadingElem } = useGetElemPanel();
-
   React.useEffect(() => {
-    getAllElemPanel();
-  }, [getAllElemPanel]);
+    if (showSidebarTasks) setFulled(false);
+  }, [showSidebarTasks, setFulled]);
+
+  // const projects = useGetElemPanel((state)=>state.projects);
+  // const boards = useGetElemPanel((state)=>state.boards);
+  // const tasks = useGetElemPanel((state)=>state.tasks);
+  // const getAllElemPanel = useGetElemPanel((state)=>state.getAllElemPanel);
+  // const {loading:loadingElem} = useGetElemPanel((state)=>state.loading)
+
+  
+  const { projects, boards, loading: loadingElem } = usePanelData({
+    enabled: finishedAuth,
+  });
+
 
   const myLocation = useLocation();
 
@@ -55,9 +64,14 @@ const Panel = () => {
       </Helmet>
 
       <SideBar />
+
       <div className="wrapperSidebar">
         {showSidebarTasks && (
-          <SideBarTasks projects={projects} boards={boards} tasks={tasks} loading={loadingElem}/>
+          <SideBarTasks 
+          projects={projects} 
+          boards={boards} 
+          // tasks={tasks} 
+          loading={loadingElem}/>
         )}
         <section className="mainPanelPage">
           {myLocation.pathname === "/panel/setting" ? null : <HeaderSideBar />}
@@ -139,7 +153,8 @@ const Panel = () => {
         </section>
       </div>
 
-      {ModalAddElemState && <AddElemModal />}
+      <AddElemModal />
+
     </section>
   );
 };
