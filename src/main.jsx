@@ -12,7 +12,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      staleTime: 10_000,      
+      staleTime: 10_000,
       gcTime: 30 * 60 * 1000,
     },
   },
@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")).render(
   <HelmetProvider>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        {/* <StrictMode> */}
+        {/* <StrictMode> .*/}
           <App />
         {/* </StrictMode> */}
       </QueryClientProvider>
